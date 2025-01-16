@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/router/app_router.notifier.dart';
 import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/clientes/presentation/screens/clientes_screen.dart';
 import 'package:neitorvet/features/products/products.dart';
 
 final goRouterProvider = Provider((ref) {
@@ -27,17 +28,23 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => const RegisterScreen(),
       ),
 
-      ///* Product Routes
+      ///* Home Routes
       GoRoute(
         path: '/',
-        builder: (context, state) => const ProductsScreen(),
+        builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
-        path: '/product/:id',
-        builder: (context, state) {
-          return ProductScreen(productId: state.params['id'] ?? "no-id");
-        },
+        path: '/clientes',
+        builder: (context, state) => const ClientesScreen(),
       ),
+
+
+      // GoRoute(
+      //   path: '/product/:id',
+      //   builder: (context, state) {
+      //     return ProductScreen(productId: state.params['id'] ?? "no-id");
+      //   },
+      // ),
     ],
     redirect: (context, state) {
       final isGoingTo = state.subloc;

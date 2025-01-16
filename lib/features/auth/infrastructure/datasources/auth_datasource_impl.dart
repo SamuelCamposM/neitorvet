@@ -13,7 +13,7 @@ class AuthDatasourceImpl extends AuthDatasource {
   Future<User> checkAuthStatus(String token) async {
     try {
       final res = await dio.get('/auth',
-          options: Options(headers: {'Authorization': 'Bearer $token'}));
+          options: Options(headers: {'x-auth-token': token}));
       final user = UserMapper.userJsonToEntity(res.data);
       return user;
     } on DioException catch (e) {
@@ -41,7 +41,6 @@ class AuthDatasourceImpl extends AuthDatasource {
           'usuario': usuario,
         },
       );
-      print(response.data);
       final user = UserMapper.userJsonToEntity(response.data);
       return user;
     } on DioException catch (e) {

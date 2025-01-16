@@ -9,8 +9,7 @@ class Usuario extends FormzInput<String, UsuarioError> {
   const Usuario.pure() : super.pure('');
 
   // Call super.dirty to represent a modified form input.
-  const Usuario.dirty(String value) : super.dirty(value);
-
+  const Usuario.dirty(super.value) : super.dirty();
   String? get errorMessage {
     if (isValid || isPure) return null;
 

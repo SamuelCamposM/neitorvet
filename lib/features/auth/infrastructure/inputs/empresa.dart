@@ -9,7 +9,7 @@ class Empresa extends FormzInput<String, EmpresaError> {
   const Empresa.pure() : super.pure('');
 
   // Call super.dirty to represent a modified form input.
-  const Empresa.dirty(String value) : super.dirty(value);
+  const Empresa.dirty(super.value) : super.dirty();
 
   String? get errorMessage {
     if (isValid || isPure) return null;
