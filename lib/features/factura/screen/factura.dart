@@ -9,6 +9,9 @@ class Factura extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Factura'),
       ),
+      body: Container(
+        child: Text('Hola mundo '),
+      ),
     );
   }
 }
