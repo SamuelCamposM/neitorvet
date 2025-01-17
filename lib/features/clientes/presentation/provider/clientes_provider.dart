@@ -3,7 +3,8 @@ import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/clientes/domain/repostiries/clientes_repository.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_repository_provider.dart';
 
-final clientesProvider = StateNotifierProvider<ClientesNotifier, ClientesState>(
+final clientesProvider =
+    StateNotifierProvider.autoDispose<ClientesNotifier, ClientesState>(
   (ref) {
     final clientesRepository = ref.watch(clientesRepositoryProvider);
     return ClientesNotifier(clientesRepository: clientesRepository);
@@ -27,6 +28,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
         cantidad: state.cantidad, page: state.page);
 
     if (clientes.error.isNotEmpty) {
+      state = state.copyWith(isLoading: false, error: clientes.error);
       return;
     }
     if (clientes.resultado.isEmpty) {
@@ -46,26 +48,28 @@ class ClientesState {
   final int cantidad;
   final int page;
   final List<Cliente> clientes;
+  final String error;
 
   ClientesState(
       {this.isLastPage = false,
       this.isLoading = false,
       this.cantidad = 10,
       this.page = 0,
-      this.clientes = const []});
+      this.clientes = const [],
+      this.error = ''});
 
-  ClientesState copyWith({
-    bool? isLastPage,
-    bool? isLoading,
-    int? cantidad,
-    int? page,
-    List<Cliente>? clientes,
-  }) =>
+  ClientesState copyWith(
+          {bool? isLastPage,
+          bool? isLoading,
+          int? cantidad,
+          int? page,
+          List<Cliente>? clientes,
+          String? error}) =>
       ClientesState(
-        isLastPage: isLastPage ?? this.isLastPage,
-        isLoading: isLoading ?? this.isLoading,
-        cantidad: cantidad ?? this.cantidad,
-        page: page ?? this.page,
-        clientes: clientes ?? this.clientes,
-      );
+          isLastPage: isLastPage ?? this.isLastPage,
+          isLoading: isLoading ?? this.isLoading,
+          cantidad: cantidad ?? this.cantidad,
+          page: page ?? this.page,
+          clientes: clientes ?? this.clientes,
+          error: error ?? this.error);
 }

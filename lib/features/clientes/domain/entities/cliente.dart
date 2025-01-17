@@ -23,7 +23,7 @@ class Cliente {
   final String perObsevacion;
   final List<String> perEmail;
   final List<String> perOtros;
-  final String perNickname;
+  final String? perNickname;
   final String perUser;
   final String perFoto;
   final PerUbicacion perUbicacion;
