@@ -9,8 +9,11 @@ class Factura extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Factura'),
       ),
-      body: Container(
-        child: Text('Hola mundo '),
+      body: const Column(
+        children: [
+          Icon(Icons.abc),
+          Text('Hola'),
+        ],
       ),
     );
   }
