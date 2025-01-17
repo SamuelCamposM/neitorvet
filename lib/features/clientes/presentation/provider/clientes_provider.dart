@@ -38,6 +38,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     state = state.copyWith(
         isLoading: false,
         page: state.page + 1,
+        total: clientes.total,
         clientes: [...state.clientes, ...clientes.resultado]);
   }
 }
@@ -49,27 +50,34 @@ class ClientesState {
   final int page;
   final List<Cliente> clientes;
   final String error;
+  final int total;
 
-  ClientesState(
-      {this.isLastPage = false,
-      this.isLoading = false,
-      this.cantidad = 10,
-      this.page = 0,
-      this.clientes = const [],
-      this.error = ''});
+  ClientesState({
+    this.isLastPage = false,
+    this.isLoading = false,
+    this.cantidad = 10,
+    this.page = 0,
+    this.clientes = const [],
+    this.error = '',
+    this.total = 0,
+  });
 
-  ClientesState copyWith(
-          {bool? isLastPage,
-          bool? isLoading,
-          int? cantidad,
-          int? page,
-          List<Cliente>? clientes,
-          String? error}) =>
+  ClientesState copyWith({
+    bool? isLastPage,
+    bool? isLoading,
+    int? cantidad,
+    int? page,
+    List<Cliente>? clientes,
+    String? error,
+    int? total,
+  }) =>
       ClientesState(
-          isLastPage: isLastPage ?? this.isLastPage,
-          isLoading: isLoading ?? this.isLoading,
-          cantidad: cantidad ?? this.cantidad,
-          page: page ?? this.page,
-          clientes: clientes ?? this.clientes,
-          error: error ?? this.error);
+        isLastPage: isLastPage ?? this.isLastPage,
+        isLoading: isLoading ?? this.isLoading,
+        cantidad: cantidad ?? this.cantidad,
+        page: page ?? this.page,
+        clientes: clientes ?? this.clientes,
+        error: error ?? this.error,
+        total: total ?? this.total,
+      );
 }

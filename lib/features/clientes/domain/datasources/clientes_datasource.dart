@@ -2,9 +2,11 @@ import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 
 class ResponseClientes {
   final List<Cliente> resultado;
+  final int total;
   final String error;
 
-  ResponseClientes({required this.resultado, required this.error});
+  ResponseClientes(
+      {required this.resultado, required this.error, this.total = 0});
 }
 
 abstract class ClientesDatasource {

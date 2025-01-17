@@ -11,9 +11,19 @@ class ClientesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Clientes'),
+        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search))],
+        title: Consumer(
+          builder: (context, ref, child) {
+            final clientesState = ref.watch(clientesProvider);
+            return Text('Clientes ${clientesState.total}');
+          },
+        ),
       ),
       body: _ClientesView(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

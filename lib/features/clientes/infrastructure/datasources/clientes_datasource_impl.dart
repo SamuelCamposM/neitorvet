@@ -25,12 +25,14 @@ class ClientesDatasourceImpl extends ClientesDatasource {
           'orden': orden,
         },
       );
-
       final List<Cliente> newClientes = response.data['data']['results']
           .map<Cliente>((e) => Cliente.fromJson(e))
           .toList();
 
-      return ResponseClientes(resultado: newClientes, error: '');
+      return ResponseClientes(
+          resultado: newClientes,
+          error: '',
+          total: response.data['data']['pagination']['numRows'] ?? 0);
     } on DioException catch (e) {
       return ResponseClientes(
           resultado: [], error: ErrorApi.getErrorMessage(e));
