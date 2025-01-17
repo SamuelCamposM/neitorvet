@@ -78,7 +78,7 @@ class ClientesViewState extends ConsumerState<_ClientesView> {
               margin: const EdgeInsets.symmetric(vertical: 20),
               child: ListTile(
                 title: Text(cliente.perNombre),
-                subtitle: Text('SUBTITULO'),
+                subtitle: Text(cliente.perDocNumero),
               ),
             );
           },
