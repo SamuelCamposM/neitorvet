@@ -74,13 +74,19 @@ class ClientesViewState extends ConsumerState<_ClientesView> {
           itemCount: clientesState.clientes.length,
           itemBuilder: (context, index) {
             final cliente = clientesState.clientes[index];
-            return Container(
-              margin: const EdgeInsets.symmetric(vertical: 20),
-              child: ListTile(
-                title: Text(cliente.perNombre),
-                subtitle: Text(cliente.perDocNumero),
-              ),
+            return UserInfoCard(
+              nombreUsuario: cliente.perNombre,
+              cedula: cliente.perDocNumero,
+              correo: cliente.perEmail[0] ?? '--- --- ---',
+              size: size,
             );
+            // Container(
+            //   margin: const EdgeInsets.symmetric(vertical: 20),
+            //   child: ListTile(
+            //     title: Text(cliente.perNombre),
+            //     subtitle: Text(cliente.perDocNumero),
+            //   ),
+            // );
           },
         ),
         Positioned(
@@ -95,6 +101,68 @@ class ClientesViewState extends ConsumerState<_ClientesView> {
               : Container(),
         )
       ],
+    );
+  }
+}
+
+class UserInfoCard extends StatelessWidget {
+  final String nombreUsuario;
+  final String cedula;
+  final String correo;
+  final Responsive size;
+
+  const UserInfoCard({
+    Key? key,
+    required this.nombreUsuario,
+    required this.cedula,
+    required this.correo,
+    required this.size,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size.wScreen(100),
+      padding: EdgeInsets.all(size.iScreen(1.0)),
+      margin: EdgeInsets.symmetric(
+          horizontal: size.iScreen(1.2), vertical: size.iScreen(0.5)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 4), // Desplazamiento de la sombra
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${nombreUsuario}',
+            style: TextStyle(
+                fontSize: size.iScreen(1.5), fontWeight: FontWeight.bold),
+          ),
+          // SizedBox(height: size.iScreen(0.5)), // Espaciado entre los textos
+
+          Text(
+            cedula,
+            style: TextStyle(
+              fontSize: size.iScreen(1.5),
+            ),
+          ),
+          Text(
+            correo,
+            style: TextStyle(
+              fontSize: size.iScreen(1.5),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
