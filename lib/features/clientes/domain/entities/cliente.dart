@@ -42,7 +42,7 @@ class Cliente {
   final int perSaldo;
   final String perFecReg;
   final String perFecUpd;
-  final PerPermisos perPermisos;
+  final PerPermisos? perPermisos;
 
   Cliente({
     required this.perNombreComercial,
@@ -84,7 +84,7 @@ class Cliente {
     required this.perSaldo,
     required this.perFecReg,
     required this.perFecUpd,
-    required this.perPermisos,
+    this.perPermisos,
   });
 
   factory Cliente.fromJson(Map<String, dynamic> json) => Cliente(
@@ -170,7 +170,7 @@ class Cliente {
         "perSaldo": perSaldo,
         "perFecReg": perFecReg,
         "perFecUpd": perFecUpd,
-        "perPermisos": perPermisos.toJson(),
+        "perPermisos": perPermisos?.toJson(),
       };
 }
 

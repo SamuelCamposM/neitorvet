@@ -37,7 +37,7 @@ class AppTheme {
         ),
 
         ///* FloatingActionButton
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: colorSeed, // Toma el color del esquema de color
           foregroundColor: Colors.white, // Color del icono dentro del FAB
           elevation: 4, // Elevación del FAB

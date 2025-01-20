@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 enum SnackbarCategory { success, warning, error }
 
-class Showsnackbar {
+class NotificationsService {
+  static final GlobalKey<ScaffoldMessengerState> messengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+
   static void show(
       BuildContext context, String message, SnackbarCategory category) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();

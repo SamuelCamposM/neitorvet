@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/router/app_router.notifier.dart';
 import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
-import 'package:neitorvet/features/clientes/presentation/screens/clientes_screen.dart';
+import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
 import 'package:neitorvet/features/factura/screen/factura.dart';
 import 'package:neitorvet/features/products/products.dart';
 
@@ -36,13 +36,18 @@ final goRouterProvider = Provider((ref) {
       ),
       GoRoute(
         path: '/clientes',
-        builder: (context, state) => const ClientesScreen(),
+        builder: (context, state) =>   ClientesScreen(),
+      ),
+      GoRoute(
+        path: '/cliente/:id',
+        builder: (context, state) => ClienteScreen(
+          clienteId: int.tryParse(state.params['id'].toString()) ?? 0,
+        ),
       ),
       GoRoute(
         path: '/factura',
         builder: (context, state) => const Factura(),
       ),
-
 
       // GoRoute(
       //   path: '/product/:id',

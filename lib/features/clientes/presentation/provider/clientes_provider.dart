@@ -3,11 +3,20 @@ import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/clientes/domain/repostiries/clientes_repository.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_repository_provider.dart';
 
+class GetClienteResponse {
+  final Cliente? cliente;
+  final String error;
+
+  GetClienteResponse({required this.cliente, required this.error});
+}
+
 final clientesProvider =
     StateNotifierProvider.autoDispose<ClientesNotifier, ClientesState>(
   (ref) {
     final clientesRepository = ref.watch(clientesRepositoryProvider);
-    return ClientesNotifier(clientesRepository: clientesRepository);
+    return ClientesNotifier(
+      clientesRepository: clientesRepository,
+    );
   },
 );
 
@@ -40,6 +49,30 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
         page: state.page + 1,
         total: clientes.total,
         clientes: [...state.clientes, ...clientes.resultado]);
+  }
+
+  GetClienteResponse getClienteById(int perId) {
+    try {
+      final exist = state.clientes.any((e) => e.perId == perId);
+      if (!exist) {
+        return GetClienteResponse(
+            cliente: null, error: 'No se encontró el cliente');
+      }
+      return GetClienteResponse(
+          cliente: state.clientes.firstWhere(
+            (cliente) => cliente.perId == perId,
+          ),
+          error: '');
+    } catch (e) {
+      return GetClienteResponse(
+          cliente: null, error: 'Hubo un error al consultar el clinete');
+    }
+  }
+
+  @override
+  void dispose() {
+    // Log para verificar que se está destruyendo
+    super.dispose();
   }
 }
 
