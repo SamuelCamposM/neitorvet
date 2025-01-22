@@ -15,8 +15,7 @@ class ClientesDatasourceImpl extends ClientesDatasource {
       String input = 'perId',
       bool orden = false,
       String search = ''}) async {
-    try {
-      print(search);
+    try { 
       final response = await dio.post(
         '/proveedores/byPagination/app',
         data: {

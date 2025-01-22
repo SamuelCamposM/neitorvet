@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/clientes/presentation/delegates/search_cliente_delegate.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -20,11 +19,12 @@ class ClientesScreen extends StatelessWidget {
         actions: [
           Consumer(
             builder: (context, ref, child) {
+              // final clientesState = ref.watch(clientesProvider);
               return IconButton(
                   onPressed: () async {
-                    // final searchedMovies = ref.read(searchmoviespro);
                     final clientesState = ref.read(clientesProvider);
-                    final cliente = await showSearch<Cliente?>(
+                    // final searchedMovies = ref.read(searchmoviespro);
+                    final searchClienteResult = await showSearch<SearchResult>(
                         query: clientesState.search,
                         context: context,
                         delegate: SearchClienteDelegate(
@@ -34,8 +34,14 @@ class ClientesScreen extends StatelessWidget {
                               .searchClientesByQuery,
                         ));
 
-                    if (cliente == null || !context.mounted) return;
-                    context.push('/cliente/${cliente.perId}');
+                    if (!context.mounted) return;
+                    if (searchClienteResult?.cliente != null) {
+                      context.push(
+                          '/cliente/${searchClienteResult?.cliente?.perId}');
+                    }
+                    if (searchClienteResult?.setBusqueda == true) {
+                      ref.read(clientesProvider.notifier).handleSearch();
+                    }
                   },
                   icon: const Icon(Icons.search));
             },
@@ -101,39 +107,67 @@ class ClientesViewState extends ConsumerState<_ClientesView> {
 
     return Stack(
       children: [
-        ListView.builder(
-          controller: scrollController,
-          itemCount: clientesState.clientes.length,
-          itemBuilder: (context, index) {
-            final cliente = clientesState.clientes[index];
-            return UserInfoCard(
-                nombreUsuario: cliente.perNombre,
-                cedula: cliente.perDocNumero,
-                correo: cliente.perEmail.isNotEmpty
-                    ? cliente.perEmail[0]
-                    : '--- --- ---',
-                size: size,
-                perId: cliente.perId);
-            // Container(
-            //   margin: const EdgeInsets.symmetric(vertical: 20),
-            //   child: ListTile(
-            //     title: Text(cliente.perNombre),
-            //     subtitle: Text(cliente.perDocNumero),
-            //   ),
-            // );
-          },
-        ),
-        Positioned(
-          bottom: 40,
-          child: clientesState.isLoading
-              ? SizedBox(
-                  width: size.wScreen(100),
-                  child: const Center(
-                    child: CircularProgressIndicator(),
+        Padding(
+          padding: const EdgeInsets.all(5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Buscando por: ${clientesState.search}',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[700],
+                    ),
                   ),
-                )
-              : Container(),
-        )
+                  const SizedBox(height: 10),
+                  Text(
+                    'Orden: ID',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: clientesState.clientes.length,
+                  itemBuilder: (context, index) {
+                    final cliente = clientesState.clientes[index];
+                    return UserInfoCard(
+                      nombreUsuario: cliente.perNombre,
+                      cedula: cliente.perDocNumero,
+                      correo: cliente.perEmail.isNotEmpty
+                          ? cliente.perEmail[0]
+                          : '--- --- ---',
+                      size: size,
+                      perId: cliente.perId,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (clientesState.isLoading)
+          Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: SizedBox(
+              width: size.wScreen(100),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -145,6 +179,7 @@ class UserInfoCard extends StatelessWidget {
   final String correo;
   final Responsive size;
   final int perId;
+  final bool redirect;
 
   const UserInfoCard(
       {Key? key,
@@ -152,15 +187,18 @@ class UserInfoCard extends StatelessWidget {
       required this.cedula,
       required this.correo,
       required this.size,
-      required this.perId})
+      required this.perId,
+      this.redirect = true})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        context.push('/cliente/$perId');
-      },
+      onTap: redirect
+          ? () {
+              context.push('/cliente/$perId');
+            }
+          : null,
       child: Container(
         width: size.wScreen(100),
         padding: EdgeInsets.all(size.iScreen(1.0)),

@@ -54,14 +54,16 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     state = state.copyWith(isLoading: true);
 
     final clientes = await clientesRepository.getClientesByPage(
-        cantidad: state.cantidad, page: state.page);
+        cantidad: state.cantidad, page: state.page, search: state.search);
 
     if (clientes.error.isNotEmpty) {
       state = state.copyWith(isLoading: false, error: clientes.error);
       return;
     }
     if (clientes.resultado.isEmpty) {
+      print('VACIO');
       state = state.copyWith(isLoading: false, isLastPage: true);
+      return;
     }
 
     state = state.copyWith(
@@ -74,7 +76,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
   Future<List<Cliente>> searchClientesByQuery({String search = ''}) async {
     final clientes = await clientesRepository.getClientesByPage(
       search: search,
-      cantidad: 50,
+      cantidad: state.cantidad,
       input: state.input,
       orden: state.orden,
       page: 0,
@@ -85,7 +87,11 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
       state = state.copyWith(error: clientes.error, search: search);
       return [];
     }
-    state = state.copyWith(search: search, searchedClientes: clientes.resultado);
+
+    state = state.copyWith(
+        search: search,
+        searchedClientes: clientes.resultado,
+        totalSearched: clientes.total);
     return clientes.resultado;
   }
 
@@ -106,6 +112,15 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
       return GetClienteResponse(
           cliente: null, error: 'Hubo un error al consultar el clinete');
     }
+  }
+
+  void handleSearch() async {
+    state = state.copyWith(
+        total: state.totalSearched,
+        clientes: state.searchedClientes,
+        page: 1,
+        searchedClientes: [],
+        totalSearched: 0);
   }
 
   Future<void> createUpdateCliente(Map<String, dynamic> clienteMap) async {
@@ -132,21 +147,22 @@ class ClientesState {
   final String input;
   final bool orden;
   final List<Cliente> searchedClientes;
+  final int totalSearched;
 
-  ClientesState({
-    this.isLastPage = false,
-    this.isLoading = false,
-    this.cantidad = 10,
-    this.page = 0,
-    this.clientes = const [],
-    this.error = '',
-    this.total = 0,
-    this.search = '',
-    this.perfil = 'CLIENTES',
-    this.input = 'perId',
-    this.orden = false,
-    this.searchedClientes = const [],
-  });
+  ClientesState(
+      {this.isLastPage = false,
+      this.isLoading = false,
+      this.cantidad = 10,
+      this.page = 0,
+      this.clientes = const [],
+      this.error = '',
+      this.total = 0,
+      this.search = '',
+      this.perfil = 'CLIENTES',
+      this.input = 'perId',
+      this.orden = false,
+      this.searchedClientes = const [],
+      this.totalSearched = 0});
 
   ClientesState copyWith({
     bool? isLastPage,
@@ -161,6 +177,7 @@ class ClientesState {
     String? input,
     bool? orden,
     List<Cliente>? searchedClientes,
+    int? totalSearched,
   }) {
     return ClientesState(
       isLastPage: isLastPage ?? this.isLastPage,
@@ -175,6 +192,7 @@ class ClientesState {
       input: input ?? this.input,
       orden: orden ?? this.orden,
       searchedClientes: searchedClientes ?? this.searchedClientes,
+      totalSearched: totalSearched ?? this.totalSearched,
     );
   }
 }

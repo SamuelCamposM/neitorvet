@@ -8,7 +8,14 @@ import 'package:neitorvet/features/shared/utils/responsive.dart';
 
 typedef SarchClientesCallback = Future<List<Cliente>> Function({String search});
 
-class SearchClienteDelegate extends SearchDelegate<Cliente?> {
+class SearchResult {
+  final Cliente? cliente;
+  final bool? setBusqueda;
+
+  SearchResult({this.cliente, this.setBusqueda});
+}
+
+class SearchClienteDelegate extends SearchDelegate<SearchResult> {
   final SarchClientesCallback searchClientes;
   List<Cliente> initalClientes;
   StreamController<List<Cliente>> devounceClientes =
@@ -16,9 +23,10 @@ class SearchClienteDelegate extends SearchDelegate<Cliente?> {
   StreamController<bool> loadingStream = StreamController.broadcast();
   Timer? _debounceTimer;
 
-  SearchClienteDelegate(
-      {required this.searchClientes, required this.initalClientes})
-      : super(searchFieldLabel: 'Buscar');
+  SearchClienteDelegate({
+    required this.searchClientes,
+    required this.initalClientes,
+  }) : super(searchFieldLabel: 'Buscar');
 
   void clearStreams() {
     devounceClientes.close();
@@ -32,7 +40,9 @@ class SearchClienteDelegate extends SearchDelegate<Cliente?> {
       const Duration(milliseconds: 1000),
       () async {
         if (search.isEmpty) {
-          devounceClientes.add([]);
+          if (!devounceClientes.isClosed) {
+            devounceClientes.add([]);
+          }
           return;
         }
         final clientes = await searchClientes(search: search);
@@ -60,7 +70,7 @@ class SearchClienteDelegate extends SearchDelegate<Cliente?> {
               cliente: clientes[index],
               onClienteSelected: (context, cliente) {
                 clearStreams();
-                close(context, cliente);
+                close(context, SearchResult(cliente: cliente));
               }),
         );
       },
@@ -92,7 +102,7 @@ class SearchClienteDelegate extends SearchDelegate<Cliente?> {
       IconButton(
         onPressed: () {
           clearStreams();
-          close(context, null);
+          close(context, SearchResult(setBusqueda: true));
         },
         icon: const Icon(Icons.search),
       )
@@ -104,7 +114,8 @@ class SearchClienteDelegate extends SearchDelegate<Cliente?> {
     return IconButton(
       onPressed: () {
         clearStreams();
-        close(context, null);
+
+        close(context, SearchResult());
       },
       icon: const Icon(Icons.arrow_back),
     );
@@ -133,18 +144,14 @@ class _ClienteItem extends StatelessWidget {
     final size = Responsive.of(context);
     return GestureDetector(
       onTap: () => onClienteSelected(context, cliente),
-      child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-          ),
-          child: UserInfoCard(
-              nombreUsuario: cliente.perNombre,
-              cedula: cliente.perDocNumero,
-              correo: cliente.perEmail.isNotEmpty
-                  ? cliente.perEmail[0]
-                  : '--- --- ---',
-              size: size,
-              perId: cliente.perId)),
+      child: UserInfoCard(
+          redirect: false,
+          nombreUsuario: cliente.perNombre,
+          cedula: cliente.perDocNumero,
+          correo:
+              cliente.perEmail.isNotEmpty ? cliente.perEmail[0] : '--- --- ---',
+          size: size,
+          perId: cliente.perId),
     );
   }
 }

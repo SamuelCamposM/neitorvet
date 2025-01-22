@@ -202,15 +202,16 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
       "perTitulo": state.perTitulo,
       "perUser": state.perUser,
       "perUsuario": state.perUsuario,
-      "perUbicacion": state.perUbicacion,
+      "perUbicacion": {"latitud": 0, "longitud": 0},
       "tabla": "proveedor", //DEFECTO
+      "rucempresa": "DEMO"
     };
 
     try {
       // socket.emit('editar-registro', clienteMap);
-      final result = true;
+      const result = true;
       //  await onSubmitCallback(productMap);
-      await createUpdateCliente(clienteMap); 
+      await createUpdateCliente(clienteMap);
       // Actualizar el estado para indicar que ya no se está posteando
       state = state.copyWith(isPosting: false);
 
