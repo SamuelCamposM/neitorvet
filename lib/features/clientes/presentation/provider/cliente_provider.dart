@@ -13,7 +13,7 @@ final clienteProvider = StateNotifierProvider.family
 });
 
 class ClienteNotifier extends StateNotifier<ClienteState> {
-  final GetClienteResponse Function(int perId) getClienteById;
+  final Future<GetClienteResponse> Function(int perId) getClienteById;
   ClienteNotifier({
     required this.getClienteById,
     required int perId,
@@ -72,10 +72,12 @@ class ClienteNotifier extends StateNotifier<ClienteState> {
     try {
       if (state.perId == 0) {
         state = state.copyWith(isLoading: false, cliente: newEmptyCliente());
+        return;
       }
-      final clienteResponse = getClienteById(state.perId);
+      final clienteResponse = await getClienteById(state.perId);
       if (clienteResponse.error.isNotEmpty) {
-        return setError(clienteResponse.error);
+        state = state.copyWith(error: clienteResponse.error);
+        return;
       }
 
       state = state.copyWith(
@@ -83,13 +85,8 @@ class ClienteNotifier extends StateNotifier<ClienteState> {
         cliente: clienteResponse.cliente,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(error: 'Hubo un error');
     }
-  }
-
-  void setError(String error) async {
-    await Future.delayed(const Duration(seconds: 1));
-    state = state.copyWith(error: error);
   }
 
   @override

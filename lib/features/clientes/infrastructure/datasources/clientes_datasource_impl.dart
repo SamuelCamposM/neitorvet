@@ -13,12 +13,14 @@ class ClientesDatasourceImpl extends ClientesDatasource {
       int page = 0,
       String perfil = 'CLIENTES',
       String input = 'perId',
-      bool orden = false}) async {
+      bool orden = false,
+      String search = ''}) async {
     try {
+      print(search);
       final response = await dio.post(
         '/proveedores/byPagination/app',
         data: {
-          'search': '',
+          'search': search,
           'cantidad': cantidad,
           'page': page,
           'input': input,

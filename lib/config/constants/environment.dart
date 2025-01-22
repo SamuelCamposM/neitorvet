@@ -5,6 +5,6 @@ class Environment {
     await dotenv.load(fileName: '.env');
   }
 
-  static String apiUrl =
-      dotenv.env['API_URL'] ?? '';
+  static String apiUrl = dotenv.env['API_URL'] ?? '';
+  static String socketUrl = dotenv.env['SOCKET_URL'] ?? '';
 }

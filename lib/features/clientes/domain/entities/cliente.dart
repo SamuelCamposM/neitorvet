@@ -183,8 +183,8 @@ class PerPermisos {
 }
 
 class PerUbicacion {
-  final String longitud;
-  final String latitud;
+  final dynamic longitud;
+  final dynamic latitud;
 
   PerUbicacion({
     required this.longitud,

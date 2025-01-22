@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
+import 'package:neitorvet/features/clientes/presentation/delegates/search_cliente_delegate.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 
@@ -15,7 +17,30 @@ class ClientesScreen extends StatelessWidget {
   ) {
     return Scaffold(
       appBar: AppBar(
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search))],
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              return IconButton(
+                  onPressed: () async {
+                    // final searchedMovies = ref.read(searchmoviespro);
+                    final clientesState = ref.read(clientesProvider);
+                    final cliente = await showSearch<Cliente?>(
+                        query: clientesState.search,
+                        context: context,
+                        delegate: SearchClienteDelegate(
+                          initalClientes: clientesState.searchedClientes,
+                          searchClientes: ref
+                              .read(clientesProvider.notifier)
+                              .searchClientesByQuery,
+                        ));
+
+                    if (cliente == null || !context.mounted) return;
+                    context.push('/cliente/${cliente.perId}');
+                  },
+                  icon: const Icon(Icons.search));
+            },
+          ),
+        ],
         title: Consumer(
           builder: (context, ref, child) {
             final clientesState = ref.watch(clientesProvider);
@@ -69,7 +94,8 @@ class ClientesViewState extends ConsumerState<_ClientesView> {
       clientesProvider,
       (_, next) {
         if (next.error.isEmpty) return;
-        NotificationsService.show(context, next.error, SnackbarCategory.success);
+        NotificationsService.show(
+            context, next.error, SnackbarCategory.success);
       },
     );
 

@@ -10,11 +10,11 @@ class ResponseClientes {
 }
 
 abstract class ClientesDatasource {
-  Future<ResponseClientes> getClientesByPage({
-    int cantidad = 10,
-    int page = 0,
-    String perfil = 'CLIENTES',
-    String input = 'perId',
-    bool orden = false,
-  });
+  Future<ResponseClientes> getClientesByPage(
+      {int cantidad = 10,
+      int page = 0,
+      String perfil = 'CLIENTES',
+      String input = 'perId',
+      bool orden = false,
+      String search = ''});
 }

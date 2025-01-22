@@ -11,13 +11,14 @@ class ClientesRepositoryImpl extends ClientesRepository {
       int page = 0,
       String perfil = 'CLIENTES',
       String input = 'perId',
-      bool orden = false}) {
+      bool orden = false,
+      String search = ''}) {
     return datasource.getClientesByPage(
-      cantidad: cantidad,
-      page: page,
-      perfil: perfil,
-      input: input,
-      orden: orden,
-    );
+        cantidad: cantidad,
+        page: page,
+        perfil: perfil,
+        input: input,
+        orden: orden,
+        search: search);
   }
 }
