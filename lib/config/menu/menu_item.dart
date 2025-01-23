@@ -20,9 +20,9 @@ const appMenuItems = <MenuItem>[
       link: "/clientes",
       icon: Icons.person),
   MenuItem(
-      title: 'Factura',
+      title: 'Facturas',
       subTitle: "Nuestros factura",
-      link: "/factura",
+      link: "/facturas",
       icon: Icons.receipt),
   // MenuItem(
   //     title: 'Botones',

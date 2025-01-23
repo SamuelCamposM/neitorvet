@@ -4,7 +4,9 @@ import 'package:neitorvet/config/router/app_router.notifier.dart';
 import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
-import 'package:neitorvet/features/factura/screen/factura.dart';
+import 'package:neitorvet/features/factura/presentation/screens/factura_screen.dart';
+import 'package:neitorvet/features/factura/presentation/screens/facturas_screen.dart';
+
 import 'package:neitorvet/features/products/products.dart';
 
 final goRouterProvider = Provider((ref) {
@@ -45,10 +47,15 @@ final goRouterProvider = Provider((ref) {
         ),
       ),
       GoRoute(
-        path: '/factura',
-        builder: (context, state) => const Factura(),
+        path: '/facturas',
+        builder: (context, state) => const FacturasScreen(),
       ),
-
+      GoRoute(
+        path: '/factura/:id',
+        builder: (context, state) => FacturaScreen(
+          facturaId: int.tryParse(state.params['id'].toString()) ?? 0,
+        ),
+      ),
       // GoRoute(
       //   path: '/product/:id',
       //   builder: (context, state) {
