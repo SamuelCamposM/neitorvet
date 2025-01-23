@@ -113,6 +113,7 @@ class _ClienteForm extends ConsumerWidget {
             const Text('Mis datos', textAlign: TextAlign.center),
             const SizedBox(height: 15),
             CustomProductField(
+              autoFocus: true,
               isTopField: true,
               label: 'Nombre',
               initialValue: clienteForm.perNombre.value,

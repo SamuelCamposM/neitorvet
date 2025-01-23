@@ -11,12 +11,13 @@ typedef SarchClientesCallback = Future<List<Cliente>> Function({String search});
 class SearchResult {
   final Cliente? cliente;
   final bool? setBusqueda;
-
-  SearchResult({this.cliente, this.setBusqueda});
+  final bool? wasLoading;
+  SearchResult({this.cliente, this.setBusqueda, this.wasLoading = false});
 }
 
 class SearchClienteDelegate extends SearchDelegate<SearchResult> {
   final SarchClientesCallback searchClientes;
+  final void Function(String search) setSearch;
   List<Cliente> initalClientes;
   StreamController<List<Cliente>> devounceClientes =
       StreamController.broadcast();
@@ -26,6 +27,7 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
   SearchClienteDelegate({
     required this.searchClientes,
     required this.initalClientes,
+    required this.setSearch,
   }) : super(searchFieldLabel: 'Buscar');
 
   void clearStreams() {
@@ -34,8 +36,10 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
   }
 
   void _onQueryChanged(String search) {
+    Future.microtask(() => setSearch(search));
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
     loadingStream.add(true);
+
     _debounceTimer = Timer(
       const Duration(milliseconds: 1000),
       () async {
@@ -99,13 +103,21 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
                       icon: const Icon(Icons.clear)));
         },
       ),
-      IconButton(
-        onPressed: () {
-          clearStreams();
-          close(context, SearchResult(setBusqueda: true));
+      StreamBuilder(
+        stream: loadingStream.stream,
+        builder: (context, snapshot) {
+          return IconButton(
+            onPressed: () {
+              close(
+                  context,
+                  SearchResult(
+                      setBusqueda: true, wasLoading: snapshot.data ?? false));
+              clearStreams();
+            },
+            icon: const Icon(Icons.search),
+          );
         },
-        icon: const Icon(Icons.search),
-      )
+      ),
     ];
   }
 
@@ -123,7 +135,19 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return buildResultsAndSuggestions();
+    // Diferir la llamada a close hasta después de la fase de construcción
+    Future.microtask(() async {
+      // Llamar a close para enviar el resultado
+
+      final wasLoading = await loadingStream.stream.first;
+      // Aquí puedes manejar el valor bool emitido por el StreamController
+      if (context.mounted) {
+        close(context, SearchResult(setBusqueda: true, wasLoading: wasLoading));
+      }
+    });
+
+    // Retornar un widget vacío o un indicador de carga mientras se cierra el diálogo
+    return const Center(child: CircularProgressIndicator());
   }
 
   @override

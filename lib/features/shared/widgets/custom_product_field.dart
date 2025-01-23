@@ -7,6 +7,7 @@ class CustomProductField extends StatelessWidget {
   final String? hint;
   final String? errorMessage;
   final bool obscureText;
+  final bool autoFocus;
   final TextInputType? keyboardType;
   final int maxLines;
   final String initialValue;
@@ -28,6 +29,7 @@ class CustomProductField extends StatelessWidget {
     this.onChanged,
     this.onFieldSubmitted,
     this.validator,
+    this.autoFocus = false,
   });
 
   @override
@@ -60,6 +62,7 @@ class CustomProductField extends StatelessWidget {
                   offset: const Offset(0, 3))
           ]),
       child: TextFormField(
+        autofocus: autoFocus,
         onChanged: onChanged,
         onFieldSubmitted: onFieldSubmitted,
         validator: validator,

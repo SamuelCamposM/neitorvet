@@ -39,7 +39,7 @@ class Cliente {
   final String perCodigo;
   final String perUsuario;
   final int perOnline;
-  final int perSaldo;
+  final int? perSaldo;
   final String perFecReg;
   final String perFecUpd;
   final PerPermisos? perPermisos;

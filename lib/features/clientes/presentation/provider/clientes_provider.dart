@@ -35,7 +35,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
   }
   void _initializeSocketListeners() {
     socket.on('connect', (a) {
-      print(socket);
+      print('SOCKET CONECTADO');
     });
 
     socket.on('disconnect', (_) {
@@ -43,7 +43,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     });
 
     socket.on("server:actualizadoExitoso", (data) {
-      print(data);
+      print('registro actualizado');
     });
   }
 
@@ -61,7 +61,6 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
       return;
     }
     if (clientes.resultado.isEmpty) {
-      print('VACIO');
       state = state.copyWith(isLoading: false, isLastPage: true);
       return;
     }
@@ -73,7 +72,34 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
         clientes: [...state.clientes, ...clientes.resultado]);
   }
 
+  Future<List<Cliente>> searchClientesByQueryWhileWasLoading() async {
+    final clientes = await clientesRepository.getClientesByPage(
+      search: state.search,
+      cantidad: state.cantidad,
+      input: state.input,
+      orden: state.orden,
+      page: 0,
+      perfil: state.perfil,
+    );
+    // ref.read(searchQueryProvider.notifier).update((state) => search);
+    if (clientes.error.isNotEmpty) {
+      state = state.copyWith(
+        error: clientes.error,
+      );
+      return [];
+    }
+
+    state = state.copyWith(
+        searchedClientes: clientes.resultado,
+        totalSearched: clientes.total,
+        total: clientes.total,
+        clientes: clientes.resultado,
+        isLastPage: false);
+    return clientes.resultado;
+  }
+
   Future<List<Cliente>> searchClientesByQuery({String search = ''}) async {
+    print(search);
     final clientes = await clientesRepository.getClientesByPage(
       search: search,
       cantidad: state.cantidad,
@@ -91,8 +117,13 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     state = state.copyWith(
         search: search,
         searchedClientes: clientes.resultado,
-        totalSearched: clientes.total);
+        totalSearched: clientes.total,
+        isLastPage: false);
     return clientes.resultado;
+  }
+
+  void setSearch(String search) {
+    state = state.copyWith(search: search);
   }
 
   Future<GetClienteResponse> getClienteById(int perId) async {
@@ -114,7 +145,47 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     }
   }
 
+  Future<void> resetQuery({
+    String? search,
+    String? perfil,
+    String? input,
+    bool? orden,
+  }) async {
+    if (state.isLoading) {
+      return;
+    }
+    state = state.copyWith(isLoading: true);
+
+    final clientes = await clientesRepository.getClientesByPage(
+      cantidad: state.cantidad,
+      page: 0,
+      search: search ?? state.search,
+      perfil: perfil ?? state.perfil,
+      input: input ?? state.input,
+      orden: orden ?? state.orden,
+    );
+
+    if (clientes.error.isNotEmpty) {
+      state = state.copyWith(isLoading: false, error: clientes.error);
+      return;
+    }
+
+    state = state.copyWith(
+        isLoading: false,
+        page: 1,
+        total: clientes.total,
+        clientes: clientes.resultado,
+        search: search,
+        perfil: perfil,
+        input: input,
+        orden: orden,
+        isLastPage: false);
+  }
+
   void handleSearch() async {
+    if (state.search.isEmpty) {
+      return;
+    }
     state = state.copyWith(
         total: state.totalSearched,
         clientes: state.searchedClientes,
