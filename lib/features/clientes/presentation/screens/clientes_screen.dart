@@ -40,14 +40,13 @@ class ClientesScreen extends StatelessWidget {
                           .read(clientesProvider.notifier)
                           .searchClientesByQueryWhileWasLoading();
                     }
-
+                    if (searchClienteResult?.setBusqueda == true) {
+                      ref.read(clientesProvider.notifier).handleSearch();
+                    }
                     if (!context.mounted) return;
                     if (searchClienteResult?.cliente != null) {
                       context.push(
                           '/cliente/${searchClienteResult?.cliente?.perId}');
-                    }
-                    if (searchClienteResult?.setBusqueda == true) {
-                      ref.read(clientesProvider.notifier).handleSearch();
                     }
                   },
                   icon: const Icon(Icons.search));

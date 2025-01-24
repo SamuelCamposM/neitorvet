@@ -1,35 +1,36 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
-import 'package:neitorvet/features/clientes/domain/repositories/clientes_repository.dart';
-import 'package:neitorvet/features/clientes/presentation/provider/clientes_repository_provider.dart';
+import 'package:neitorvet/features/factura/domain/entities/venta.dart';
+import 'package:neitorvet/features/factura/domain/repositories/ventas_repository.dart';
+import 'package:neitorvet/features/factura/presentation/provider/ventas_repository_provider.dart';
+ 
 import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
-class GetClienteResponse {
-  final Cliente? cliente;
+class GetVentaResponse {
+  final Venta? venta;
   final String error;
 
-  GetClienteResponse({required this.cliente, required this.error});
+  GetVentaResponse({required this.venta, required this.error});
 }
 
-final clientesProvider =
-    StateNotifierProvider.autoDispose<ClientesNotifier, ClientesState>(
+final ventasProvider =
+    StateNotifierProvider.autoDispose<VentasNotifier, VentasState>(
   (ref) {
-    final clientesRepository = ref.watch(clientesRepositoryProvider);
+    final ventasRepository = ref.watch(ventasRepositoryProvider);
     final socket = ref.watch(socketProvider);
-    return ClientesNotifier(
+    return VentasNotifier(
       socket: socket,
-      clientesRepository: clientesRepository,
+      ventasRepository: ventasRepository,
     );
   },
 );
 
-class ClientesNotifier extends StateNotifier<ClientesState> {
-  final ClientesRepository clientesRepository;
+class VentasNotifier extends StateNotifier<VentasState> {
+  final VentasRepository ventasRepository;
   final io.Socket socket;
 
-  ClientesNotifier({required this.clientesRepository, required this.socket})
-      : super(ClientesState()) {
+  VentasNotifier({required this.ventasRepository, required this.socket})
+      : super(VentasState()) {
     _initializeSocketListeners();
     loadNextPage();
   }
@@ -53,14 +54,14 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     }
     state = state.copyWith(isLoading: true);
 
-    final clientes = await clientesRepository.getClientesByPage(
+    final ventas = await ventasRepository.getVentasByPage(
         cantidad: state.cantidad, page: state.page, search: state.search);
 
-    if (clientes.error.isNotEmpty) {
-      state = state.copyWith(isLoading: false, error: clientes.error);
+    if (ventas.error.isNotEmpty) {
+      state = state.copyWith(isLoading: false, error: ventas.error);
       return;
     }
-    if (clientes.resultado.isEmpty) {
+    if (ventas.resultado.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
       return;
     }
@@ -68,86 +69,86 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     state = state.copyWith(
         isLoading: false,
         page: state.page + 1,
-        total: clientes.total,
-        clientes: [...state.clientes, ...clientes.resultado]);
+        total: ventas.total,
+        ventas: [...state.ventas, ...ventas.resultado]);
   }
 
-  Future<List<Cliente>> searchClientesByQueryWhileWasLoading() async {
-    final clientes = await clientesRepository.getClientesByPage(
+  Future<List<Venta>> searchVentasByQueryWhileWasLoading() async {
+    final ventas = await ventasRepository.getVentasByPage(
       search: state.search,
       cantidad: state.cantidad,
       input: state.input,
       orden: state.orden,
       page: 0,
-      perfil: state.perfil,
+      estado: state.estado,
     );
     // ref.read(searchQueryProvider.notifier).update((state) => search);
-    if (clientes.error.isNotEmpty) {
+    if (ventas.error.isNotEmpty) {
       state = state.copyWith(
-        error: clientes.error,
+        error: ventas.error,
       );
       return [];
     }
 
     state = state.copyWith(
-        searchedClientes: clientes.resultado,
-        totalSearched: clientes.total,
-        total: clientes.total,
-        clientes: clientes.resultado,
+        searchedVentas: ventas.resultado,
+        totalSearched: ventas.total,
+        total: ventas.total,
+        ventas: ventas.resultado,
         isLastPage: false);
-    return clientes.resultado;
+    return ventas.resultado;
   }
 
-  Future<List<Cliente>> searchClientesByQuery({String search = ''}) async {
+  Future<List<Venta>> searchVentasByQuery({String search = ''}) async {
     print(search);
-    final clientes = await clientesRepository.getClientesByPage(
+    final ventas = await ventasRepository.getVentasByPage(
       search: search,
       cantidad: state.cantidad,
       input: state.input,
       orden: state.orden,
       page: 0,
-      perfil: state.perfil,
+      estado: state.estado,
     );
     // ref.read(searchQueryProvider.notifier).update((state) => search);
-    if (clientes.error.isNotEmpty) {
-      state = state.copyWith(error: clientes.error, search: search);
+    if (ventas.error.isNotEmpty) {
+      state = state.copyWith(error: ventas.error, search: search);
       return [];
     }
 
     state = state.copyWith(
         search: search,
-        searchedClientes: clientes.resultado,
-        totalSearched: clientes.total,
+        searchedVentas: ventas.resultado,
+        totalSearched: ventas.total,
         isLastPage: false);
-    return clientes.resultado;
+    return ventas.resultado;
   }
 
   void setSearch(String search) {
     state = state.copyWith(search: search);
   }
 
-  Future<GetClienteResponse> getClienteById(int perId) async {
+  Future<GetVentaResponse> getVentaById(int venId) async {
     try {
-      final exist = [...state.clientes, ...state.searchedClientes]
-          .any((e) => e.perId == perId);
+      final exist = [...state.ventas, ...state.searchedVentas]
+          .any((e) => e.venId == venId);
       if (!exist) {
-        return GetClienteResponse(
-            cliente: null, error: 'No se encontró el cliente');
+        return GetVentaResponse(
+            venta: null, error: 'No se encontró el venta');
       }
-      return GetClienteResponse(
-          cliente: [...state.clientes, ...state.searchedClientes].firstWhere(
-            (cliente) => cliente.perId == perId,
+      return GetVentaResponse(
+          venta: [...state.ventas, ...state.searchedVentas].firstWhere(
+            (venta) => venta.venId == venId,
           ),
           error: '');
     } catch (e) {
-      return GetClienteResponse(
-          cliente: null, error: 'Hubo un error al consultar el clinete');
+      return GetVentaResponse(
+          venta: null, error: 'Hubo un error al consultar el clinete');
     }
   }
 
   Future<void> resetQuery({
     String? search,
-    String? perfil,
+    String? estado,
     String? input,
     bool? orden,
   }) async {
@@ -156,27 +157,27 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     }
     state = state.copyWith(isLoading: true);
 
-    final clientes = await clientesRepository.getClientesByPage(
+    final ventas = await ventasRepository.getVentasByPage(
       cantidad: state.cantidad,
       page: 0,
       search: search ?? state.search,
-      perfil: perfil ?? state.perfil,
+      estado: estado ?? state.estado,
       input: input ?? state.input,
       orden: orden ?? state.orden,
     );
 
-    if (clientes.error.isNotEmpty) {
-      state = state.copyWith(isLoading: false, error: clientes.error);
+    if (ventas.error.isNotEmpty) {
+      state = state.copyWith(isLoading: false, error: ventas.error);
       return;
     }
 
     state = state.copyWith(
         isLoading: false,
         page: 1,
-        total: clientes.total,
-        clientes: clientes.resultado,
+        total: ventas.total,
+        ventas: ventas.resultado,
         search: search,
-        perfil: perfil,
+        estado: estado,
         input: input,
         orden: orden,
         isLastPage: false);
@@ -188,14 +189,14 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     }
     state = state.copyWith(
         total: state.totalSearched,
-        clientes: state.searchedClientes,
+        ventas: state.searchedVentas,
         page: 1,
-        searchedClientes: [],
+        searchedVentas: [],
         totalSearched: 0);
   }
 
-  Future<void> createUpdateCliente(Map<String, dynamic> clienteMap) async {
-    socket.emit('client:actualizarData', clienteMap);
+  Future<void> createUpdateVenta(Map<String, dynamic> ventaMap) async {
+    socket.emit('client:actualizarData', ventaMap);
   }
 
   @override
@@ -205,64 +206,64 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
   }
 }
 
-class ClientesState {
+class VentasState {
   final bool isLastPage;
   final bool isLoading;
   final int cantidad;
   final int page;
-  final List<Cliente> clientes;
+  final List<Venta> ventas;
   final String error;
   final int total;
   final String search;
-  final String perfil;
+  final String estado;
   final String input;
   final bool orden;
-  final List<Cliente> searchedClientes;
+  final List<Venta> searchedVentas;
   final int totalSearched;
 
-  ClientesState(
+  VentasState(
       {this.isLastPage = false,
       this.isLoading = false,
       this.cantidad = 10,
       this.page = 0,
-      this.clientes = const [],
+      this.ventas = const [],
       this.error = '',
       this.total = 0,
       this.search = '',
-      this.perfil = 'CLIENTES',
-      this.input = 'perId',
+      this.estado = 'FACTURAS',
+      this.input = 'venId',
       this.orden = false,
-      this.searchedClientes = const [],
+      this.searchedVentas = const [],
       this.totalSearched = 0});
 
-  ClientesState copyWith({
+  VentasState copyWith({
     bool? isLastPage,
     bool? isLoading,
     int? cantidad,
     int? page,
-    List<Cliente>? clientes,
+    List<Venta>? ventas,
     String? error,
     int? total,
     String? search,
-    String? perfil,
+    String? estado,
     String? input,
     bool? orden,
-    List<Cliente>? searchedClientes,
+    List<Venta>? searchedVentas,
     int? totalSearched,
   }) {
-    return ClientesState(
+    return VentasState(
       isLastPage: isLastPage ?? this.isLastPage,
       isLoading: isLoading ?? this.isLoading,
       cantidad: cantidad ?? this.cantidad,
       page: page ?? this.page,
-      clientes: clientes ?? this.clientes,
+      ventas: ventas ?? this.ventas,
       error: error ?? this.error,
       total: total ?? this.total,
       search: search ?? this.search,
-      perfil: perfil ?? this.perfil,
+      estado: estado ?? this.estado,
       input: input ?? this.input,
       orden: orden ?? this.orden,
-      searchedClientes: searchedClientes ?? this.searchedClientes,
+      searchedVentas: searchedVentas ?? this.searchedVentas,
       totalSearched: totalSearched ?? this.totalSearched,
     );
   }

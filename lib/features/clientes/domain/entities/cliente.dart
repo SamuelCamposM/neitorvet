@@ -2,6 +2,8 @@
 //
 //     final cliente = clienteFromJson(jsonString);
 
+import 'package:neitorvet/features/shared/helpers/parse.dart';
+
 class Cliente {
   final String perNombreComercial;
   final List<String> perEmpresa;
@@ -28,7 +30,7 @@ class Cliente {
   final String perFoto;
   final PerUbicacion perUbicacion;
   final String perDocumento;
-  final String perGenero;
+  final String? perGenero;
   final String perRecomendacion;
   final String perFecNacimiento;
   final String perEspecialidad;
@@ -124,7 +126,7 @@ class Cliente {
         perCodigo: json["perCodigo"],
         perUsuario: json["perUsuario"],
         perOnline: json["perOnline"],
-        perSaldo: json["perSaldo"],
+        perSaldo: Parse.parseDynamicToInt(json["perSaldo"]),
         perFecReg: json["perFecReg"],
         perFecUpd: json["perFecUpd"],
         perPermisos: PerPermisos.fromJson(json["perPermisos"]),

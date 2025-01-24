@@ -114,7 +114,10 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
                       setBusqueda: true, wasLoading: snapshot.data ?? false));
               clearStreams();
             },
-            icon: const Icon(Icons.search),
+            icon: const Icon(
+              Icons.check,
+              color: Colors.green,
+            ),
           );
         },
       ),
@@ -137,9 +140,17 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
   Widget buildResults(BuildContext context) {
     // Diferir la llamada a close hasta después de la fase de construcción
     Future.microtask(() async {
-      // Llamar a close para enviar el resultado
+      bool wasLoading = true;
 
-      final wasLoading = await loadingStream.stream.first;
+      // Crear una suscripción al stream
+      StreamSubscription<bool> subscription =
+          loadingStream.stream.listen((bool isLoading) {
+        wasLoading = isLoading;
+      });
+
+      // Cancelar la suscripción después de obtener el valor
+      await subscription.cancel();
+
       // Aquí puedes manejar el valor bool emitido por el StreamController
       if (context.mounted) {
         close(context, SearchResult(setBusqueda: true, wasLoading: wasLoading));
@@ -147,7 +158,7 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
     });
 
     // Retornar un widget vacío o un indicador de carga mientras se cierra el diálogo
-    return const Center(child: CircularProgressIndicator());
+    return buildResultsAndSuggestions();
   }
 
   @override

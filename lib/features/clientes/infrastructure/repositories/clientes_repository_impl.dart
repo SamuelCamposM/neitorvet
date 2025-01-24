@@ -1,5 +1,5 @@
 import 'package:neitorvet/features/clientes/domain/datasources/clientes_datasource.dart';
-import 'package:neitorvet/features/clientes/domain/repostiries/clientes_repository.dart';
+import 'package:neitorvet/features/clientes/domain/repositories/clientes_repository.dart';
 
 class ClientesRepositoryImpl extends ClientesRepository {
   final ClientesDatasource datasource;

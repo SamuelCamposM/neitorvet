@@ -1,19 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/factura/presentation/provider/ventas_provider.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 
-class FacturasScreen extends StatelessWidget {
-  const FacturasScreen({Key? key}) : super(key: key);
+class VentasScreen extends StatelessWidget {
+  const VentasScreen({super.key});
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Facturas'),
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              // final ventasState = ref.watch(ventasProvider);
+              return IconButton(
+                  onPressed: () async {
+                    // final ventasState = ref.read(ventasProvider);
+                    // // final searchedMovies = ref.read(searchmoviespro);
+                    // final searchVentaResult = await showSearch<SearchResult>(
+                    //     query: ventasState.search,
+                    //     context: context,
+                    //     delegate: SearchVentaDelegate(
+                    //       setSearch:
+                    //           ref.read(ventasProvider.notifier).setSearch,
+                    //       initalVentas: ventasState.searchedVentas,
+                    //       searchVentas: ref
+                    //           .read(ventasProvider.notifier)
+                    //           .searchVentasByQuery,
+                    //     ));
+                    // if (searchVentaResult?.wasLoading == true) {
+                    //   ref
+                    //       .read(ventasProvider.notifier)
+                    //       .searchVentasByQueryWhileWasLoading();
+                    // }
+                    // if (searchVentaResult?.setBusqueda == true) {
+                    //   ref.read(ventasProvider.notifier).handleSearch();
+                    // }
+                    // if (!context.mounted) return;
+                    // if (searchVentaResult?.venta != null) {
+                    //   context.push(
+                    //       '/venta/${searchVentaResult?.venta?.perId}');
+                    // }
+                  },
+                  icon: const Icon(Icons.search));
+            },
+          ),
+        ],
+        title: Consumer(
+          builder: (context, ref, child) {
+            final ventasState = ref.watch(ventasProvider);
+            return Text('Ventas ${ventasState.total}');
+          },
+        ),
       ),
-      body: const _FacturasView(),
+      body: const VentasView(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.push('/factura/0');
+          context.push('/venta/0');
         },
         child: const Icon(Icons.add),
       ),
@@ -21,41 +69,155 @@ class FacturasScreen extends StatelessWidget {
   }
 }
 
-class _FacturasView extends StatelessWidget {
-  const _FacturasView({super.key});
+class VentasView extends ConsumerStatefulWidget {
+  const VentasView({super.key});
+
+  @override
+  ConsumerState createState() => VentasViewState();
+}
+
+class VentasViewState extends ConsumerState<VentasView> {
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(
+      () {
+        if (scrollController.position.pixels + 400 >=
+            scrollController.position.maxScrollExtent) {
+          ref.read(ventasProvider.notifier).loadNextPage();
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = Responsive.of(context);
-
-    final List<Map<String, dynamic>> invoices = List.generate(
-      20,
-      (index) => {
-        'numeroFactura': '001-012-0000000-${index + 1}',
-        'cliente': 'GONZALEZ REVELO EDUARDO DARIO ',
-        'documento': '18${index + 1}4234234',
-        'fecha': '2025-01-${(index % 31) + 1}'.padLeft(2, '0'),
-        'total': (100 + index * 5000).toDouble(),
-        'invoiceId': index + 1,
+    final ventasState = ref.watch(ventasProvider);
+    ref.listen(
+      ventasProvider,
+      (_, next) {
+        if (next.error.isEmpty) return;
+        NotificationsService.show(
+            context, next.error, SnackbarCategory.success);
       },
     );
 
-    return Scaffold(
-      body: ListView.builder(
-        itemCount: invoices.length,
-        itemBuilder: (context, index) {
-          final invoice = invoices[index];
-          return InvoiceInfoCard(
-            numeroFactura: invoice['numeroFactura'],
-            cliente: invoice['cliente'],
-            documento: invoice['documento'],
-            fecha: invoice['fecha'],
-            total: invoice['total'],
-            invoiceId: invoice['invoiceId'],
-            size: size,
-          );
-        },
-      ),
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (ventasState.search.isNotEmpty)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Buscando por: ${ventasState.search}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        ref
+                            .read(ventasProvider.notifier)
+                            .resetQuery(search: '');
+                      },
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  DropdownButton<String>(
+                    value: ventasState.input,
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'venId',
+                        child: Text('ID'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'perDocumento',
+                        child: Text('DOCUMENTO'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'perNombre',
+                        child: Text('NOMBRE'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        ref.read(ventasProvider.notifier).resetQuery(
+                              input: value,
+                            );
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      ventasState.orden
+                          ? Icons.arrow_upward
+                          : Icons.arrow_downward,
+                    ),
+                    onPressed: () {
+                      ref.read(ventasProvider.notifier).resetQuery(
+                            orden: !ventasState.orden,
+                          );
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: ventasState.ventas.length,
+                  itemBuilder: (context, index) {
+                    final venta = ventasState.ventas[index];
+                    return InvoiceInfoCard(
+                      numeroFactura: venta.venNumFactura,
+                      cliente: venta.venNomCliente,
+                      documento: venta.venRucCliente,
+                      fecha: venta.venFechaFactura,
+                      total: venta.venTotal,
+                      size: size,
+                      invoiceId: venta.venId,
+                      redirect: true,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (ventasState.isLoading)
+          Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: SizedBox(
+              width: size.wScreen(100),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

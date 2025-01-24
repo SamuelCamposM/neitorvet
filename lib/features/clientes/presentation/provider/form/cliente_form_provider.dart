@@ -268,7 +268,7 @@ class ClienteFormState {
   final String perFecReg;
   final String perFecUpd;
   final String perFoto;
-  final String perGenero;
+  final String? perGenero;
   final String perNombreComercial;
   final String perObligado;
   final String perObsevacion;

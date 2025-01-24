@@ -276,7 +276,7 @@ class _ClienteForm extends ConsumerWidget {
             ),
             CustomProductField(
               label: 'Genero',
-              initialValue: clienteForm.perGenero,
+              initialValue: clienteForm.perGenero ?? '',
               onChanged: (p0) {
                 ref
                     .read(clienteFormProvider(cliente).notifier)

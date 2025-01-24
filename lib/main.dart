@@ -26,10 +26,9 @@ class MainApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
-        const Locale('en'), // Inglés
-        const Locale('es'), // Español
-        // Agrega más locales según sea necesario
+      supportedLocales: const [
+        Locale('en'), // Inglés
+        Locale('es'), // Español
       ],
       scaffoldMessengerKey: NotificationsService.messengerKey,
       routerConfig: appRouter,
