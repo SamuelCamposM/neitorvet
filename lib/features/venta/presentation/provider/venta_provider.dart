@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:neitorvet/features/factura/domain/entities/venta.dart';
-import 'package:neitorvet/features/factura/presentation/provider/ventas_provider.dart';
+import 'package:neitorvet/features/venta/domain/entities/venta.dart';
+import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
 final ventaProvider = StateNotifierProvider.family
     .autoDispose<VentaNotifier, VentaState, int>((ref, venId) {

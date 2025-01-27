@@ -35,6 +35,9 @@ class ClientesScreen extends StatelessWidget {
                               .read(clientesProvider.notifier)
                               .searchClientesByQuery,
                         ));
+                    // if (searchClienteResult?.cliente != null) {
+                    //   cliente
+                    // }
                     if (searchClienteResult?.wasLoading == true) {
                       ref
                           .read(clientesProvider.notifier)
@@ -199,7 +202,7 @@ class ClientesViewState extends ConsumerState<ClientesView> {
                           : '--- --- ---',
                       size: size,
                       perId: cliente.perId,
-                      fotoUrl: cliente.perFoto,
+                      fotoUrl: cliente.perFoto ?? '',
                     );
                   },
                 ),

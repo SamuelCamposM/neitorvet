@@ -1,4 +1,4 @@
-import 'package:neitorvet/features/factura/domain/datasources/ventas_datasource.dart';
+import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
 
 abstract class VentasRepository {
   Future<ResponseVentas> getVentasByPage(

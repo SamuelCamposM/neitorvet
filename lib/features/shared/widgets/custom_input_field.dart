@@ -14,6 +14,7 @@ class CustomInputField extends StatelessWidget {
   final Function(String)? onChanged;
   final Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
+  final TextEditingController? controller;
 
   const CustomInputField({
     super.key,
@@ -30,12 +31,14 @@ class CustomInputField extends StatelessWidget {
     this.onFieldSubmitted,
     this.validator,
     this.textAlign = TextAlign.start,
+    this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return TextFormField(
+        controller: controller,
         onChanged: onChanged,
         onFieldSubmitted: onFieldSubmitted,
         validator: validator,
@@ -43,7 +46,7 @@ class CustomInputField extends StatelessWidget {
         keyboardType: keyboardType,
         style: const TextStyle(fontSize: 15, color: Colors.black54),
         maxLines: maxLines,
-        initialValue: initialValue,
+        initialValue: controller == null ? initialValue : null,
         decoration: InputDecoration(
           floatingLabelBehavior: maxLines > 1
               ? FloatingLabelBehavior.always

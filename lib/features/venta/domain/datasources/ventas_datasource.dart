@@ -1,4 +1,4 @@
-import 'package:neitorvet/features/factura/domain/entities/venta.dart';
+import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 
 class ResponseVentas {
   final List<Venta> resultado;

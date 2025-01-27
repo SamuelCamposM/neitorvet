@@ -22,7 +22,7 @@ const appMenuItems = <MenuItem>[
   MenuItem(
       title: 'Facturas',
       subTitle: "Nuestros factura",
-      link: "/facturas",
+      link: "/ventas",
       icon: Icons.receipt),
   // MenuItem(
   //     title: 'Botones',

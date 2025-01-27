@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:neitorvet/features/factura/domain/entities/venta.dart';
-import 'package:neitorvet/features/factura/domain/repositories/ventas_repository.dart';
-import 'package:neitorvet/features/factura/presentation/provider/ventas_repository_provider.dart';
- 
+import 'package:neitorvet/features/venta/domain/entities/venta.dart';
+import 'package:neitorvet/features/venta/domain/repositories/ventas_repository.dart';
+import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
+
 import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -100,7 +100,6 @@ class VentasNotifier extends StateNotifier<VentasState> {
   }
 
   Future<List<Venta>> searchVentasByQuery({String search = ''}) async {
-    print(search);
     final ventas = await ventasRepository.getVentasByPage(
       search: search,
       cantidad: state.cantidad,
@@ -132,8 +131,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
       final exist = [...state.ventas, ...state.searchedVentas]
           .any((e) => e.venId == venId);
       if (!exist) {
-        return GetVentaResponse(
-            venta: null, error: 'No se encontró el venta');
+        return GetVentaResponse(venta: null, error: 'No se encontró el venta');
       }
       return GetVentaResponse(
           venta: [...state.ventas, ...state.searchedVentas].firstWhere(

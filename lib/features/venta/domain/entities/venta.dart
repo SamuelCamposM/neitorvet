@@ -2,7 +2,7 @@
 //
 //     final venta = ventaFromJson(jsonString);
 
-import 'package:neitorvet/features/factura/domain/entities/producto.dart';
+import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 
 class Venta {

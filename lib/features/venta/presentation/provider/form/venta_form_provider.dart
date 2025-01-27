@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
-import 'package:neitorvet/features/factura/domain/entities/producto.dart';
+import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 
-import 'package:neitorvet/features/factura/domain/entities/venta.dart';
-import 'package:neitorvet/features/factura/infrastructure/input/productos.dart';
-import 'package:neitorvet/features/factura/presentation/provider/ventas_provider.dart';
+import 'package:neitorvet/features/venta/domain/entities/venta.dart';
+import 'package:neitorvet/features/venta/infrastructure/input/productos.dart';
+import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
 import 'package:neitorvet/features/shared/shared.dart';
 
@@ -23,62 +23,114 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   }) : super(VentaFormState(
           venId: venta.venId,
           venRucCliente: GenericRequiredInput.dirty(venta.venRucCliente),
+          venCostoProduccion: venta.venCostoProduccion,
+          venDescuento: venta.venDescuento,
+          venSubTotal: venta.venSubTotal,
+          venSubtotal0: venta.venSubtotal0,
+          venSubTotal12: venta.venSubTotal12,
+          venTotal: venta.venTotal,
+          venTotalIva: venta.venTotalIva,
+          venIdCliente: venta.venIdCliente,
+          venEmpIva: venta.venEmpIva,
+          venCeluCliente: venta.venCeluCliente,
+          venEmailCliente: venta.venEmailCliente,
+          venProductos: Productos.dirty(venta.venProductos),
+          fechaSustentoFactura: venta.fechaSustentoFactura,
+          venAbono: venta.venAbono,
+          venAutorizacion: venta.venAutorizacion,
+          venDescPorcentaje: venta.venDescPorcentaje,
+          venDias: venta.venDias,
+          venDirCliente: venta.venDirCliente,
+          venEmpAgenteRetencion: venta.venEmpAgenteRetencion,
+          venEmpComercial: venta.venEmpComercial,
+          venEmpContribuyenteEspecial: venta.venEmpContribuyenteEspecial,
+          venEmpDireccion: venta.venEmpDireccion,
+          venEmpEmail: venta.venEmpEmail,
+          venEmpLeyenda: venta.venEmpLeyenda,
+          venEmpNombre: venta.venEmpNombre,
+          venEmpObligado: venta.venEmpObligado,
+          venEmpRegimen: venta.venEmpRegimen,
+          venEmpresa: venta.venEmpresa,
+          venEmpRuc: venta.venEmpRuc,
+          venEmpTelefono: venta.venEmpTelefono,
+          venEnvio: venta.venEnvio,
+          venErrorAutorizacion: venta.venErrorAutorizacion,
+          venEstado: venta.venEstado,
+          venFacturaCredito: venta.venFacturaCredito,
+          venFechaAutorizacion: venta.venFechaAutorizacion,
+          venFechaFactura: venta.venFechaFactura,
+          venFecReg: venta.venFecReg,
+          venFormaPago: venta.venFormaPago,
+          venNomCliente: venta.venNomCliente,
+          venNumero: venta.venNumero,
+          venNumFactura: venta.venNumFactura,
+          venNumFacturaAnterior: venta.venNumFacturaAnterior,
+          venObservacion: venta.venObservacion,
+          venOption: venta.venOption,
+          venOtros: venta.venOtros,
+          venOtrosDetalles: venta.venOtrosDetalles,
+          venTelfCliente: venta.venTelfCliente,
+          venTipoDocuCliente: venta.venTipoDocuCliente,
+          venTipoDocumento: venta.venTipoDocumento,
+          venTotalRetencion: venta.venTotalRetencion,
+          venUser: venta.venUser,
         ));
 
-  void updateState({
-    double? venCostoProduccion,
-    double? venDescuento,
-    double? venSubTotal,
-    double? venSubtotal0,
-    double? venSubTotal12,
-    double? venTotal,
-    double? venTotalIva,
-    String? venRucCliente,
-    int? venIdCliente,
-    int? venEmpIva,
-    List<String>? venCeluCliente,
-    List<String>? venEmailCliente,
-    List<Producto>? venProductos,
-    String? fechaSustentoFactura,
-    String? venAbono,
-    String? venAutorizacion,
-    String? venDescPorcentaje,
-    String? venDias,
-    String? venDirCliente,
-    String? venEmpAgenteRetencion,
-    String? venEmpComercial,
-    String? venEmpContribuyenteEspecial,
-    String? venEmpDireccion,
-    String? venEmpEmail,
-    String? venEmpLeyenda,
-    String? venEmpNombre,
-    String? venEmpObligado,
-    String? venEmpRegimen,
-    String? venEmpresa,
-    String? venEmpRuc,
-    String? venEmpTelefono,
-    String? venEnvio,
-    String? venErrorAutorizacion,
-    String? venEstado,
-    String? venFacturaCredito,
-    String? venFechaAutorizacion,
-    String? venFechaFactura,
-    String? venFecReg,
-    String? venFormaPago,
-    String? venNomCliente,
-    String? venNumero,
-    String? venNumFactura,
-    String? venNumFacturaAnterior,
-    String? venObservacion,
-    String? venOption,
-    String? venOtros,
-    String? venOtrosDetalles,
-    String? venTelfCliente,
-    String? venTipoDocuCliente,
-    String? venTipoDocumento,
-    String? venTotalRetencion,
-    String? venUser,
-  }) {
+  void updateState(
+      {double? venCostoProduccion,
+      double? venDescuento,
+      double? venSubTotal,
+      double? venSubtotal0,
+      double? venSubTotal12,
+      double? venTotal,
+      double? venTotalIva,
+      String? venRucCliente,
+      int? venIdCliente,
+      int? venEmpIva,
+      List<String>? venCeluCliente,
+      List<String>? venEmailCliente,
+      List<Producto>? venProductos,
+      String? fechaSustentoFactura,
+      String? venAbono,
+      String? venAutorizacion,
+      String? venDescPorcentaje,
+      String? venDias,
+      String? venDirCliente,
+      String? venEmpAgenteRetencion,
+      String? venEmpComercial,
+      String? venEmpContribuyenteEspecial,
+      String? venEmpDireccion,
+      String? venEmpEmail,
+      String? venEmpLeyenda,
+      String? venEmpNombre,
+      String? venEmpObligado,
+      String? venEmpRegimen,
+      String? venEmpresa,
+      String? venEmpRuc,
+      String? venEmpTelefono,
+      String? venEnvio,
+      String? venErrorAutorizacion,
+      String? venEstado,
+      String? venFacturaCredito,
+      String? venFechaAutorizacion,
+      String? venFechaFactura,
+      String? venFecReg,
+      String? venFormaPago,
+      String? venNomCliente,
+      String? venNumero,
+      String? venNumFactura,
+      String? venNumFacturaAnterior,
+      String? venObservacion,
+      String? venOption,
+      String? venOtros,
+      String? venOtrosDetalles,
+      String? venTelfCliente,
+      String? venTipoDocuCliente,
+      String? venTipoDocumento,
+      String? venTotalRetencion,
+      String? venUser,
+      List<String>? placasData,
+      String? secuencia}) {
     state = state.copyWith(
       venRucCliente: GenericRequiredInput.dirty(
           venRucCliente ?? state.venRucCliente.value),
@@ -136,6 +188,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       venTipoDocumento: venTipoDocumento ?? state.venTipoDocumento,
       venTotalRetencion: venTotalRetencion ?? state.venTotalRetencion,
       venUser: venUser ?? state.venUser,
+      secuencia: secuencia ?? state.secuencia,
+      placasData: placasData ?? state.placasData,
       isFormValid: Formz.validate([
         GenericRequiredInput.dirty(venRucCliente ?? state.venRucCliente.value),
         Productos.dirty(venProductos ?? state.venProductos.value),
@@ -177,6 +231,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
   }
 
+  void cargarSecuencia() async {}
   void _touchedEverything() {
     state = state.copyWith(
         isFormValid: Formz.validate([
@@ -246,6 +301,9 @@ class VentaFormState {
   final String venTotalRetencion;
   final String venUser;
 
+  final List<String> placasData;
+  final String secuencia;
+
   VentaFormState({
     this.isFormValid = false,
     this.isPosted = false,
@@ -303,6 +361,8 @@ class VentaFormState {
     this.venTipoDocumento = '',
     this.venTotalRetencion = '',
     this.venUser = '',
+    this.secuencia = '',
+    this.placasData = const [],
   });
   VentaFormState copyWith({
     bool? isFormValid,
@@ -360,7 +420,10 @@ class VentaFormState {
     String? venTipoDocuCliente,
     String? venTipoDocumento,
     String? venTotalRetencion,
-    String? venUser,
+    String? venUser, 
+    
+    String? secuencia,
+    List<String>? placasData,
   }) {
     return VentaFormState(
       isFormValid: isFormValid ?? this.isFormValid,
@@ -422,6 +485,8 @@ class VentaFormState {
       venTipoDocumento: venTipoDocumento ?? this.venTipoDocumento,
       venTotalRetencion: venTotalRetencion ?? this.venTotalRetencion,
       venUser: venUser ?? this.venUser,
+      secuencia: secuencia ?? this.secuencia,
+      placasData: placasData ?? this.placasData,
     );
   }
 }

@@ -29,7 +29,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
           perPais: GenericRequiredInput.dirty(cliente.perPais),
           perProvincia: GenericRequiredInput.dirty(cliente.perProvincia),
           perRecomendacion:
-              GenericRequiredInput.dirty(cliente.perRecomendacion),
+              GenericRequiredInput.dirty(cliente.perRecomendacion ?? ''),
           perCelular: cliente.perCelular,
           perEmail: cliente.perEmail,
           perEmpresa: cliente.perEmpresa,
@@ -44,7 +44,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
           perFecNacimiento: cliente.perFecNacimiento,
           perFecReg: cliente.perFecReg,
           perFecUpd: cliente.perFecUpd,
-          perFoto: cliente.perFoto,
+          perFoto: cliente.perFoto ?? "" ,
           perGenero: cliente.perGenero,
           perNombreComercial: cliente.perNombreComercial,
           perObligado: cliente.perObligado,

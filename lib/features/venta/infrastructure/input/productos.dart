@@ -1,5 +1,5 @@
 import 'package:formz/formz.dart';
-import 'package:neitorvet/features/factura/domain/entities/producto.dart';
+import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 
 // Define input validation errors
 enum ProductosError { empty }

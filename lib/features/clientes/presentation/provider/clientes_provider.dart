@@ -99,7 +99,6 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
   }
 
   Future<List<Cliente>> searchClientesByQuery({String search = ''}) async {
-    print(search);
     final clientes = await clientesRepository.getClientesByPage(
       search: search,
       cantidad: state.cantidad,

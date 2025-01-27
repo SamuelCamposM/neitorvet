@@ -18,6 +18,7 @@ class SearchResult {
 class SearchClienteDelegate extends SearchDelegate<SearchResult> {
   final SarchClientesCallback searchClientes;
   final void Function(String search) setSearch;
+  final bool onlySelect;
   List<Cliente> initalClientes;
   StreamController<List<Cliente>> devounceClientes =
       StreamController.broadcast();
@@ -28,6 +29,7 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
     required this.searchClientes,
     required this.initalClientes,
     required this.setSearch,
+    this.onlySelect = false,
   }) : super(searchFieldLabel: 'Buscar');
 
   void clearStreams() {
@@ -106,19 +108,24 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
       StreamBuilder(
         stream: loadingStream.stream,
         builder: (context, snapshot) {
-          return IconButton(
-            onPressed: () {
-              close(
-                  context,
-                  SearchResult(
-                      setBusqueda: true, wasLoading: snapshot.data ?? false));
-              clearStreams();
-            },
-            icon: const Icon(
-              Icons.check,
-              color: Colors.green,
-            ),
-          );
+          return onlySelect
+              ? const SizedBox()
+              : IconButton(
+                  onPressed: () {
+                    if (!onlySelect) {
+                      close(
+                          context,
+                          SearchResult(
+                              setBusqueda: true,
+                              wasLoading: snapshot.data ?? false));
+                      clearStreams();
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.check,
+                    color: Colors.green,
+                  ),
+                );
         },
       ),
     ];
@@ -153,7 +160,10 @@ class SearchClienteDelegate extends SearchDelegate<SearchResult> {
 
       // Aquí puedes manejar el valor bool emitido por el StreamController
       if (context.mounted) {
-        close(context, SearchResult(setBusqueda: true, wasLoading: wasLoading));
+        if (!onlySelect) {
+          close(
+              context, SearchResult(setBusqueda: true, wasLoading: wasLoading));
+        }
       }
     });
 

@@ -1,5 +1,5 @@
-import 'package:neitorvet/features/factura/domain/datasources/ventas_datasource.dart'; 
-import 'package:neitorvet/features/factura/domain/repositories/ventas_repository.dart';
+import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart'; 
+import 'package:neitorvet/features/venta/domain/repositories/ventas_repository.dart';
 
 
 class VentasRepositoryImpl extends VentasRepository {

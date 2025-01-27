@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:neitorvet/features/factura/domain/datasources/ventas_datasource.dart';
-import 'package:neitorvet/features/factura/domain/entities/venta.dart';
+import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
+import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/shared/errors/error_api.dart';
 
 class VentasDatasourceImpl extends VentasDatasource {

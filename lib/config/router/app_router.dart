@@ -5,8 +5,8 @@ import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
  
-import 'package:neitorvet/features/factura/presentation/screens/facturas_screen.dart';
-import 'package:neitorvet/features/factura/presentation/screens/screens.dart';
+import 'package:neitorvet/features/venta/presentation/screens/ventas_screen.dart';
+import 'package:neitorvet/features/venta/presentation/screens/screens.dart';
 
 import 'package:neitorvet/features/products/products.dart';
 
@@ -48,12 +48,12 @@ final goRouterProvider = Provider((ref) {
         ),
       ),
       GoRoute(
-        path: '/facturas',
+        path: '/ventas',
         builder: (context, state) => const VentasScreen(),
       ),
       GoRoute(
-        path: '/factura/:id',
-        builder: (context, state) => FacturaScreen(
+        path: '/venta/:id',
+        builder: (context, state) => VentaScreen(
           ventaId: int.tryParse(state.params['id'].toString()) ?? 0,
         ),
       ),

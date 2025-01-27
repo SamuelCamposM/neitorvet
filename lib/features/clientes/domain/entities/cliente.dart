@@ -27,11 +27,11 @@ class Cliente {
   final List<String> perOtros;
   final String? perNickname;
   final String perUser;
-  final String perFoto;
+  final String? perFoto;
   final PerUbicacion perUbicacion;
   final String perDocumento;
   final String? perGenero;
-  final String perRecomendacion;
+  final String? perRecomendacion;
   final String perFecNacimiento;
   final String perEspecialidad;
   final String perTitulo;
