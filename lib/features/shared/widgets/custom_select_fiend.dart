@@ -27,24 +27,22 @@ class CustomSelectField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         border: UnderlineInputBorder(
-          borderSide:
-              BorderSide(color: colors.onSurface), // Usar color del tema
+          borderSide: BorderSide(color: colors.onSurface), // Usar color del tema
         ),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
-            color: colors
-                .primary, // Usar color principal del tema cuando está enfocado
+            color: colors.primary, // Usar color principal del tema cuando está enfocado
           ),
         ),
         errorBorder: UnderlineInputBorder(
-          borderSide:
-              BorderSide(color: colors.error), // Usar color de error del tema
+          borderSide: BorderSide(color: colors.error), // Usar color de error del tema
         ),
         focusedErrorBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: colors.error, // Color de error cuando está enfocado
           ),
         ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0), // Ajustar el padding
       ),
       isExpanded: true, // Asegura que el dropdown ocupe el espacio disponible
       items: options.map((option) {
@@ -52,7 +50,7 @@ class CustomSelectField extends StatelessWidget {
           value: option,
           child: Text(
             option,
-            style: TextStyle(fontSize: size!.iScreen(1.8)),
+            style: TextStyle(fontSize: size!.iScreen(1.5)), // Ajustar el tamaño de la letra
             overflow: TextOverflow.ellipsis, // Truncar texto largo
             maxLines: 1, // Limitar a una sola línea
           ),

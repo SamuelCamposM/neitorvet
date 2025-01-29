@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/custom_botton_modal.dart';
-import 'package:neitorvet/features/shared/widgets/custom_input_field.dart';
-import 'package:neitorvet/features/shared/widgets/custom_radio_botton.dart';
+import 'package:neitorvet/features/shared/widgets/custom_input_field.dart'; 
 import 'package:neitorvet/features/shared/widgets/custom_select_fiend.dart';
 
 class FacturaScreen extends StatefulWidget {
@@ -70,7 +69,7 @@ class _FacturaScreenState extends State<FacturaScreen> {
                                 // errorMessage: clienteForm.perCanton.errorMessage,
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                                 width:
                                     8.0), // Espacio entre el TextFormField y el botón
                             custom_btn_modals(size, Icons.add, () {}),
@@ -131,16 +130,7 @@ class _FacturaScreenState extends State<FacturaScreen> {
                             'Opción 5'
                           ], // Lista de opciones
                         ),
-                        YesNoRadioButton(
-                          size: size,
-                          selectedValueYesNo: selectedValueYesNo,
-                          onChanged: (String? value) {
-                            setState(() {
-                              selectedValueYesNo = value;
-                            });
-                          },
-                          questionText: 'Crédito',
-                        ),
+             
                         SizedBox(
                           height: size.wScreen(1),
                         ),

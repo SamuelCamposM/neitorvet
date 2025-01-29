@@ -15,7 +15,9 @@ class CustomInputField extends StatelessWidget {
   final Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
   final TextEditingController? controller;
-
+  final bool readOnly;
+  final IconButton? suffixIcon;
+  final bool autofocus;
   const CustomInputField({
     super.key,
     this.isTopField = false,
@@ -32,49 +34,56 @@ class CustomInputField extends StatelessWidget {
     this.validator,
     this.textAlign = TextAlign.start,
     this.controller,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.suffixIcon,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return TextFormField(
-        controller: controller,
-        onChanged: onChanged,
-        onFieldSubmitted: onFieldSubmitted,
-        validator: validator,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        style: const TextStyle(fontSize: 15, color: Colors.black54),
-        maxLines: maxLines,
-        initialValue: controller == null ? initialValue : null,
-        decoration: InputDecoration(
-          floatingLabelBehavior: maxLines > 1
-              ? FloatingLabelBehavior.always
-              : FloatingLabelBehavior.auto,
-          floatingLabelStyle: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 15,
-          ),
-          enabledBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.black54), // Borde inferior
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide:
-                BorderSide(color: colors.primary), // Borde inferior activo
-          ),
-          errorBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.red), // Borde inferior error
-          ),
-          focusedErrorBorder: const UnderlineInputBorder(
-            borderSide:
-                BorderSide(color: Colors.red), // Borde inferior error activo
-          ),
-          isDense: true,
-          label: label != null ? Text(label!) : null,
-          hintText: hint,
-          errorText: errorMessage,
+      autofocus: autofocus,
+      readOnly: readOnly,
+      controller: controller,
+      onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
+      validator: validator,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      style: const TextStyle(fontSize: 15, color: Colors.black54),
+      maxLines: maxLines,
+      initialValue: controller == null ? initialValue : null,
+      decoration: InputDecoration(
+        floatingLabelBehavior: maxLines > 1
+            ? FloatingLabelBehavior.always
+            : FloatingLabelBehavior.auto,
+        floatingLabelStyle: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
         ),
-        textAlign: textAlign!);
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.black54), // Borde inferior
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide:
+              BorderSide(color: colors.primary), // Borde inferior activo
+        ),
+        errorBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.red), // Borde inferior error
+        ),
+        focusedErrorBorder: const UnderlineInputBorder(
+          borderSide:
+              BorderSide(color: Colors.red), // Borde inferior error activo
+        ),
+        isDense: true,
+        label: label != null ? Text(label!) : null,
+        hintText: hint,
+        errorText: errorMessage,
+        suffixIcon: suffixIcon,
+      ),
+      textAlign: textAlign!,
+    );
   }
 }

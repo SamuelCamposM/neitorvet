@@ -8,4 +8,8 @@ abstract class VentasRepository {
       String input = 'venId',
       bool orden = false,
       String search = ''});
+
+  Future<ResponseFormasPago> getFormasPago();
+  Future<ResponseSecuencia> getSecuencia(String tipo);
+  Future<ResponseInventario> getInventarioByQuery(String search);
 }

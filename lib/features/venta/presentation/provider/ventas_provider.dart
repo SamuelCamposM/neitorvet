@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
+import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/domain/repositories/ventas_repository.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
@@ -33,6 +35,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
       : super(VentasState()) {
     _initializeSocketListeners();
     loadNextPage();
+    _setFormasPago();
   }
   void _initializeSocketListeners() {
     socket.on('connect', (a) {
@@ -197,6 +200,31 @@ class VentasNotifier extends StateNotifier<VentasState> {
     socket.emit('client:actualizarData', ventaMap);
   }
 
+  Future<void> _setFormasPago() async {
+    final formasPago = await ventasRepository.getFormasPago();
+    if (formasPago.error.isNotEmpty) {
+      state =
+          state.copyWith(error: 'Hubo un error al obtener las formas de pago');
+      return;
+    }
+    state = state.copyWith(formasPago: formasPago.resultado);
+  }
+
+  Future<ResponseSecuencia> getSecuencia() async {
+    final estado = state.estado == "FACTURAS"
+        ? "FACTURA"
+        : state.estado == "NOTA VENTAS"
+            ? "NOTA DE VENTA"
+            : state.estado == "PROFORMAS"
+                ? "PROFORMA"
+                : state.estado == "NOTA CREDITOS"
+                    ? "NOTA DE CREDITO"
+                    : '';
+    final response = await ventasRepository.getSecuencia(estado);
+
+    return response;
+  }
+
   @override
   void dispose() {
     // Log para verificar que se está destruyendo
@@ -218,6 +246,7 @@ class VentasState {
   final bool orden;
   final List<Venta> searchedVentas;
   final int totalSearched;
+  final List<FormaPago> formasPago;
 
   VentasState(
       {this.isLastPage = false,
@@ -232,7 +261,8 @@ class VentasState {
       this.input = 'venId',
       this.orden = false,
       this.searchedVentas = const [],
-      this.totalSearched = 0});
+      this.totalSearched = 0,
+      this.formasPago = const []});
 
   VentasState copyWith({
     bool? isLastPage,
@@ -248,6 +278,7 @@ class VentasState {
     bool? orden,
     List<Venta>? searchedVentas,
     int? totalSearched,
+    List<FormaPago>? formasPago,
   }) {
     return VentasState(
       isLastPage: isLastPage ?? this.isLastPage,
@@ -263,6 +294,7 @@ class VentasState {
       orden: orden ?? this.orden,
       searchedVentas: searchedVentas ?? this.searchedVentas,
       totalSearched: totalSearched ?? this.totalSearched,
+      formasPago: formasPago ?? this.formasPago,
     );
   }
 }

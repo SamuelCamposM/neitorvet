@@ -7,7 +7,9 @@ import 'package:neitorvet/features/venta/infrastructure/repostiries/ventas_repos
 final ventasRepositoryProvider = Provider<VentasRepository>(
   (ref) {
     final dio = ref.watch(authProvider.notifier).dio;
+    final rucempresa = ref.watch(authProvider).user?.rucempresa ?? "";
 
-    return VentasRepositoryImpl(datasource: VentasDatasourceImpl(dio: dio));
+    return VentasRepositoryImpl(
+        datasource: VentasDatasourceImpl(dio: dio, rucempresa: rucempresa));
   },
 );

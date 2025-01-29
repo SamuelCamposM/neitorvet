@@ -1,24 +1,25 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/clientes/presentation/delegates/search_cliente_delegate.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
-import 'package:neitorvet/features/clientes/presentation/provider/form/cliente_form_provider.dart';
-import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
+import 'package:neitorvet/features/shared/utils/responsive.dart'; 
+import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
 
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
+import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
 class VentaScreen extends ConsumerWidget {
   final int ventaId;
   const VentaScreen({super.key, required this.ventaId});
   @override
   Widget build(BuildContext context, ref) {
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   ref.read(contextProvider.notifier).state = context;
-    // });
     ref.listen(
       ventaProvider(ventaId),
       (_, next) {
@@ -41,79 +42,70 @@ class VentaScreen extends ConsumerWidget {
         body: ventaState.isLoading
             ? const FullScreenLoader()
             : ventaState.venta == null
-                ? Center(child: Text('Venta no encontrada'))
-                : _VentaForm(venta: ventaState.venta!),
-        // floatingActionButton: ventaState.isLoading
-        //     ? null
-        //     : _FloatingButton(
-        //         venta: ventaState.venta!,
-        //       ),
+                ? const Center(child: Text('Venta no encontrada'))
+                : _VentaForm(
+                    venta: ventaState.venta!,
+                    secuencia: ventaState.secuencia,
+                  ),
+        floatingActionButton: ventaState.isLoading
+            ? null
+            : _FloatingButton(
+                venta: ventaState.venta!,
+              ),
       ),
     );
   }
 }
 
-// class _FloatingButton extends ConsumerWidget {
-//   final Venta venta;
+class _FloatingButton extends ConsumerWidget {
+  final Venta venta;
 
-//   const _FloatingButton({required this.venta});
-//   void showSnackBar(BuildContext context) {
-//     ScaffoldMessenger.of(context).clearSnackBars();
-//     ScaffoldMessenger.of(context)
-//         .showSnackBar(const SnackBar(content: Text('Producto Actualizado')));
-//   }
+  const _FloatingButton({required this.venta});
+  void showSnackBar(BuildContext context) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Producto Actualizado')));
+  }
 
-//   @override
-//   Widget build(BuildContext context, ref) {
-//     final productFormState = ref.watch(ventaFormProvider(venta));
-//     return FloatingActionButton(
-//       onPressed: () async {
-//         if (productFormState.isPosting) {
-//           return;
-//         }
-//         final exitoso = await ref
-//             .read(ventaFormProvider(venta).notifier)
-//             .onFormSubmit();
+  @override
+  Widget build(BuildContext context, ref) {
+    final productFormState = ref.watch(ventaFormProvider(venta));
+    return FloatingActionButton(
+      onPressed: () async {
+        if (productFormState.isPosting) {
+          return;
+        }
+        final exitoso =
+            await ref.read(ventaFormProvider(venta).notifier).onFormSubmit();
 
-//         if (exitoso && context.mounted) {
-//           NotificationsService.show(
-//               context, 'Venta Actualizado', SnackbarCategory.success);
-//         }
-//       },
-//       child: productFormState.isPosting
-//           ? SpinPerfect(
-//               duration: const Duration(seconds: 1),
-//               spins: 10,
-//               infinite: true,
-//               child: const Icon(Icons.refresh),
-//             )
-//           : const Icon(Icons.save_as),
-//     );
-//   }
-// }
+        if (exitoso && context.mounted) {
+          NotificationsService.show(
+              context, 'Venta Actualizado', SnackbarCategory.success);
+        }
+      },
+      child: productFormState.isPosting
+          ? SpinPerfect(
+              duration: const Duration(seconds: 1),
+              spins: 10,
+              infinite: true,
+              child: const Icon(Icons.refresh),
+            )
+          : const Icon(Icons.save_as),
+    );
+  }
+}
 
 class _VentaForm extends ConsumerWidget {
   final Venta venta;
-  const _VentaForm({required this.venta});
-
+  final String secuencia;
+  final nuevoEmailController = TextEditingController();
+  _VentaForm({required this.venta, required this.secuencia});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ventaForm = ref.watch(ventaFormProvider(venta));
-    final clientesState = ref.watch(clientesProvider);
+    ref.watch(clientesProvider);
+    final ventasState = ref.watch(ventasProvider);
     final size = Responsive.of(context);
-
-    Future<void> selectDate(BuildContext context) async {
-      final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.parse(ventaForm.venFechaFactura),
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2101),
-        locale: const Locale('es'), // Cambia 'es' al código de idioma deseado
-      );
-      ref.read(ventaFormProvider(venta).notifier).updateState(
-            venFechaFactura: picked?.toString() ?? ventaForm.venFechaFactura,
-          );
-    }
 
     Future<SearchResult?> searchClienteResult() async {
       final clientesState = ref.read(clientesProvider);
@@ -135,27 +127,55 @@ class _VentaForm extends ConsumerWidget {
           physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
-              SizedBox(
-                width: size.wScreen(100),
-                child: Text(
-                  'Factura #:',
+              RichText(
+                textAlign: TextAlign.left,
+                text: TextSpan(
+                  text: 'Factura #: ',
                   style: TextStyle(
-                      fontSize: size.iScreen(1.8),
-                      fontWeight: FontWeight.normal),
+                    fontSize: size.iScreen(1.8),
+                    fontWeight: FontWeight.normal,
+                    color: Colors
+                        .black, // Asegúrate de establecer el color del texto
+                  ),
+                  children: [
+                    TextSpan(
+                      text: secuencia,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Text(
-                ventaForm.venRucCliente.value,
-                style: TextStyle(
-                    fontSize: size.iScreen(2), fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                height: size.wScreen(1),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      venta.venFechaFactura,
+                      style: TextStyle(
+                          fontSize: size.iScreen(2),
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  CustomRadioBotton(
+                    size: size,
+                    selectedValue: ventaForm.venFacturaCredito,
+                    onChanged: (String? value) {
+                      ref
+                          .read(ventaFormProvider(venta).notifier)
+                          .updateState(venFacturaCredito: value);
+                    },
+                    questionText: 'Crédito',
+                  ),
+                  SizedBox(width: size.wScreen(4)),
+                ],
               ),
               Row(
                 children: [
                   Expanded(
                     child: CustomInputField(
+                      readOnly: true,
                       controller: TextEditingController(
                           text: ventaForm.venRucCliente.value),
                       label: 'Ruc Cliente',
@@ -167,8 +187,6 @@ class _VentaForm extends ConsumerWidget {
                       // errorMessage: clienteForm.perCanton.errorMessage,
                     ),
                   ),
-                  const SizedBox(
-                      width: 8.0), // Espacio entre el TextFormField y el botón
                   custom_btn_modals(size, Icons.search, () async {
                     final response = await searchClienteResult();
                     if (response?.cliente != null) {
@@ -189,111 +207,125 @@ class _VentaForm extends ConsumerWidget {
                           );
                     }
                   }),
-                  custom_btn_modals(size, Icons.add, () {}),
+                  custom_btn_modals(size, Icons.add, () {
+                    context.push('/cliente/0');
+                  }),
+                  custom_btn_modals(size, Icons.mark_email_read, () async {
+                    ref
+                        .read(ventaFormProvider(venta).notifier)
+                        .handleOcultarEmail();
+
+                    // showCustomInputModal(
+                    //     context: context,
+                    //     label: 'Agregar Email',
+                    //     field: CustomInputField(
+                    //       label: 'Correo',
+                    //       onFieldSubmitted: (_) {
+                    //         final result = ref
+                    //             .read(ventaFormProvider(venta).notifier)
+                    //             .agregarEmail(nuevoEmailController);
+                    //         if (result) {
+                    //           Navigator.of(context).pop();
+                    //         }
+                    //       },
+                    //       controller: nuevoEmailController,
+                    //       onChanged: (p0) {
+                    //         print(ventaForm.nuevoEmail.errorMessage);
+                    //         ref
+                    //             .read(ventaFormProvider(venta).notifier)
+                    //             .updateState(nuevoEmail: p0);
+                    //       },
+                    //       errorMessage: ventaForm.nuevoEmail.errorMessage,
+                    //     ));
+                  }),
                 ],
               ),
-              SizedBox(
-                height: size.wScreen(1.5),
-              ),
+              if (!ventaForm.ocultarEmail)
+                CustomInputField(
+                  autofocus: true,
+                  label: 'Correo',
+                  onFieldSubmitted: (_) {
+                    ref
+                        .read(ventaFormProvider(venta).notifier)
+                        .agregarEmail(nuevoEmailController);
+                  },
+                  controller: nuevoEmailController,
+                  onChanged: (p0) {
+                    ref
+                        .read(ventaFormProvider(venta).notifier)
+                        .updateState(nuevoEmail: p0);
+                  },
+                  errorMessage: ventaForm.nuevoEmail.errorMessage,
+                  suffixIcon: IconButton(
+                      onPressed: () {
+                        ref
+                            .read(ventaFormProvider(venta).notifier)
+                            .agregarEmail(nuevoEmailController);
+                      },
+                      icon: const Icon(Icons.add_circle_outline)),
+                ),
               CustomInputField(
+                readOnly: true,
                 label: 'Cliente',
                 controller:
                     TextEditingController(text: ventaForm.venNomCliente),
                 onChanged: (p0) {
-                  print(ventaForm.venRucCliente.value);
                   ref
                       .read(ventaFormProvider(venta).notifier)
                       .updateState(venNomCliente: p0);
                 },
                 // errorMessage: clienteForm.perCanton.errorMessage,
               ),
-              SizedBox(
-                height: size.wScreen(1.5),
-              ),
-              CustomSelectField(
-                size: size,
-                label: 'Otros',
-                value: ventaForm.venOtrosDetalles,
-                onChanged: (String? value) {
-                  ref
-                      .read(ventaFormProvider(venta).notifier)
-                      .updateState(venOtrosDetalles: value);
-                },
-                options: ventaForm.placasData, // Lista de opciones
-              ),
-              SizedBox(
-                height: size.wScreen(1.5),
-              ),
-              CustomSelectField(
-                size: size,
-                label: 'Formas de Pago',
-                // value: selectedValue,
-                onChanged: (String? value) {},
-                options: const [
-                  'Efectivo',
-                  'Targeta de Crédito',
-                  'Opción 3',
-                  'Opción 4',
-                  'Opción 5'
-                ], // Lista de opciones
-              ),
-              YesNoRadioButton(
-                size: size,
-                selectedValueYesNo: ventaForm.venFacturaCredito,
-                onChanged: (String? value) {
-                  ref
-                      .read(ventaFormProvider(venta).notifier)
-                      .updateState(venFacturaCredito: value);
-                },
-                questionText: 'Crédito',
-              ),
-              SizedBox(
-                height: size.wScreen(1),
-              ),
               Row(
-                children: [
-                  Text(
-                    ventaForm.venFechaFactura.substring(0,10),
-                    style: TextStyle(
-                        fontSize: size.iScreen(1.8),
-                        fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                      width: size.wScreen(
-                          4)), // Espacio entre el TextFormField y el botón
-                  custom_btn_modals(size, Icons.date_range_outlined, () {
-                    selectDate(context);
-                  }),
-                ],
-              ),
-              SizedBox(
-                height: size.wScreen(1),
-              ),
-              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: CustomInputField(
-                      label: 'Correo',
-                      // initialValue: clienteForm.perCanton.value,
-                      onChanged: (p0) {
-                        // ref
-                        //     .read(clienteFormProvider(cliente).notifier)
-                        //     .updateState(perCanton: p0);
-                      },
-                      // errorMessage: clienteForm.perCanton.errorMessage,
+                    child: CustomSelectField(
+                      size: size,
+                      label: 'F. de Pago',
+                      value: ventaForm.venFormaPago,
+                      onChanged: (String? value) {},
+                      options: ventasState.formasPago.map(
+                        (e) {
+                          return e.fpagoNombre;
+                        },
+                      ).toList(),
                     ),
                   ),
-
-                  SizedBox(
-                      width: size.wScreen(
-                          4)), // Espacio entre el TextFormField y el botón
-                  custom_btn_modals(size, Icons.add, () {
-                    // _selectDate(context);
-                  }),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final res = await showSearch(
+                          query: ventaForm.venOtrosDetalles,
+                          context: context,
+                          delegate: GenericDelegate(
+                            itemWidgetBuilder: (cliente, onItemSelected) =>
+                                _ItemWidget(
+                              item: cliente,
+                              onItemSelected: onItemSelected,
+                            ),
+                            searchItems: ({search = ''}) async {
+                              return ventaForm.placasData;
+                              // return ventaForm.placasData
+                              //     .where((placa) => placa.contains(search))
+                              //     .toList();
+                            },
+                            onlySelect: true,
+                            setSearch: (search) => ref
+                                .read(ventaFormProvider(venta).notifier)
+                                .updateState(venOtrosDetalles: search),
+                            initialItems: ventaForm.placasData,
+                          ));
+                      if (res?.item != null) {
+                        ref
+                            .read(ventaFormProvider(venta).notifier)
+                            .updateState(venOtrosDetalles: res!.item);
+                      }
+                    },
+                    icon: const Icon(Icons.create),
+                    label: Text(ventaForm.venOtrosDetalles),
+                  ),
                 ],
-              ),
-              SizedBox(
-                height: size.wScreen(1),
               ),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -323,9 +355,6 @@ class _VentaForm extends ConsumerWidget {
                         )))
                     .toList(),
               ),
-              SizedBox(
-                height: size.wScreen(2),
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -335,13 +364,7 @@ class _VentaForm extends ConsumerWidget {
                       child: CustomInputField(
                         textAlign: TextAlign.center,
                         label: 'Ingrese Producto',
-                        // initialValue: clienteForm.perCanton.value,
-                        onChanged: (p0) {
-                          // ref
-                          //     .read(clienteFormProvider(cliente).notifier)
-                          //     .updateState(perCanton: p0);
-                        },
-                        // errorMessage: clienteForm.perCanton.errorMessage,
+                        onChanged: (p0) {},
                       ),
                     ),
                   ),
@@ -350,80 +373,20 @@ class _VentaForm extends ConsumerWidget {
                     child: Expanded(
                       child: CustomInputField(
                         textAlign: TextAlign.center,
-                        label: 'Ingrese Monto',
-                        // initialValue: clienteForm.perCanton.value,
-                        onChanged: (p0) {
-                          // ref
-                          //     .read(clienteFormProvider(cliente).notifier)
-                          //     .updateState(perCanton: p0);
-                        },
-                        // errorMessage: clienteForm.perCanton.errorMessage,
+                        label: 'Precio',
+                        onChanged: (p0) {},
                       ),
                     ),
                   ),
                 ],
               ),
               SizedBox(
-                height: size.iScreen(3),
-              ),
-
-//=========LISTA DE PRODUCTOS==========//
-              SizedBox(
                 height: size.wScreen(1),
               ),
-              Wrap(
-                spacing: 10.0,
-                runSpacing: 10.0,
-                children: [].map((producto) {
-                  return Container(
-                    padding: const EdgeInsets.all(8.0),
-                    width:
-                        size.wScreen(100), // Ajusta el ancho según lo necesites
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(10.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withAlpha((0.5 * 255).toInt()),
-                          blurRadius: 1.0,
-                          offset: const Offset(0.0, 3.0),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Columna para Producto y Código
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ' ${producto['Producto']}',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text('Código: ${producto['Codigo']}'),
-                            Text('Costo: \$${producto['Costo']}'),
-                          ],
-                        ),
-                        // Columna para Cantidad, Precio y Costo
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text('Cantidad: ${producto['Cantidad']}'),
-                            Text('Precio: \$${producto['Precio']}'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
+              _ProductsList(
+                size: size,
+                products: venta.venProductos,
               ),
-
-              SizedBox(
-                height: size.wScreen(2),
-              ),
-//===================//
               Container(
                   padding: EdgeInsets.only(
                       left: size.iScreen(1.5),
@@ -433,8 +396,7 @@ class _VentaForm extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(
-                          8.0), // Ajusta el radio como prefieras
+                      topLeft: Radius.circular(8.0),
                       topRight: Radius.circular(8.0),
                     ),
                   ),
@@ -561,9 +523,89 @@ class _VentaForm extends ConsumerWidget {
                       ),
                     ],
                   ))
-//===================//
             ],
           )),
+    );
+  }
+}
+
+class _ProductsList extends StatelessWidget {
+  final List<Producto> products;
+  final Responsive size;
+  const _ProductsList({
+    required this.size,
+    required this.products,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 10.0,
+      runSpacing: 10.0,
+      children: products.map((producto) {
+        return Container(
+          padding: const EdgeInsets.all(5.0),
+          width: size.wScreen(100), // Ajusta el ancho según lo necesites
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(10.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withAlpha((0.5 * 255).toInt()),
+                blurRadius: 1.0,
+                offset: const Offset(0.0, 3.0),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                children: [
+                  SizedBox(
+                    width:
+                        size.width * 0.5, // Ajusta el ancho según sea necesario
+                    child: Text(
+                      producto.descripcion, textAlign: TextAlign.start,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines:
+                          4, // Ajusta el número de líneas según sea necesario
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('Cantidad: ${producto.cantidad}'),
+                  Text('Precio: \$${producto.precioSubTotalProducto}'),
+                  Text('Código: ${producto.codigo}'),
+                  Text('Costo: \$${producto.costoProduccion}'),
+                ],
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _ItemWidget<T> extends StatelessWidget {
+  final T item;
+  final void Function(BuildContext context, T item) onItemSelected;
+
+  const _ItemWidget({required this.item, required this.onItemSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(item.toString()), // Customize this as needed
+      onTap: () => onItemSelected(context, item),
     );
   }
 }
