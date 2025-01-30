@@ -74,7 +74,7 @@ class VentasDatasourceImpl extends VentasDatasource {
       final response = await dio.get(
         '/inventario/filtro/0?empresa=$rucempresa&search=$search',
       );
-      print(response.data['data']); // pinto un []
+
       final List<Inventario> inventarioData = response.data['data']
           .map<Inventario>((e) => Inventario.fromJson(e))
           .toList();

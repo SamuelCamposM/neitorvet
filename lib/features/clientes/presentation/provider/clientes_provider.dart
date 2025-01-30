@@ -34,17 +34,11 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     loadNextPage();
   }
   void _initializeSocketListeners() {
-    socket.on('connect', (a) {
-      print('SOCKET CONECTADO');
-    });
+    socket.on('connect', (a) {});
 
-    socket.on('disconnect', (_) {
-      print('Disconnected from WebSocket');
-    });
+    socket.on('disconnect', (_) {});
 
-    socket.on("server:actualizadoExitoso", (data) {
-      print('registro actualizado');
-    });
+    socket.on("server:actualizadoExitoso", (data) {});
   }
 
   Future loadNextPage() async {

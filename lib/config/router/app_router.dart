@@ -6,7 +6,6 @@ import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dar
 import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
 import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
 
-import 'package:neitorvet/features/venta/presentation/screens/ventas_screen.dart';
 import 'package:neitorvet/features/venta/presentation/screens/screens.dart';
 
 import 'package:neitorvet/features/products/products.dart';

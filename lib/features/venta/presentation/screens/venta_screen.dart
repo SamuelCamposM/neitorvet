@@ -191,7 +191,7 @@ class _VentaForm extends ConsumerWidget {
                       // errorMessage: clienteForm.perCanton.errorMessage,
                     ),
                   ),
-                  custom_btn_modals(size, Icons.search, () async {
+                  customBtnModals(size, Icons.search, () async {
                     final response = await searchClienteResult();
                     if (response?.cliente != null) {
                       ref.read(ventaFormProvider(venta).notifier).updateState(
@@ -211,10 +211,10 @@ class _VentaForm extends ConsumerWidget {
                           );
                     }
                   }),
-                  custom_btn_modals(size, Icons.add, () {
+                  customBtnModals(size, Icons.add, () {
                     context.push('/cliente/0');
                   }),
-                  custom_btn_modals(size, Icons.mark_email_read, () async {
+                  customBtnModals(size, Icons.mark_email_read, () async {
                     ref
                         .read(ventaFormProvider(venta).notifier)
                         .handleOcultarEmail();

@@ -291,14 +291,14 @@ class InvoiceInfoCard extends StatelessWidget {
                 SizedBox(
                   width: size.wScreen(60.0),
                   child: Text(
-                    "$cliente",
+                    cliente,
                     style: TextStyle(
                       fontSize: size.iScreen(1.5),
                     ),
                   ),
                 ),
                 Text(
-                  "$documento",
+                  documento,
                   style: TextStyle(
                     fontSize: size.iScreen(1.5),
                   ),
@@ -311,7 +311,7 @@ class InvoiceInfoCard extends StatelessWidget {
                 ),
               ],
             ),
-            Container(
+            SizedBox(
               width: size.wScreen(20),
               child: Column(
                 children: [

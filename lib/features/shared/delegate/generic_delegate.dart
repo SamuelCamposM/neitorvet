@@ -38,7 +38,6 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
   }
 
   void _onQueryChanged(String search) {
-    print('BUSCANDO');
     Future.microtask(() => setSearch(search));
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
     loadingStream.add(true);
@@ -168,7 +167,6 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    print('Hola');
     _onQueryChanged(query);
     return buildResultsAndSuggestions();
   }

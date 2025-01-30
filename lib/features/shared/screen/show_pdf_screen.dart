@@ -14,10 +14,10 @@ class ShowPdfScreen extends StatefulWidget {
       {super.key, required this.infoPdf, required this.labelPdf});
 
   @override
-  _ShowPdfScreenState createState() => _ShowPdfScreenState();
+  ShowPdfScreenState createState() => ShowPdfScreenState();
 }
 
-class _ShowPdfScreenState extends State<ShowPdfScreen> {
+class ShowPdfScreenState extends State<ShowPdfScreen> {
   bool _isDownloading = false;
   double _progress = 0.0;
 
@@ -39,12 +39,12 @@ class _ShowPdfScreenState extends State<ShowPdfScreen> {
         for (int x = 1; x < paths.length; x++) {
           String folder = paths[x];
           if (folder != "Android") {
-            newPath += "/" + folder;
+            newPath += "/$folder";
           } else {
             break;
           }
         }
-        newPath = newPath + "/Download";
+        newPath = "$newPath/Download";
         dir = Directory(newPath);
 
         String filePath = '${dir.path}/documento.pdf';
@@ -55,25 +55,28 @@ class _ShowPdfScreenState extends State<ShowPdfScreen> {
             setState(() {
               _progress = (rec / total);
             });
-            print('Recibido: $rec de $total');
           },
         );
-        print('Descarga completada. Archivo guardado en: $filePath');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Descarga completada: $filePath')),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Descarga completada: $filePath')),
+          );
+        }
       } else if (status.isPermanentlyDenied) {
         await openAppSettings();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Permiso de almacenamiento denegado')),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Permiso de almacenamiento denegado')),
+          );
+        }
       }
     } catch (e) {
-      print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al descargar el archivo')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al descargar el archivo')),
+        );
+      }
     } finally {
       setState(() {
         _isDownloading = false;
@@ -89,7 +92,7 @@ class _ShowPdfScreenState extends State<ShowPdfScreen> {
       child: Scaffold(
         backgroundColor: const Color(0xFFEEEEEE),
         appBar: AppBar(
-          title: Text('Factura'),
+          title: const Text('Factura'),
           actions: [
             IconButton(
               icon: Icon(
@@ -108,7 +111,7 @@ class _ShowPdfScreenState extends State<ShowPdfScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CircularProgressIndicator(value: _progress),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text('${(_progress * 100).toStringAsFixed(0)}%'),
                   ],
                 ),
