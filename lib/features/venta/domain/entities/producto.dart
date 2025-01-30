@@ -5,14 +5,14 @@
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 
 class Producto {
-  final String cantidad;
+  final int cantidad;
   final String codigo;
   final String descripcion;
-  final String valUnitarioInterno;
+  final double valUnitarioInterno;
   final double valorUnitario;
   final int recargoPorcentaje;
   final int recargo;
-  final String descPorcentaje;
+  final double descPorcentaje;
   final int descuento;
   final double precioSubTotalProducto;
   final double valorIva;
@@ -20,7 +20,7 @@ class Producto {
   final String llevaIva;
   final String incluyeIva;
 
-  Producto({
+  const Producto({
     required this.cantidad,
     required this.codigo,
     required this.descripcion,
@@ -38,14 +38,15 @@ class Producto {
   });
 
   factory Producto.fromJson(Map<String, dynamic> json) => Producto(
-        cantidad: json["cantidad"],
+        cantidad: Parse.parseDynamicToInt(json["cantidad"]),
         codigo: json["codigo"],
         descripcion: json["descripcion"],
-        valUnitarioInterno: json["valUnitarioInterno"],
+        valUnitarioInterno:
+            Parse.parseDynamicToDouble(json["valUnitarioInterno"]),
         valorUnitario: Parse.parseDynamicToDouble(json["valorUnitario"]),
         recargoPorcentaje: Parse.parseDynamicToInt(json["recargoPorcentaje"]),
         recargo: Parse.parseDynamicToInt(json["recargo"]),
-        descPorcentaje: json["descPorcentaje"],
+        descPorcentaje: Parse.parseDynamicToDouble(json["descPorcentaje"]),
         descuento: Parse.parseDynamicToInt(json["descuento"]),
         precioSubTotalProducto:
             Parse.parseDynamicToDouble(json["precioSubTotalProducto"]),

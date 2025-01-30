@@ -2,6 +2,7 @@
 //
 //     final inventario = inventarioFromJson(jsonString);
 
+import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/venta/domain/entities/bodega.dart';
 
 class Inventario {
@@ -11,12 +12,12 @@ class Inventario {
   final String invCosto1;
   final String invCosto2;
   final String invCosto3;
-  final String invStock;
+  final int invStock;
   final String invIva;
   final String invIncluyeIva;
   final String invEstado;
   final List<Bodega> invBodegas;
-  final List<String> invprecios;
+  final List<int> invprecios;
   final String invProveedor;
   final String invCategoria;
   final String invSubCategoria;
@@ -70,13 +71,14 @@ class Inventario {
         invCosto1: json["invCosto1"],
         invCosto2: json["invCosto2"],
         invCosto3: json["invCosto3"],
-        invStock: json["invStock"],
+        invStock: Parse.parseDynamicToInt(json["invStock"]),
         invIva: json["invIva"],
         invIncluyeIva: json["invIncluyeIva"],
         invEstado: json["invEstado"],
         invBodegas: List<Bodega>.from(
             json["invBodegas"].map((x) => Bodega.fromJson(x))),
-        invprecios: List<String>.from(json["invprecios"].map((x) => x)),
+        invprecios: List<int>.from(
+            Parse.parseDynamicToListInt(json["invprecios"]).map((x) => x)),
         invProveedor: json["invProveedor"],
         invCategoria: json["invCategoria"],
         invSubCategoria: json["invSubCategoria"],

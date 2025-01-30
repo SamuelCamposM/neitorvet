@@ -72,11 +72,15 @@ class VentasDatasourceImpl extends VentasDatasource {
   Future<ResponseInventario> getInventarioByQuery(String search) async {
     try {
       final response = await dio.get(
-        '/secuencias/filtro/0?empresa=$rucempresa&search=$search',
+        '/inventario/filtro/0?empresa=$rucempresa&search=$search',
       );
-      final List<Inventario> secuencia = response.data['data'];
+      print(response.data['data']); // pinto un []
+      final List<Inventario> inventarioData = response.data['data']
+          .map<Inventario>((e) => Inventario.fromJson(e))
+          .toList();
+
       return ResponseInventario(
-        resultado: secuencia,
+        resultado: inventarioData,
         error: '',
       );
     } on DioException catch (e) {

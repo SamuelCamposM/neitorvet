@@ -4,6 +4,7 @@ import 'package:formz/formz.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
+import 'package:neitorvet/features/venta/infrastructure/input/producto_input.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/productos.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
@@ -13,7 +14,10 @@ final ventaFormProvider = StateNotifierProvider.family
     .autoDispose<VentaFormNotifier, VentaFormState, Venta>((ref, venta) {
   final createUpdateVenta =
       ref.watch(ventasProvider.notifier).createUpdateVenta;
-  return VentaFormNotifier(venta: venta, createUpdateVenta: createUpdateVenta);
+  return VentaFormNotifier(
+    venta: venta,
+    createUpdateVenta: createUpdateVenta,
+  );
 });
 
 class VentaFormNotifier extends StateNotifier<VentaFormState> {
@@ -80,6 +84,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
 
   void updateState({
     String? nuevoEmail,
+    String? productoSearch,
+    Producto? nuevoProducto,
     double? venCostoProduccion,
     double? venDescuento,
     double? venSubTotal,
@@ -96,7 +102,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     String? fechaSustentoFactura,
     String? venAbono,
     String? venAutorizacion,
-    String? venDescPorcentaje,
+    double? venDescPorcentaje,
     String? venDias,
     String? venDirCliente,
     String? venEmpAgenteRetencion,
@@ -139,6 +145,10 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
           venRucCliente ?? state.venRucCliente.value),
       nuevoEmail:
           nuevoEmail != null ? Email.dirty(nuevoEmail) : state.nuevoEmail,
+      nuevoProducto: nuevoProducto != null
+          ? ProductoInput.dirty(nuevoProducto)
+          : state.nuevoProducto,
+      productoSearch: productoSearch ?? state.productoSearch,
       venProductos: Productos.dirty(venProductos ?? state.venProductos.value),
       venCostoProduccion: venCostoProduccion ?? state.venCostoProduccion,
       venDescuento: venDescuento ?? state.venDescuento,
@@ -251,7 +261,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
   }
 
-  void cargarSecuencia() async {}
   void _touchedEverything() {
     state = state.copyWith(
         isFormValid: Formz.validate([
@@ -265,6 +274,12 @@ class VentaFormState {
   final bool isFormValid;
   final bool isPosted;
   final bool isPosting;
+  
+  final ProductoInput nuevoProducto;
+  final String productoSearch;
+  final List<String> placasData;
+  final Email nuevoEmail;
+  final bool ocultarEmail;
 // venRucCliente
   //*REGISTRO
   final int venId;
@@ -284,7 +299,7 @@ class VentaFormState {
   final String fechaSustentoFactura;
   final String venAbono;
   final String venAutorizacion;
-  final String venDescPorcentaje;
+  final double venDescPorcentaje;
   final String venDias;
   final String venDirCliente;
   final String venEmpAgenteRetencion;
@@ -320,11 +335,10 @@ class VentaFormState {
   final String venTipoDocumento;
   final String venTotalRetencion;
   final String venUser;
-  final List<String> placasData;
-  final Email nuevoEmail;
-  final bool ocultarEmail;
+
   VentaFormState(
       {this.nuevoEmail = const Email.pure(),
+      this.nuevoProducto = const ProductoInput.pure(),
       this.isFormValid = false,
       this.isPosted = false,
       this.isPosting = false,
@@ -345,7 +359,7 @@ class VentaFormState {
       this.fechaSustentoFactura = '',
       this.venAbono = '',
       this.venAutorizacion = '',
-      this.venDescPorcentaje = '',
+      this.venDescPorcentaje = 0,
       this.venDias = '',
       this.venDirCliente = '',
       this.venEmpAgenteRetencion = '',
@@ -382,130 +396,135 @@ class VentaFormState {
       this.venTotalRetencion = '',
       this.venUser = '',
       this.placasData = const [],
-      this.ocultarEmail = true});
-  VentaFormState copyWith({
-    Email? nuevoEmail,
-    bool? isFormValid,
-    bool? isPosted,
-    bool? isPosting,
-    int? venId,
-    double? venCostoProduccion,
-    double? venDescuento,
-    double? venSubTotal,
-    double? venSubtotal0,
-    double? venSubTotal12,
-    double? venTotal,
-    double? venTotalIva,
-    GenericRequiredInput? venRucCliente,
-    int? venIdCliente,
-    int? venEmpIva,
-    List<String>? venCeluCliente,
-    List<String>? venEmailCliente,
-    Productos? venProductos,
-    String? fechaSustentoFactura,
-    String? venAbono,
-    String? venAutorizacion,
-    String? venDescPorcentaje,
-    String? venDias,
-    String? venDirCliente,
-    String? venEmpAgenteRetencion,
-    String? venEmpComercial,
-    String? venEmpContribuyenteEspecial,
-    String? venEmpDireccion,
-    String? venEmpEmail,
-    String? venEmpLeyenda,
-    String? venEmpNombre,
-    String? venEmpObligado,
-    String? venEmpRegimen,
-    String? venEmpresa,
-    String? venEmpRuc,
-    String? venEmpTelefono,
-    String? venEnvio,
-    String? venErrorAutorizacion,
-    String? venEstado,
-    String? venFacturaCredito,
-    String? venFechaAutorizacion,
-    String? venFechaFactura,
-    String? venFecReg,
-    String? venFormaPago,
-    String? venNomCliente,
-    String? venNumero,
-    String? venNumFactura,
-    String? venNumFacturaAnterior,
-    String? venObservacion,
-    String? venOption,
-    String? venOtros,
-    String? venOtrosDetalles,
-    String? venTelfCliente,
-    String? venTipoDocuCliente,
-    String? venTipoDocumento,
-    String? venTotalRetencion,
-    String? venUser,
-    List<String>? placasData,
-    bool? ocultarEmail,
-  }) {
+      this.ocultarEmail = true,
+      this.productoSearch = ''});
+  VentaFormState copyWith(
+      {Email? nuevoEmail,
+      bool? isFormValid,
+      bool? isPosted,
+      bool? isPosting,
+      int? venId,
+      double? venCostoProduccion,
+      double? venDescuento,
+      double? venSubTotal,
+      double? venSubtotal0,
+      double? venSubTotal12,
+      double? venTotal,
+      double? venTotalIva,
+      GenericRequiredInput? venRucCliente,
+      int? venIdCliente,
+      int? venEmpIva,
+      List<String>? venCeluCliente,
+      List<String>? venEmailCliente,
+      Productos? venProductos,
+      String? fechaSustentoFactura,
+      String? venAbono,
+      String? venAutorizacion,
+      double? venDescPorcentaje,
+      String? venDias,
+      String? venDirCliente,
+      String? venEmpAgenteRetencion,
+      String? venEmpComercial,
+      String? venEmpContribuyenteEspecial,
+      String? venEmpDireccion,
+      String? venEmpEmail,
+      String? venEmpLeyenda,
+      String? venEmpNombre,
+      String? venEmpObligado,
+      String? venEmpRegimen,
+      String? venEmpresa,
+      String? venEmpRuc,
+      String? venEmpTelefono,
+      String? venEnvio,
+      String? venErrorAutorizacion,
+      String? venEstado,
+      String? venFacturaCredito,
+      String? venFechaAutorizacion,
+      String? venFechaFactura,
+      String? venFecReg,
+      String? venFormaPago,
+      String? venNomCliente,
+      String? venNumero,
+      String? venNumFactura,
+      String? venNumFacturaAnterior,
+      String? venObservacion,
+      String? venOption,
+      String? venOtros,
+      String? venOtrosDetalles,
+      String? venTelfCliente,
+      String? venTipoDocuCliente,
+      String? venTipoDocumento,
+      String? venTotalRetencion,
+      String? venUser,
+      List<String>? placasData,
+      bool? ocultarEmail,
+      String? productoSearch,
+      ProductoInput? nuevoProducto}) {
     return VentaFormState(
-        nuevoEmail: nuevoEmail ?? this.nuevoEmail,
-        isFormValid: isFormValid ?? this.isFormValid,
-        isPosted: isPosted ?? this.isPosted,
-        isPosting: isPosting ?? this.isPosting,
-        venId: venId ?? this.venId,
-        venCostoProduccion: venCostoProduccion ?? this.venCostoProduccion,
-        venDescuento: venDescuento ?? this.venDescuento,
-        venSubTotal: venSubTotal ?? this.venSubTotal,
-        venSubtotal0: venSubtotal0 ?? this.venSubtotal0,
-        venSubTotal12: venSubTotal12 ?? this.venSubTotal12,
-        venTotal: venTotal ?? this.venTotal,
-        venTotalIva: venTotalIva ?? this.venTotalIva,
-        venRucCliente: venRucCliente ?? this.venRucCliente,
-        venIdCliente: venIdCliente ?? this.venIdCliente,
-        venEmpIva: venEmpIva ?? this.venEmpIva,
-        venCeluCliente: venCeluCliente ?? this.venCeluCliente,
-        venEmailCliente: venEmailCliente ?? this.venEmailCliente,
-        venProductos: venProductos ?? this.venProductos,
-        fechaSustentoFactura: fechaSustentoFactura ?? this.fechaSustentoFactura,
-        venAbono: venAbono ?? this.venAbono,
-        venAutorizacion: venAutorizacion ?? this.venAutorizacion,
-        venDescPorcentaje: venDescPorcentaje ?? this.venDescPorcentaje,
-        venDias: venDias ?? this.venDias,
-        venDirCliente: venDirCliente ?? this.venDirCliente,
-        venEmpAgenteRetencion:
-            venEmpAgenteRetencion ?? this.venEmpAgenteRetencion,
-        venEmpComercial: venEmpComercial ?? this.venEmpComercial,
-        venEmpContribuyenteEspecial:
-            venEmpContribuyenteEspecial ?? this.venEmpContribuyenteEspecial,
-        venEmpDireccion: venEmpDireccion ?? this.venEmpDireccion,
-        venEmpEmail: venEmpEmail ?? this.venEmpEmail,
-        venEmpLeyenda: venEmpLeyenda ?? this.venEmpLeyenda,
-        venEmpNombre: venEmpNombre ?? this.venEmpNombre,
-        venEmpObligado: venEmpObligado ?? this.venEmpObligado,
-        venEmpRegimen: venEmpRegimen ?? this.venEmpRegimen,
-        venEmpresa: venEmpresa ?? this.venEmpresa,
-        venEmpRuc: venEmpRuc ?? this.venEmpRuc,
-        venEmpTelefono: venEmpTelefono ?? this.venEmpTelefono,
-        venEnvio: venEnvio ?? this.venEnvio,
-        venErrorAutorizacion: venErrorAutorizacion ?? this.venErrorAutorizacion,
-        venEstado: venEstado ?? this.venEstado,
-        venFacturaCredito: venFacturaCredito ?? this.venFacturaCredito,
-        venFechaAutorizacion: venFechaAutorizacion ?? this.venFechaAutorizacion,
-        venFechaFactura: venFechaFactura ?? this.venFechaFactura,
-        venFecReg: venFecReg ?? this.venFecReg,
-        venFormaPago: venFormaPago ?? this.venFormaPago,
-        venNomCliente: venNomCliente ?? this.venNomCliente,
-        venNumero: venNumero ?? this.venNumero,
-        venNumFactura: venNumFactura ?? this.venNumFactura,
-        venNumFacturaAnterior:
-            venNumFacturaAnterior ?? this.venNumFacturaAnterior,
-        venObservacion: venObservacion ?? this.venObservacion,
-        venOption: venOption ?? this.venOption,
-        venOtros: venOtros ?? this.venOtros,
-        venOtrosDetalles: venOtrosDetalles ?? this.venOtrosDetalles,
-        venTelfCliente: venTelfCliente ?? this.venTelfCliente,
-        venTipoDocuCliente: venTipoDocuCliente ?? this.venTipoDocuCliente,
-        venTipoDocumento: venTipoDocumento ?? this.venTipoDocumento,
-        venTotalRetencion: venTotalRetencion ?? this.venTotalRetencion,
-        venUser: venUser ?? this.venUser,
-        placasData: placasData ?? this.placasData,
-        ocultarEmail: ocultarEmail ?? this.ocultarEmail);
+      nuevoEmail: nuevoEmail ?? this.nuevoEmail,
+      isFormValid: isFormValid ?? this.isFormValid,
+      isPosted: isPosted ?? this.isPosted,
+      isPosting: isPosting ?? this.isPosting,
+      venId: venId ?? this.venId,
+      venCostoProduccion: venCostoProduccion ?? this.venCostoProduccion,
+      venDescuento: venDescuento ?? this.venDescuento,
+      venSubTotal: venSubTotal ?? this.venSubTotal,
+      venSubtotal0: venSubtotal0 ?? this.venSubtotal0,
+      venSubTotal12: venSubTotal12 ?? this.venSubTotal12,
+      venTotal: venTotal ?? this.venTotal,
+      venTotalIva: venTotalIva ?? this.venTotalIva,
+      venRucCliente: venRucCliente ?? this.venRucCliente,
+      venIdCliente: venIdCliente ?? this.venIdCliente,
+      venEmpIva: venEmpIva ?? this.venEmpIva,
+      venCeluCliente: venCeluCliente ?? this.venCeluCliente,
+      venEmailCliente: venEmailCliente ?? this.venEmailCliente,
+      venProductos: venProductos ?? this.venProductos,
+      fechaSustentoFactura: fechaSustentoFactura ?? this.fechaSustentoFactura,
+      venAbono: venAbono ?? this.venAbono,
+      venAutorizacion: venAutorizacion ?? this.venAutorizacion,
+      venDescPorcentaje: venDescPorcentaje ?? this.venDescPorcentaje,
+      venDias: venDias ?? this.venDias,
+      venDirCliente: venDirCliente ?? this.venDirCliente,
+      venEmpAgenteRetencion:
+          venEmpAgenteRetencion ?? this.venEmpAgenteRetencion,
+      venEmpComercial: venEmpComercial ?? this.venEmpComercial,
+      venEmpContribuyenteEspecial:
+          venEmpContribuyenteEspecial ?? this.venEmpContribuyenteEspecial,
+      venEmpDireccion: venEmpDireccion ?? this.venEmpDireccion,
+      venEmpEmail: venEmpEmail ?? this.venEmpEmail,
+      venEmpLeyenda: venEmpLeyenda ?? this.venEmpLeyenda,
+      venEmpNombre: venEmpNombre ?? this.venEmpNombre,
+      venEmpObligado: venEmpObligado ?? this.venEmpObligado,
+      venEmpRegimen: venEmpRegimen ?? this.venEmpRegimen,
+      venEmpresa: venEmpresa ?? this.venEmpresa,
+      venEmpRuc: venEmpRuc ?? this.venEmpRuc,
+      venEmpTelefono: venEmpTelefono ?? this.venEmpTelefono,
+      venEnvio: venEnvio ?? this.venEnvio,
+      venErrorAutorizacion: venErrorAutorizacion ?? this.venErrorAutorizacion,
+      venEstado: venEstado ?? this.venEstado,
+      venFacturaCredito: venFacturaCredito ?? this.venFacturaCredito,
+      venFechaAutorizacion: venFechaAutorizacion ?? this.venFechaAutorizacion,
+      venFechaFactura: venFechaFactura ?? this.venFechaFactura,
+      venFecReg: venFecReg ?? this.venFecReg,
+      venFormaPago: venFormaPago ?? this.venFormaPago,
+      venNomCliente: venNomCliente ?? this.venNomCliente,
+      venNumero: venNumero ?? this.venNumero,
+      venNumFactura: venNumFactura ?? this.venNumFactura,
+      venNumFacturaAnterior:
+          venNumFacturaAnterior ?? this.venNumFacturaAnterior,
+      venObservacion: venObservacion ?? this.venObservacion,
+      venOption: venOption ?? this.venOption,
+      venOtros: venOtros ?? this.venOtros,
+      venOtrosDetalles: venOtrosDetalles ?? this.venOtrosDetalles,
+      venTelfCliente: venTelfCliente ?? this.venTelfCliente,
+      venTipoDocuCliente: venTipoDocuCliente ?? this.venTipoDocuCliente,
+      venTipoDocumento: venTipoDocumento ?? this.venTipoDocumento,
+      venTotalRetencion: venTotalRetencion ?? this.venTotalRetencion,
+      venUser: venUser ?? this.venUser,
+      placasData: placasData ?? this.placasData,
+      ocultarEmail: ocultarEmail ?? this.ocultarEmail,
+      productoSearch: productoSearch ?? this.productoSearch,
+      nuevoProducto: nuevoProducto ?? this.nuevoProducto,
+    );
   }
 }

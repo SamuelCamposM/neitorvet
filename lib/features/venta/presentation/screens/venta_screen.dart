@@ -5,7 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/clientes/presentation/delegates/search_cliente_delegate.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
-import 'package:neitorvet/features/shared/utils/responsive.dart'; 
+import 'package:neitorvet/features/shared/delegate/item_generic_search.dart';
+import 'package:neitorvet/features/shared/helpers/parse.dart';
+import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
@@ -14,6 +17,7 @@ import 'package:neitorvet/features/venta/presentation/provider/venta_provider.da
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
 
 class VentaScreen extends ConsumerWidget {
   final int ventaId;
@@ -310,7 +314,6 @@ class _VentaForm extends ConsumerWidget {
                               //     .where((placa) => placa.contains(search))
                               //     .toList();
                             },
-                            onlySelect: true,
                             setSearch: (search) => ref
                                 .read(ventaFormProvider(venta).notifier)
                                 .updateState(venOtrosDetalles: search),
@@ -361,10 +364,65 @@ class _VentaForm extends ConsumerWidget {
                   SizedBox(
                     width: size.wScreen(50.0),
                     child: Expanded(
-                      child: CustomInputField(
-                        textAlign: TextAlign.center,
-                        label: 'Ingrese Producto',
-                        onChanged: (p0) {},
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final res = await showSearch(
+                              query: ventaForm.productoSearch,
+                              context: context,
+                              delegate: GenericDelegate(
+                                itemWidgetBuilder:
+                                    (inventarioItem, onItemSelected) =>
+                                        ItemGenericSearch(
+                                  item: inventarioItem,
+                                  title:
+                                      '${inventarioItem.invNombre} - ${inventarioItem.invSerie}',
+                                  onItemSelected: onItemSelected,
+                                ),
+                                searchItems: ({search = ''}) async {
+                                  final res = await ref
+                                      .read(ventasRepositoryProvider)
+                                      .getInventarioByQuery(search);
+                                  if (res.error.isNotEmpty) {
+                                    return <Inventario>[];
+                                  }
+                                  return res.resultado;
+                                },
+                                setSearch: (search) => ref
+                                    .read(ventaFormProvider(venta).notifier)
+                                    .updateState(productoSearch: search),
+                                initialItems: <Inventario>[], //
+                              ));
+
+                          if (res?.item != null) {
+                            ref
+                                .read(ventaFormProvider(venta).notifier)
+                                .updateState(
+                                    nuevoProducto: Producto(
+                                  cantidad: 0,
+                                  codigo: res!.item!.invSerie,
+                                  descripcion: res.item!.invNombre,
+                                  valUnitarioInterno:
+                                      Parse.parseDynamicToDouble(
+                                          res.item!.invprecios[0]),
+                                  valorUnitario: Parse.parseDynamicToDouble(
+                                      res.item!.invprecios[0]),
+                                  llevaIva: res.item!.invIva,
+                                  incluyeIva: res.item!.invIncluyeIva,
+                                  recargoPorcentaje: 0,
+                                  recargo: 0,
+                                  descPorcentaje: venta.venDescPorcentaje,
+                                  descuento: 0,
+                                  precioSubTotalProducto: 0,
+                                  valorIva: 0,
+                                  costoProduccion: 0,
+                                ));
+                          }
+                        },
+                        icon: const Icon(Icons.create),
+                        label: Text(
+                            ventaForm.nuevoProducto.value.descripcion.isEmpty
+                                ? "Ingrese un producto*"
+                                : ventaForm.nuevoProducto.value.descripcion),
                       ),
                     ),
                   ),
@@ -375,6 +433,17 @@ class _VentaForm extends ConsumerWidget {
                         textAlign: TextAlign.center,
                         label: 'Precio',
                         onChanged: (p0) {},
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              final result = [
+                                ventaForm.nuevoProducto.value,
+                                ...ventaForm.venProductos.value
+                              ];
+                              ref
+                                  .read(ventaFormProvider(venta).notifier)
+                                  .updateState(venProductos: result);
+                            },
+                            icon: const Icon(Icons.add_circle)),
                       ),
                     ),
                   ),
@@ -385,7 +454,7 @@ class _VentaForm extends ConsumerWidget {
               ),
               _ProductsList(
                 size: size,
-                products: venta.venProductos,
+                products: ventaForm.venProductos.value,
               ),
               Container(
                   padding: EdgeInsets.only(
@@ -582,7 +651,7 @@ class _ProductsList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('Cantidad: ${producto.cantidad}'),
-                  Text('Precio: \$${producto.precioSubTotalProducto}'),
+                  Text('Precio: \$${producto.valorUnitario}'),
                   Text('Código: ${producto.codigo}'),
                   Text('Costo: \$${producto.costoProduccion}'),
                 ],

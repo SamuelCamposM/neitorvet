@@ -198,6 +198,7 @@ class VentasViewState extends ConsumerState<VentasView> {
                       size: size,
                       invoiceId: venta.venId,
                       redirect: true,
+                      pdfUrl: 'https://syscontable.neitor.com/reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}'
                     );
                   },
                 ),
@@ -231,6 +232,7 @@ class InvoiceInfoCard extends StatelessWidget {
   final Responsive size;
   final int invoiceId;
   final bool redirect;
+  final String pdfUrl;
 
   const InvoiceInfoCard({
     Key? key,
@@ -242,6 +244,7 @@ class InvoiceInfoCard extends StatelessWidget {
     required this.invoiceId,
     this.redirect = true,
     required this.documento,
+    required this.pdfUrl
   }) : super(key: key);
 
   @override
@@ -326,7 +329,10 @@ class InvoiceInfoCard extends StatelessWidget {
                   ),
                   TextButton(
                       onPressed: () {},
-                      onLongPress: () {},
+                      onLongPress: () {
+                        context.push(
+                            '/PDF/Factura/${Uri.encodeComponent(pdfUrl)}');
+                      },
                       child: Text(
                         'PDF',
                         style: TextStyle(

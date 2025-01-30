@@ -53,7 +53,7 @@ class VentaNotifier extends StateNotifier<VentaState> {
       venFacturaCredito: 'NO',
       venDias: '',
       venAbono: '',
-      venDescPorcentaje: '',
+      venDescPorcentaje: 0,
       venOtrosDetalles: '',
       venObservacion: '',
       venSubTotal12: 0,

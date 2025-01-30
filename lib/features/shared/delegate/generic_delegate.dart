@@ -29,7 +29,7 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
     required this.initialItems,
     required this.setSearch,
     required this.itemWidgetBuilder,
-    this.onlySelect = false,
+    this.onlySelect = true,
   }) : super(searchFieldLabel: 'Buscar');
 
   void clearStreams() {

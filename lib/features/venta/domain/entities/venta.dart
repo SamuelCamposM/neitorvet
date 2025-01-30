@@ -22,7 +22,7 @@ class Venta {
   final String fechaSustentoFactura;
   final String venAbono;
   final String venAutorizacion;
-  final String venDescPorcentaje;
+  final double venDescPorcentaje;
   final String venDias;
   final String venDirCliente;
   final String venEmpAgenteRetencion;
@@ -146,7 +146,7 @@ class Venta {
         venFacturaCredito: json["venFacturaCredito"],
         venDias: json["venDias"],
         venAbono: json["venAbono"],
-        venDescPorcentaje: json["venDescPorcentaje"],
+        venDescPorcentaje: Parse.parseDynamicToDouble(json["venDescPorcentaje"]),
         venOtrosDetalles: json["venOtrosDetalles"],
         venObservacion: json["venObservacion"],
         venSubTotal12: Parse.parseDynamicToDouble(json["venSubTotal12"]),

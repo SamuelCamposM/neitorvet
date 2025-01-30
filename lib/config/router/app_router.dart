@@ -4,7 +4,8 @@ import 'package:neitorvet/config/router/app_router.notifier.dart';
 import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
- 
+import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
+
 import 'package:neitorvet/features/venta/presentation/screens/ventas_screen.dart';
 import 'package:neitorvet/features/venta/presentation/screens/screens.dart';
 
@@ -57,6 +58,21 @@ final goRouterProvider = Provider((ref) {
           ventaId: int.tryParse(state.params['id'].toString()) ?? 0,
         ),
       ),
+
+      GoRoute(
+        path: '/PDF/:label/:url',
+        builder: (context, state) {
+          final String label = state.params['label'] ?? '';
+          final String encodedUrl = state.params['url'] ?? '';
+          final String url =
+              Uri.decodeComponent(encodedUrl); // Decodifica la URL para usarla
+          return ShowPdfScreen(
+            labelPdf: label,
+            infoPdf: url,
+          );
+        },
+      ),
+
       // GoRoute(
       //   path: '/product/:id',
       //   builder: (context, state) {

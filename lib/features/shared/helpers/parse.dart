@@ -30,4 +30,22 @@ class Parse {
       return [];
     }
   }
+
+  static List<int> parseDynamicToListInt(dynamic value) {
+    if (value is int) {
+      return [value];
+    } else if (value is List) {
+      return value.map((e) {
+        if (e is int) {
+          return e;
+        } else if (e is String) {
+          return int.tryParse(e) ?? 0;
+        } else {
+          return 0;
+        }
+      }).toList();
+    } else {
+      return [];
+    }
+  }
 }
