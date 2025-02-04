@@ -195,13 +195,17 @@ class VentasNotifier extends StateNotifier<VentasState> {
   }
 
   Future<void> _setFormasPago() async {
+    state = state.copyWith(
+      isLoading: true,
+    );
     final formasPago = await ventasRepository.getFormasPago();
     if (formasPago.error.isNotEmpty) {
-      state =
-          state.copyWith(error: 'Hubo un error al obtener las formas de pago');
+      state = state.copyWith(
+          error: 'Hubo un error al obtener las formas de pago',
+          isLoading: false);
       return;
     }
-    state = state.copyWith(formasPago: formasPago.resultado);
+    state = state.copyWith(formasPago: formasPago.resultado, isLoading: false);
   }
 
   Future<ResponseSecuencia> getSecuencia() async {

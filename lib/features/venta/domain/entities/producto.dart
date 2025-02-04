@@ -1,19 +1,15 @@
-// To parse this JSON data, do
-//
-//     final producto = productoFromJson(jsonString);
-
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 
 class Producto {
-  final int cantidad;
+  final double cantidad;
   final String codigo;
   final String descripcion;
   final double valUnitarioInterno;
   final double valorUnitario;
-  final int recargoPorcentaje;
-  final int recargo;
+  final double recargoPorcentaje;
+  final double recargo;
   final double descPorcentaje;
-  final int descuento;
+  final double descuento;
   final double precioSubTotalProducto;
   final double valorIva;
   final double costoProduccion;
@@ -36,18 +32,53 @@ class Producto {
     required this.llevaIva,
     required this.incluyeIva,
   });
+  Producto copyWith({
+    double? cantidad,
+    String? codigo,
+    String? descripcion,
+    double? valUnitarioInterno,
+    double? valorUnitario,
+    double? recargoPorcentaje,
+    double? recargo,
+    double? descPorcentaje,
+    double? descuento,
+    double? precioSubTotalProducto,
+    double? valorIva,
+    double? costoProduccion,
+    String? llevaIva,
+    String? incluyeIva,
+  }) {
+    return Producto(
+      cantidad: cantidad ?? this.cantidad,
+      codigo: codigo ?? this.codigo,
+      descripcion: descripcion ?? this.descripcion,
+      valUnitarioInterno: valUnitarioInterno ?? this.valUnitarioInterno,
+      valorUnitario: valorUnitario ?? this.valorUnitario,
+      recargoPorcentaje: recargoPorcentaje ?? this.recargoPorcentaje,
+      recargo: recargo ?? this.recargo,
+      descPorcentaje: descPorcentaje ?? this.descPorcentaje,
+      descuento: descuento ?? this.descuento,
+      precioSubTotalProducto:
+          precioSubTotalProducto ?? this.precioSubTotalProducto,
+      valorIva: valorIva ?? this.valorIva,
+      costoProduccion: costoProduccion ?? this.costoProduccion,
+      llevaIva: llevaIva ?? this.llevaIva,
+      incluyeIva: incluyeIva ?? this.incluyeIva,
+    );
+  }
 
   factory Producto.fromJson(Map<String, dynamic> json) => Producto(
-        cantidad: Parse.parseDynamicToInt(json["cantidad"]),
+        cantidad: Parse.parseDynamicToDouble(json["cantidad"]),
         codigo: json["codigo"],
         descripcion: json["descripcion"],
         valUnitarioInterno:
             Parse.parseDynamicToDouble(json["valUnitarioInterno"]),
         valorUnitario: Parse.parseDynamicToDouble(json["valorUnitario"]),
-        recargoPorcentaje: Parse.parseDynamicToInt(json["recargoPorcentaje"]),
-        recargo: Parse.parseDynamicToInt(json["recargo"]),
+        recargoPorcentaje:
+            Parse.parseDynamicToDouble(json["recargoPorcentaje"]),
+        recargo: Parse.parseDynamicToDouble(json["recargo"]),
         descPorcentaje: Parse.parseDynamicToDouble(json["descPorcentaje"]),
-        descuento: Parse.parseDynamicToInt(json["descuento"]),
+        descuento: Parse.parseDynamicToDouble(json["descuento"]),
         precioSubTotalProducto:
             Parse.parseDynamicToDouble(json["precioSubTotalProducto"]),
         valorIva: Parse.parseDynamicToDouble(json["valorIva"]),
@@ -72,4 +103,76 @@ class Producto {
         "llevaIva": llevaIva,
         "incluyeIva": incluyeIva,
       };
+
+  double tresDecimales(double numero) {
+    return double.parse(numero.toStringAsFixed(4));
+  }
+
+  double dosDecimales(double numero) {
+    return double.parse(numero.toStringAsFixed(2));
+  }
+
+  Producto calcularProducto({
+    required double formPorcentaje,
+    required double iva,
+  }) {
+    try {
+      double resvalorUnitario = 0;
+
+      if (llevaIva == "SI" && incluyeIva == "SI") {
+        resvalorUnitario = tresDecimales(valUnitarioInterno / (1 + iva / 100));
+      } else {
+        resvalorUnitario = valUnitarioInterno;
+      }
+
+      double resdescuento =
+          tresDecimales(resvalorUnitario * (descPorcentaje / 100));
+
+      double resprecioUnitarioConDescuento =
+          tresDecimales(resvalorUnitario - resdescuento);
+
+      double resprecioSubTotalProducto =
+          tresDecimales(resprecioUnitarioConDescuento * cantidad);
+
+      double resrecargo =
+          tresDecimales(resprecioSubTotalProducto * (formPorcentaje / 100));
+
+      resprecioSubTotalProducto =
+          tresDecimales(resprecioSubTotalProducto + resrecargo);
+
+      double resvalorIva = 0;
+      if (llevaIva == "SI") {
+        resvalorIva = tresDecimales(resprecioSubTotalProducto * (iva / 100));
+      }
+      // print({
+      //   'valorUnitario': dosDecimales(resvalorUnitario),
+      //   'descuento': dosDecimales(resdescuento),
+      //   'precioSubTotalProducto': dosDecimales(resprecioSubTotalProducto),
+      //   'valorIva': dosDecimales(resvalorIva),
+      //   'recargoPorcentaje': dosDecimales(formPorcentaje),
+      //   'costoProduccion': dosDecimales(resvalorUnitario),
+      //   'recargo': dosDecimales(resrecargo),
+      // });
+
+      return Producto(
+        cantidad: cantidad,
+        codigo: codigo,
+        descripcion: descripcion,
+        valUnitarioInterno: valUnitarioInterno,
+        valorUnitario: dosDecimales(resvalorUnitario),
+        recargoPorcentaje: dosDecimales(formPorcentaje),
+        recargo: dosDecimales(resrecargo),
+        descPorcentaje: descPorcentaje,
+        descuento: dosDecimales(resdescuento),
+        precioSubTotalProducto: dosDecimales(resprecioSubTotalProducto),
+        valorIva: dosDecimales(resvalorIva),
+        costoProduccion: dosDecimales(resvalorUnitario),
+        llevaIva: llevaIva,
+        incluyeIva: incluyeIva,
+      );
+    } catch (error) {
+      print({'error': error});
+      return this;
+    }
+  }
 }

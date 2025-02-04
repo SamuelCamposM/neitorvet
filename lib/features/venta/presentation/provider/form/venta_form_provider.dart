@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
@@ -14,18 +16,25 @@ final ventaFormProvider = StateNotifierProvider.family
     .autoDispose<VentaFormNotifier, VentaFormState, Venta>((ref, venta) {
   final createUpdateVenta =
       ref.watch(ventasProvider.notifier).createUpdateVenta;
+  final formasPago = ref.watch(ventasProvider).formasPago;
+  final iva = ref.watch(authProvider).user?.iva ?? 15;
   return VentaFormNotifier(
-    venta: venta,
-    createUpdateVenta: createUpdateVenta,
-  );
+      venta: venta,
+      createUpdateVenta: createUpdateVenta,
+      iva: iva,
+      formasPago: formasPago);
 });
 
 class VentaFormNotifier extends StateNotifier<VentaFormState> {
   final Future<void> Function(Map<String, dynamic> ventaMap) createUpdateVenta;
-  VentaFormNotifier({
-    required Venta venta,
-    required this.createUpdateVenta,
-  }) : super(VentaFormState(
+  final int iva;
+  final List<FormaPago> formasPago;
+  VentaFormNotifier(
+      {required Venta venta,
+      required this.createUpdateVenta,
+      required this.formasPago,
+      required this.iva})
+      : super(VentaFormState(
           venId: venta.venId,
           venRucCliente: GenericRequiredInput.dirty(venta.venRucCliente),
           venCostoProduccion: venta.venCostoProduccion,
@@ -80,12 +89,15 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
           venTotalRetencion: venta.venTotalRetencion,
           venUser: venta.venUser,
           placasData: [venta.venOtrosDetalles],
-        ));
+        )) {
+    setPorcentajeFormaPago(venta.venFormaPago);
+  }
 
   void updateState({
     String? nuevoEmail,
     String? productoSearch,
     Producto? nuevoProducto,
+    String? monto,
     double? venCostoProduccion,
     double? venDescuento,
     double? venSubTotal,
@@ -148,6 +160,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       nuevoProducto: nuevoProducto != null
           ? ProductoInput.dirty(nuevoProducto)
           : state.nuevoProducto,
+      monto: double.tryParse(monto ?? "-") ?? state.monto,
       productoSearch: productoSearch ?? state.productoSearch,
       venProductos: Productos.dirty(venProductos ?? state.venProductos.value),
       venCostoProduccion: venCostoProduccion ?? state.venCostoProduccion,
@@ -227,6 +240,54 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     state = state.copyWith(ocultarEmail: !state.ocultarEmail);
   }
 
+  void _calcularTotales(List<Producto> productos, double formPorcentaje) {
+    final newProductos = productos.map(
+      (e) {
+        return e.calcularProducto(
+            formPorcentaje: formPorcentaje, iva: iva.toDouble());
+      },
+    ).toList();
+
+    final resultTotales = Venta.calcularTotales(newProductos);
+
+    state = state.copyWith(
+      venProductos: Productos.dirty(newProductos),
+      venCostoProduccion: resultTotales.venCostoProduccion,
+      venDescuento: resultTotales.venDescuento,
+      venSubTotal: resultTotales.venSubTotal,
+      venSubTotal12: resultTotales.venSubTotal12,
+      venSubtotal0: resultTotales.venSubtotal0,
+      venTotal: resultTotales.venTotal,
+      venTotalIva: resultTotales.venTotalIva,
+    );
+  }
+
+  void setPorcentajeFormaPago(String formaDePago) {
+    final exist = formasPago.any((e) => e.fpagoNombre == formaDePago);
+    if (exist) {
+      final formaPagoF = formasPago.firstWhere(
+        (venta) => venta.fpagoNombre == formaDePago,
+      );
+      _calcularTotales(
+          state.venProductos.value, double.parse(formaPagoF.fpagoPorcentaje));
+      state = state.copyWith(
+          porcentajeFormaPago: double.parse(formaPagoF.fpagoPorcentaje));
+    }
+  }
+
+  void agregarProducto(TextEditingController controller) {
+    final producto = state.nuevoProducto.value.copyWith(
+        cantidad: state.monto / state.nuevoProducto.value.valorUnitario);
+
+    final result = [producto, ...state.venProductos.value];
+    _calcularTotales(result, state.porcentajeFormaPago);
+    state = state.copyWith(
+      monto: 0,
+      nuevoProducto: const ProductoInput.pure(),
+    );
+    controller.text = '';
+  }
+
   Future<bool> onFormSubmit() async {
     // Marcar todos los campos como tocados
     _touchedEverything();
@@ -274,14 +335,18 @@ class VentaFormState {
   final bool isFormValid;
   final bool isPosted;
   final bool isPosting;
-  
+
   final ProductoInput nuevoProducto;
   final String productoSearch;
   final List<String> placasData;
   final Email nuevoEmail;
   final bool ocultarEmail;
+  final double monto;
+  final double porcentajeFormaPago;
 // venRucCliente
   //*REGISTRO
+  final GenericRequiredInput venRucCliente;
+  final Productos venProductos;
   final int venId;
   final double venCostoProduccion;
   final double venDescuento;
@@ -290,12 +355,10 @@ class VentaFormState {
   final double venSubTotal12;
   final double venTotal;
   final double venTotalIva;
-  final GenericRequiredInput venRucCliente;
   final int venIdCliente;
   final int? venEmpIva;
   final List<String> venCeluCliente;
   final List<String> venEmailCliente;
-  final Productos venProductos;
   final String fechaSustentoFactura;
   final String venAbono;
   final String venAutorizacion;
@@ -342,6 +405,8 @@ class VentaFormState {
       this.isFormValid = false,
       this.isPosted = false,
       this.isPosting = false,
+      this.monto = 0,
+      this.porcentajeFormaPago = 0,
       this.venId = 0,
       this.venCostoProduccion = 0,
       this.venDescuento = 0,
@@ -403,6 +468,8 @@ class VentaFormState {
       bool? isFormValid,
       bool? isPosted,
       bool? isPosting,
+      double? monto,
+      double? porcentajeFormaPago,
       int? venId,
       double? venCostoProduccion,
       double? venDescuento,
@@ -465,6 +532,8 @@ class VentaFormState {
       isFormValid: isFormValid ?? this.isFormValid,
       isPosted: isPosted ?? this.isPosted,
       isPosting: isPosting ?? this.isPosting,
+      monto: monto ?? this.monto,
+      porcentajeFormaPago: porcentajeFormaPago ?? this.porcentajeFormaPago,
       venId: venId ?? this.venId,
       venCostoProduccion: venCostoProduccion ?? this.venCostoProduccion,
       venDescuento: venDescuento ?? this.venDescuento,

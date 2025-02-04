@@ -146,7 +146,8 @@ class Venta {
         venFacturaCredito: json["venFacturaCredito"],
         venDias: json["venDias"],
         venAbono: json["venAbono"],
-        venDescPorcentaje: Parse.parseDynamicToDouble(json["venDescPorcentaje"]),
+        venDescPorcentaje:
+            Parse.parseDynamicToDouble(json["venDescPorcentaje"]),
         venOtrosDetalles: json["venOtrosDetalles"],
         venObservacion: json["venObservacion"],
         venSubTotal12: Parse.parseDynamicToDouble(json["venSubTotal12"]),
@@ -232,4 +233,106 @@ class Venta {
         "venEmpLeyenda": venEmpLeyenda,
         "venEmpIva": venEmpIva,
       };
+  static double dosDecimales(double numero) {
+    return double.parse(numero.toStringAsFixed(2));
+  }
+
+  static double tresDecimales(double numero) {
+    return double.parse(numero.toStringAsFixed(3));
+  }
+
+  static Totales sumarCantidad(Totales acumulador, Producto valorActual) {
+    var venSub0y12 = valorActual.llevaIva == "SI"
+        ? Totales(
+            venSubTotal12: dosDecimales(
+                acumulador.venSubTotal12 + valorActual.precioSubTotalProducto),
+            venSubtotal0: acumulador.venSubtotal0,
+            venDescuento: acumulador.venDescuento,
+            venSubTotal: acumulador.venSubTotal,
+            venTotalIva: acumulador.venTotalIva,
+            venTotal: acumulador.venTotal,
+            venCostoProduccion: acumulador.venCostoProduccion,
+          )
+        : Totales(
+            venSubTotal12: acumulador.venSubTotal12,
+            venSubtotal0: dosDecimales(
+                acumulador.venSubtotal0 + valorActual.precioSubTotalProducto),
+            venDescuento: acumulador.venDescuento,
+            venSubTotal: acumulador.venSubTotal,
+            venTotalIva: acumulador.venTotalIva,
+            venTotal: acumulador.venTotal,
+            venCostoProduccion: acumulador.venCostoProduccion,
+          );
+
+    return Totales(
+      venSubTotal12: venSub0y12.venSubTotal12,
+      venSubtotal0: venSub0y12.venSubtotal0,
+      venDescuento: dosDecimales(acumulador.venDescuento +
+          valorActual.descuento * valorActual.cantidad),
+      venSubTotal: dosDecimales(
+          acumulador.venSubTotal + valorActual.precioSubTotalProducto),
+      venTotalIva: dosDecimales(acumulador.venTotalIva + valorActual.valorIva),
+      venTotal: dosDecimales(acumulador.venTotal +
+          valorActual.precioSubTotalProducto +
+          valorActual.valorIva),
+      venCostoProduccion: dosDecimales(
+          acumulador.venCostoProduccion + valorActual.costoProduccion),
+    );
+  }
+
+  static Totales calcularTotales(List<Producto> productos) {
+    var inicial = Totales.inicial();
+    var resultado = productos.fold<Totales>(inicial, sumarCantidad);
+
+    var resvenSubTotal12 = dosDecimales(resultado.venSubTotal12);
+    var resvenSubtotal0 = dosDecimales(resultado.venSubtotal0);
+    var resvenDescuento = dosDecimales(resultado.venDescuento);
+    var resvenSubTotal = dosDecimales(resultado.venSubTotal);
+    var resvenTotalIva = dosDecimales(resultado.venTotalIva);
+    var resvenTotal =
+        dosDecimales(resvenSubTotal12 + resvenTotalIva + resvenSubtotal0);
+    var resvenCostoProduccion = dosDecimales(resultado.venCostoProduccion);
+
+    return Totales(
+      venSubTotal12: resvenSubTotal12,
+      venSubtotal0: resvenSubtotal0,
+      venDescuento: resvenDescuento,
+      venSubTotal: resvenSubTotal,
+      venTotalIva: resvenTotalIva,
+      venTotal: resvenTotal,
+      venCostoProduccion: resvenCostoProduccion,
+    );
+  }
+}
+
+class Totales {
+  double venSubTotal12;
+  double venSubtotal0;
+  double venDescuento;
+  double venSubTotal;
+  double venTotalIva;
+  double venTotal;
+  double venCostoProduccion;
+
+  Totales({
+    required this.venSubTotal12,
+    required this.venSubtotal0,
+    required this.venDescuento,
+    required this.venSubTotal,
+    required this.venTotalIva,
+    required this.venTotal,
+    required this.venCostoProduccion,
+  });
+
+  factory Totales.inicial() {
+    return Totales(
+      venSubTotal12: 0.0,
+      venSubtotal0: 0.0,
+      venDescuento: 0.0,
+      venSubTotal: 0.0,
+      venTotalIva: 0.0,
+      venTotal: 0.0,
+      venCostoProduccion: 0.0,
+    );
+  }
 }

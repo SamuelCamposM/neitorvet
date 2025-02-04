@@ -2,10 +2,12 @@
 //
 //     final bodega = bodegaFromJson(jsonString);
 
+import 'package:neitorvet/features/shared/helpers/parse.dart';
+
 class Bodega {
   final String estado;
   final String nomBodega;
-  final String stock;
+  final int stock;
   final String maximo;
   final String minimo;
   final int bodId;
@@ -21,8 +23,8 @@ class Bodega {
 
   factory Bodega.fromJson(Map<String, dynamic> json) => Bodega(
         estado: json["estado"],
-        nomBodega: json["nomBodega"],
-        stock: json["stock"],
+        nomBodega: json["nomBodega"].toString(),
+        stock: Parse.parseDynamicToInt(json["stock"]),
         maximo: json["maximo"],
         minimo: json["minimo"],
         bodId: json["bodId"],

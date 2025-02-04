@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/shared/screen/full_screen_loader.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
@@ -58,7 +59,14 @@ class VentasScreen extends StatelessWidget {
           },
         ),
       ),
-      body: const VentasView(),
+      body: Consumer(builder: (context, ref, child) {
+        final ventasState = ref.watch(ventasProvider);
+        if (ventasState.isLoading) {
+          return const FullScreenLoader();
+        }
+        return const VentasView();
+        // },
+      }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           context.push('/venta/0');
@@ -190,16 +198,16 @@ class VentasViewState extends ConsumerState<VentasView> {
                   itemBuilder: (context, index) {
                     final venta = ventasState.ventas[index];
                     return InvoiceInfoCard(
-                      numeroFactura: venta.venNumFactura,
-                      cliente: venta.venNomCliente,
-                      documento: venta.venRucCliente,
-                      fecha: venta.venFechaFactura,
-                      total: venta.venTotal,
-                      size: size,
-                      invoiceId: venta.venId,
-                      redirect: true,
-                      pdfUrl: 'https://syscontable.neitor.com/reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}'
-                    );
+                        numeroFactura: venta.venNumFactura,
+                        cliente: venta.venNomCliente,
+                        documento: venta.venRucCliente,
+                        fecha: venta.venFechaFactura,
+                        total: venta.venTotal,
+                        size: size,
+                        invoiceId: venta.venId,
+                        redirect: true,
+                        pdfUrl:
+                            'https://syscontable.neitor.com/reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}');
                   },
                 ),
               ),
@@ -234,18 +242,18 @@ class InvoiceInfoCard extends StatelessWidget {
   final bool redirect;
   final String pdfUrl;
 
-  const InvoiceInfoCard({
-    Key? key,
-    required this.numeroFactura,
-    required this.cliente,
-    required this.fecha,
-    required this.total,
-    required this.size,
-    required this.invoiceId,
-    this.redirect = true,
-    required this.documento,
-    required this.pdfUrl
-  }) : super(key: key);
+  const InvoiceInfoCard(
+      {Key? key,
+      required this.numeroFactura,
+      required this.cliente,
+      required this.fecha,
+      required this.total,
+      required this.size,
+      required this.invoiceId,
+      this.redirect = true,
+      required this.documento,
+      required this.pdfUrl})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

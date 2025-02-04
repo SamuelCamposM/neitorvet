@@ -1,21 +1,20 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/clientes/presentation/delegates/search_cliente_delegate.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
 import 'package:neitorvet/features/shared/delegate/item_generic_search.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
+import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
-
-import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
-import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
 
@@ -103,6 +102,7 @@ class _VentaForm extends ConsumerWidget {
   final Venta venta;
   final String secuencia;
   final nuevoEmailController = TextEditingController();
+  final montoController = TextEditingController();
   _VentaForm({required this.venta, required this.secuencia});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -289,7 +289,18 @@ class _VentaForm extends ConsumerWidget {
                       size: size,
                       label: 'F. de Pago',
                       value: ventaForm.venFormaPago,
-                      onChanged: (String? value) {},
+                      onChanged: (String? value) {
+                        final exist = ventasState.formasPago
+                            .any((e) => e.fpagoNombre == value);
+                        if (exist) {
+                          ref
+                              .read(ventaFormProvider(venta).notifier)
+                              .updateState(venFormaPago: value);
+                          ref
+                              .read(ventaFormProvider(venta).notifier)
+                              .setPorcentajeFormaPago(value!);
+                        }
+                      },
                       options: ventasState.formasPago.map(
                         (e) {
                           return e.fpagoNombre;
@@ -383,6 +394,10 @@ class _VentaForm extends ConsumerWidget {
                                       .read(ventasRepositoryProvider)
                                       .getInventarioByQuery(search);
                                   if (res.error.isNotEmpty) {
+                                    if (context.mounted) {
+                                      NotificationsService.show(context,
+                                          res.error, SnackbarCategory.error);
+                                    }
                                     return <Inventario>[];
                                   }
                                   return res.resultado;
@@ -394,6 +409,18 @@ class _VentaForm extends ConsumerWidget {
                               ));
 
                           if (res?.item != null) {
+                            final exist = ventaForm.venProductos.value
+                                .any((e) => e.codigo == res!.item!.invSerie);
+                            if (exist) {
+                              if (context.mounted) {
+                                NotificationsService.show(
+                                    context,
+                                    'Este Producto ya se encuentra en la lista',
+                                    SnackbarCategory.error);
+                              }
+                              return;
+                            }
+
                             ref
                                 .read(ventaFormProvider(venta).notifier)
                                 .updateState(
@@ -419,10 +446,10 @@ class _VentaForm extends ConsumerWidget {
                           }
                         },
                         icon: const Icon(Icons.create),
-                        label: Text(
-                            ventaForm.nuevoProducto.value.descripcion.isEmpty
-                                ? "Ingrese un producto*"
-                                : ventaForm.nuevoProducto.value.descripcion),
+                        label: Text(ventaForm
+                                .nuevoProducto.value.descripcion.isEmpty
+                            ? "Ingrese un producto*"
+                            : '${ventaForm.nuevoProducto.value.descripcion} \$${ventaForm.nuevoProducto.value.valorUnitario}'),
                       ),
                     ),
                   ),
@@ -432,16 +459,18 @@ class _VentaForm extends ConsumerWidget {
                       child: CustomInputField(
                         textAlign: TextAlign.center,
                         label: 'Precio',
-                        onChanged: (p0) {},
+                        controller: montoController,
+                        keyboardType: const TextInputType.numberWithOptions(),
+                        onChanged: (p0) {
+                          ref
+                              .read(ventaFormProvider(venta).notifier)
+                              .updateState(monto: p0);
+                        },
                         suffixIcon: IconButton(
                             onPressed: () {
-                              final result = [
-                                ventaForm.nuevoProducto.value,
-                                ...ventaForm.venProductos.value
-                              ];
                               ref
                                   .read(ventaFormProvider(venta).notifier)
-                                  .updateState(venProductos: result);
+                                  .agregarProducto(montoController);
                             },
                             icon: const Icon(Icons.add_circle)),
                       ),
@@ -475,13 +504,14 @@ class _VentaForm extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
+                            //TODO* IVA DEL USUARIO
                             'Subtotal 15 %:',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '\$ 3000',
+                            '${ventaForm.venSubTotal12}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -498,7 +528,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '\$ 3000',
+                            '${ventaForm.venSubtotal0}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -515,7 +545,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '\$ 3000',
+                            '${ventaForm.venDescuento}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -532,7 +562,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '\$ 3000',
+                            '${ventaForm.venSubTotal}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -549,7 +579,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '\$ 3000',
+                            ventaForm.venAbono,
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -560,13 +590,14 @@ class _VentaForm extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
+                            //TODO* IVA DEL USUARIO
                             'Iva: 15 %',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '\$ 3000',
+                            '${ventaForm.venTotalIva}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -583,7 +614,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '\$ 5000',
+                            '${ventaForm.venTotal}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.8),
                                 fontWeight: FontWeight.bold),
@@ -591,7 +622,8 @@ class _VentaForm extends ConsumerWidget {
                         ],
                       ),
                     ],
-                  ))
+                  )),
+              SizedBox(height: size.hScreen(15)),
             ],
           )),
     );
@@ -633,7 +665,7 @@ class _ProductsList extends StatelessWidget {
                 children: [
                   SizedBox(
                     width:
-                        size.width * 0.5, // Ajusta el ancho según sea necesario
+                        size.width * 0.4, // Ajusta el ancho según sea necesario
                     child: Text(
                       producto.descripcion, textAlign: TextAlign.start,
                       style: const TextStyle(
@@ -650,10 +682,15 @@ class _ProductsList extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('Cantidad: ${producto.cantidad}'),
-                  Text('Precio: \$${producto.valorUnitario}'),
-                  Text('Código: ${producto.codigo}'),
-                  Text('Costo: \$${producto.costoProduccion}'),
+                  Text('cantidad: ${producto.cantidad}'),
+                  Text('valorUnitario: \$${producto.valorUnitario}'),
+                  Text('valUnitarioInterno: \$${producto.valUnitarioInterno}'),
+                  Text('costoProduccion: \$${producto.costoProduccion}'),
+                  Text('codigo: ${producto.codigo}'),
+                  Text('descuento: \$${producto.descuento}'),
+                  Text('llevaIva: \$${producto.llevaIva}'),
+                  Text('valorIva: \$${producto.valorIva}'),
+                  Text('incluyeIva: \$${producto.incluyeIva}'),
                 ],
               ),
             ],
