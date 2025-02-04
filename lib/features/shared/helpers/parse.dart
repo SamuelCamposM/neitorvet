@@ -48,4 +48,24 @@ class Parse {
       return [];
     }
   }
+
+  static List<double> parseDynamicToListDouble(dynamic value) {
+    if (value is double) {
+      return [value];
+    } else if (value is List) {
+      return value.map((e) {
+        if (e is double) {
+          return e;
+        } else if (e is int) {
+          return e.toDouble();
+        } else if (e is String) {
+          return double.tryParse(e) ?? 0.0;
+        } else {
+          return 0.0;
+        }
+      }).toList();
+    } else {
+      return [];
+    }
+  }
 }

@@ -38,11 +38,28 @@ class VentasNotifier extends StateNotifier<VentasState> {
     _setFormasPago();
   }
   void _initializeSocketListeners() {
-    socket.on('connect', (a) {});
-
     socket.on('disconnect', (_) {});
 
-    socket.on("server:actualizadoExitoso", (data) {});
+    socket.on('connect', (_) {});
+
+    socket.on("server:actualizadoExitoso", (data) {
+      if (data['tabla'] == 'venta') {
+        // Edita de la lista de ventas
+        final updatedVenta = Venta.fromJson(data);
+        final updatedVentasList = state.ventas.map((venta) {
+          return venta.venId == updatedVenta.venId ? updatedVenta : venta;
+        }).toList();
+        state = state.copyWith(ventas: updatedVentasList);
+      }
+    });
+
+    socket.on("server:guardadoExitoso", (data) {
+      if (data['tabla'] == 'venta') {
+        // Agrega a la lista de ventas
+        final newVenta = Venta.fromJson(data);
+        state = state.copyWith(ventas: [...state.ventas, newVenta]);
+      }
+    });
   }
 
   Future loadNextPage() async {
@@ -191,7 +208,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
   }
 
   Future<void> createUpdateVenta(Map<String, dynamic> ventaMap) async {
-    socket.emit('client:actualizarData', ventaMap);
+    socket.emit('client:guardarData', ventaMap);
   }
 
   Future<void> _setFormasPago() async {

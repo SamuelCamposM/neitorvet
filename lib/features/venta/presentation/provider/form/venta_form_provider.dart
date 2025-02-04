@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -18,23 +20,36 @@ final ventaFormProvider = StateNotifierProvider.family
       ref.watch(ventasProvider.notifier).createUpdateVenta;
   final formasPago = ref.watch(ventasProvider).formasPago;
   final iva = ref.watch(authProvider).user?.iva ?? 15;
+  final rol = ref.watch(authProvider).user!.rol;
+  final rucempresa = ref.watch(authProvider).user!.rucempresa;
+  final usuario = ref.watch(authProvider).user!.usuario;
   return VentaFormNotifier(
-      venta: venta,
-      createUpdateVenta: createUpdateVenta,
-      iva: iva,
-      formasPago: formasPago);
+    venta: venta,
+    createUpdateVenta: createUpdateVenta,
+    iva: iva,
+    formasPago: formasPago,
+    rol: rol,
+    rucempresa: rucempresa,
+    usuario: usuario,
+  );
 });
 
 class VentaFormNotifier extends StateNotifier<VentaFormState> {
   final Future<void> Function(Map<String, dynamic> ventaMap) createUpdateVenta;
   final int iva;
   final List<FormaPago> formasPago;
-  VentaFormNotifier(
-      {required Venta venta,
-      required this.createUpdateVenta,
-      required this.formasPago,
-      required this.iva})
-      : super(VentaFormState(
+  final List<String> rol;
+  final String rucempresa;
+  final String usuario;
+  VentaFormNotifier({
+    required Venta venta,
+    required this.createUpdateVenta,
+    required this.formasPago,
+    required this.iva,
+    required this.rol,
+    required this.rucempresa,
+    required this.usuario,
+  }) : super(VentaFormState(
           venId: venta.venId,
           venRucCliente: GenericRequiredInput.dirty(venta.venRucCliente),
           venCostoProduccion: venta.venCostoProduccion,
@@ -81,7 +96,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
           venNumFacturaAnterior: venta.venNumFacturaAnterior,
           venObservacion: venta.venObservacion,
           venOption: venta.venOption,
-          venOtros: venta.venOtros,
+          venOtros: venta.venOtros ?? '',
           venOtrosDetalles: venta.venOtrosDetalles,
           venTelfCliente: venta.venTelfCliente,
           venTipoDocuCliente: venta.venTipoDocuCliente,
@@ -303,16 +318,89 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
     // Actualizar el estado para indicar que se está posteando
     state = state.copyWith(isPosting: true);
-    final ventaMap = {"A": 'A'};
+    final ventaMap = {
+      ...Venta(
+              venId: state.venId,
+              venOtros: state.venOtros,
+              venFecReg: state.venFecReg,
+              venOption: state.venOption,
+              venTipoDocumento: state.venTipoDocumento,
+              venIdCliente: state.venIdCliente,
+              venRucCliente: state.venRucCliente.value,
+              venTipoDocuCliente: state.venTipoDocuCliente,
+              venNomCliente: state.venNomCliente,
+              venEmailCliente: state.venEmailCliente,
+              venTelfCliente: state.venTelfCliente,
+              venCeluCliente: state.venCeluCliente,
+              venDirCliente: state.venDirCliente,
+              venEmpRuc: state.venEmpRuc,
+              venEmpNombre: state.venEmpNombre,
+              venEmpComercial: state.venEmpComercial,
+              venEmpDireccion: state.venEmpDireccion,
+              venEmpTelefono: state.venEmpTelefono,
+              venEmpEmail: state.venEmpEmail,
+              venEmpObligado: state.venEmpObligado,
+              venEmpRegimen: state.venEmpRegimen,
+              venFormaPago: state.venFormaPago,
+              venNumero: state.venNumero,
+              venFacturaCredito: state.venFacturaCredito,
+              venDias: state.venDias,
+              venAbono: state.venAbono,
+              venDescPorcentaje: state.venDescPorcentaje,
+              venOtrosDetalles: state.venOtrosDetalles,
+              venObservacion: state.venObservacion,
+              venSubTotal12: state.venSubTotal12,
+              venSubtotal0: state.venSubtotal0,
+              venDescuento: state.venDescuento,
+              venSubTotal: state.venSubTotal,
+              venTotalIva: state.venTotalIva,
+              venTotal: state.venTotal,
+              venCostoProduccion: state.venCostoProduccion,
+              venUser: state.venUser,
+              venFechaFactura: state.venFechaFactura,
+              venNumFactura: state.venNumFactura,
+              venNumFacturaAnterior: state.venNumFacturaAnterior,
+              venAutorizacion: state.venAutorizacion,
+              venFechaAutorizacion: state.venFechaAutorizacion,
+              venErrorAutorizacion: state.venErrorAutorizacion,
+              venEstado: state.venEstado,
+              venEnvio: state.venEnvio,
+              fechaSustentoFactura: state.fechaSustentoFactura,
+              venTotalRetencion: state.venTotalRetencion,
+              venEmpresa: state.venEmpresa,
+              venProductos: state.venProductos.value,
+              venEmpAgenteRetencion: state.venEmpAgenteRetencion,
+              venEmpContribuyenteEspecial: state.venEmpContribuyenteEspecial,
+              venEmpLeyenda: state.venEmpLeyenda,
+              venEmpIva: state.venEmpIva)
+          .toJson(),
+      "optionDocumento": 'F',
+      "venTipoDocumento": "F",
+      "venOption": "1",
+      "rucempresa": rucempresa,
+      "rol": rol,
+      "venUser": usuario,
+      "venEmpresa": rucempresa,
+      "tabla": "venta",
+    };
 
     try {
       // socket.emit('editar-registro', ventaMap);
       const result = true;
-      //  await onSubmitCallback(productMap);
       await createUpdateVenta(ventaMap);
+      String jsonString = jsonEncode(ventaMap);
+
+      const int chunkSize = 800; // Tamaño de cada parte
+      for (int i = 0; i < jsonString.length; i += chunkSize) {
+        // print(jsonString.substring(
+        //     i,
+        //     i + chunkSize > jsonString.length
+        //         ? jsonString.length
+        //         : i + chunkSize));
+      }
+
       // Actualizar el estado para indicar que ya no se está posteando
       state = state.copyWith(isPosting: false);
-
       return result;
     } catch (e) {
       // Actualizar el estado para indicar que ya no se está posteando

@@ -51,7 +51,7 @@ class Venta {
   final String venNumFacturaAnterior;
   final String venObservacion;
   final String venOption;
-  final String venOtros;
+  final String? venOtros;
   final String venOtrosDetalles;
   final String venRucCliente;
   final String venTelfCliente;
@@ -62,7 +62,7 @@ class Venta {
 
   Venta({
     required this.venId,
-    required this.venOtros,
+    this.venOtros,
     required this.venFecReg,
     required this.venOption,
     required this.venTipoDocumento,

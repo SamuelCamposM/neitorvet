@@ -155,7 +155,7 @@ class Producto {
       // });
 
       return Producto(
-        cantidad: cantidad,
+        cantidad: dosDecimales(cantidad),
         codigo: codigo,
         descripcion: descripcion,
         valUnitarioInterno: valUnitarioInterno,
@@ -171,7 +171,6 @@ class Producto {
         incluyeIva: incluyeIva,
       );
     } catch (error) {
-      print({'error': error});
       return this;
     }
   }

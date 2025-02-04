@@ -17,7 +17,7 @@ class Inventario {
   final String invIncluyeIva;
   final String invEstado;
   final List<Bodega> invBodegas;
-  final List<int> invprecios;
+  final List<double> invprecios;
   final String invProveedor;
   final String invCategoria;
   final String invSubCategoria;
@@ -77,8 +77,8 @@ class Inventario {
         invEstado: json["invEstado"],
         invBodegas: List<Bodega>.from(
             json["invBodegas"].map((x) => Bodega.fromJson(x))),
-        invprecios: List<int>.from(
-            Parse.parseDynamicToListInt(json["invprecios"]).map((x) => x)),
+        invprecios: List<double>.from(
+            Parse.parseDynamicToListDouble(json["invprecios"]).map((x) => x)),
         invProveedor: json["invProveedor"],
         invCategoria: json["invCategoria"],
         invSubCategoria: json["invSubCategoria"],

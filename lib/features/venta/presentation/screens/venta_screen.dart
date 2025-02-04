@@ -629,8 +629,9 @@ class _VentaForm extends ConsumerWidget {
     );
   }
 }
+// ...existing code...
 
-class _ProductsList extends StatelessWidget {
+class _ProductsList extends ConsumerWidget {
   final List<Producto> products;
   final Responsive size;
   const _ProductsList({
@@ -639,61 +640,77 @@ class _ProductsList extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Wrap(
       spacing: 10.0,
       runSpacing: 10.0,
       children: products.map((producto) {
-        return Container(
-          padding: const EdgeInsets.all(5.0),
-          width: size.wScreen(100), // Ajusta el ancho según lo necesites
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(10.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withAlpha((0.5 * 255).toInt()),
-                blurRadius: 1.0,
-                offset: const Offset(0.0, 3.0),
-              ),
-            ],
+        return Dismissible(
+          key: Key(producto
+              .codigo), // Asegúrate de que cada producto tenga una clave única
+          direction: DismissDirection.endToStart,
+          onDismissed: (direction) {
+            // Elimina el producto de la lista
+            print(producto);
+
+            // Muestra un mensaje de confirmación
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${producto.descripcion} eliminado')),
+            );
+          },
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: const Icon(Icons.delete, color: Colors.white),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  SizedBox(
-                    width:
-                        size.width * 0.4, // Ajusta el ancho según sea necesario
-                    child: Text(
-                      producto.descripcion, textAlign: TextAlign.start,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+          child: Container(
+            padding: const EdgeInsets.all(5.0),
+            width: size.wScreen(100), // Ajusta el ancho según lo necesites
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(10.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withAlpha((0.5 * 255).toInt()),
+                  blurRadius: 1.0,
+                  offset: const Offset(0.0, 3.0),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    SizedBox(
+                      width: size.width *
+                          0.4, // Ajusta el ancho según sea necesario
+                      child: Text(
+                        producto.descripcion,
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines:
+                            4, // Ajusta el número de líneas según sea necesario
                       ),
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines:
-                          4, // Ajusta el número de líneas según sea necesario
                     ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('cantidad: ${producto.cantidad}'),
-                  Text('valorUnitario: \$${producto.valorUnitario}'),
-                  Text('valUnitarioInterno: \$${producto.valUnitarioInterno}'),
-                  Text('costoProduccion: \$${producto.costoProduccion}'),
-                  Text('codigo: ${producto.codigo}'),
-                  Text('descuento: \$${producto.descuento}'),
-                  Text('llevaIva: \$${producto.llevaIva}'),
-                  Text('valorIva: \$${producto.valorIva}'),
-                  Text('incluyeIva: \$${producto.incluyeIva}'),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('Cantidad: ${producto.cantidad}'),
+                    Text('Precio: \$${producto.valorUnitario}'),
+                    Text('Código: ${producto.codigo}'),
+                    Text('Iva: \$${producto.valorIva}'),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       }).toList(),
