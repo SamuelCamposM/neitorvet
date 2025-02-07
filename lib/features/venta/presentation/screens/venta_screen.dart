@@ -2,21 +2,17 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:neitorvet/features/clientes/presentation/delegates/search_cliente_delegate.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
-import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
-import 'package:neitorvet/features/shared/delegate/item_generic_search.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
-import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
+import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
-import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
 
 class VentaScreen extends ConsumerWidget {
   final int ventaId;
@@ -111,20 +107,6 @@ class _VentaForm extends ConsumerWidget {
     final ventasState = ref.watch(ventasProvider);
     final size = Responsive.of(context);
 
-    Future<SearchResult?> searchClienteResult() async {
-      final clientesState = ref.read(clientesProvider);
-      return await showSearch<SearchResult>(
-          query: clientesState.search,
-          context: context,
-          delegate: SearchClienteDelegate(
-            onlySelect: true,
-            setSearch: ref.read(clientesProvider.notifier).setSearch,
-            initalClientes: clientesState.searchedClientes,
-            searchClientes:
-                ref.read(clientesProvider.notifier).searchClientesByQuery,
-          ));
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
@@ -138,8 +120,7 @@ class _VentaForm extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: size.iScreen(1.8),
                     fontWeight: FontWeight.normal,
-                    color: Colors
-                        .black, // Asegúrate de establecer el color del texto
+                    color: Colors.black,
                   ),
                   children: [
                     TextSpan(
@@ -188,26 +169,25 @@ class _VentaForm extends ConsumerWidget {
                             .read(ventaFormProvider(venta).notifier)
                             .updateState(venRucCliente: p0);
                       },
-                      // errorMessage: clienteForm.perCanton.errorMessage,
                     ),
                   ),
                   customBtnModals(size, Icons.search, () async {
-                    final response = await searchClienteResult();
-                    if (response?.cliente != null) {
+                    final cliente =
+                        await searchClienteResult(context: context, ref: ref);
+                    if (cliente != null) {
                       ref.read(ventaFormProvider(venta).notifier).updateState(
-                            placasData: response?.cliente!.perOtros,
-                            venRucCliente: response?.cliente!.perDocNumero,
-                            venNomCliente: response?.cliente!.perNombre,
-                            venIdCliente: response?.cliente!.perId,
-                            venTipoDocuCliente: response?.cliente!.perDocTipo,
-                            venEmailCliente: response?.cliente!.perEmail,
-                            venTelfCliente: response?.cliente!.perTelefono,
-                            venCeluCliente: response?.cliente!.perCelular,
-                            venDirCliente: response?.cliente!.perDireccion,
-                            venOtrosDetalles:
-                                response?.cliente?.perOtros.isEmpty ?? true
-                                    ? ""
-                                    : response!.cliente!.perOtros[0],
+                            placasData: cliente.perOtros,
+                            venRucCliente: cliente.perDocNumero,
+                            venNomCliente: cliente.perNombre,
+                            venIdCliente: cliente.perId,
+                            venTipoDocuCliente: cliente.perDocTipo,
+                            venEmailCliente: cliente.perEmail,
+                            venTelfCliente: cliente.perTelefono,
+                            venCeluCliente: cliente.perCelular,
+                            venDirCliente: cliente.perDireccion,
+                            venOtrosDetalles: cliente.perOtros.isEmpty
+                                ? ""
+                                : cliente.perOtros[0],
                           );
                     }
                   }),
@@ -218,29 +198,6 @@ class _VentaForm extends ConsumerWidget {
                     ref
                         .read(ventaFormProvider(venta).notifier)
                         .handleOcultarEmail();
-
-                    // showCustomInputModal(
-                    //     context: context,
-                    //     label: 'Agregar Email',
-                    //     field: CustomInputField(
-                    //       label: 'Correo',
-                    //       onFieldSubmitted: (_) {
-                    //         final result = ref
-                    //             .read(ventaFormProvider(venta).notifier)
-                    //             .agregarEmail(nuevoEmailController);
-                    //         if (result) {
-                    //           Navigator.of(context).pop();
-                    //         }
-                    //       },
-                    //       controller: nuevoEmailController,
-                    //       onChanged: (p0) {
-                    //         print(ventaForm.nuevoEmail.errorMessage);
-                    //         ref
-                    //             .read(ventaFormProvider(venta).notifier)
-                    //             .updateState(nuevoEmail: p0);
-                    //       },
-                    //       errorMessage: ventaForm.nuevoEmail.errorMessage,
-                    //     ));
                   }),
                 ],
               ),
@@ -310,30 +267,20 @@ class _VentaForm extends ConsumerWidget {
                   ),
                   OutlinedButton.icon(
                     onPressed: () async {
-                      final res = await showSearch(
-                          query: ventaForm.venOtrosDetalles,
+                      final placa = await searchPlacas(
                           context: context,
-                          delegate: GenericDelegate(
-                            itemWidgetBuilder: (cliente, onItemSelected) =>
-                                _ItemWidget(
-                              item: cliente,
-                              onItemSelected: onItemSelected,
-                            ),
-                            searchItems: ({search = ''}) async {
-                              return ventaForm.placasData;
-                              // return ventaForm.placasData
-                              //     .where((placa) => placa.contains(search))
-                              //     .toList();
-                            },
-                            setSearch: (search) => ref
+                          ref: ref,
+                          venOtrosDetalles: ventaForm.venOtrosDetalles,
+                          placasData: ventaForm.placasData,
+                          setSearch: (String search) {
+                            ref
                                 .read(ventaFormProvider(venta).notifier)
-                                .updateState(venOtrosDetalles: search),
-                            initialItems: ventaForm.placasData,
-                          ));
-                      if (res?.item != null) {
+                                .updateState(venOtrosDetalles: search);
+                          });
+                      if (placa != null) {
                         ref
                             .read(ventaFormProvider(venta).notifier)
-                            .updateState(venOtrosDetalles: res!.item);
+                            .updateState(venOtrosDetalles: placa);
                       }
                     },
                     icon: const Icon(Icons.create),
@@ -377,40 +324,11 @@ class _VentaForm extends ConsumerWidget {
                     child: Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () async {
-                          final res = await showSearch(
-                              query: ventaForm.productoSearch,
-                              context: context,
-                              delegate: GenericDelegate(
-                                itemWidgetBuilder:
-                                    (inventarioItem, onItemSelected) =>
-                                        ItemGenericSearch(
-                                  item: inventarioItem,
-                                  title:
-                                      '${inventarioItem.invNombre} - ${inventarioItem.invSerie}',
-                                  onItemSelected: onItemSelected,
-                                ),
-                                searchItems: ({search = ''}) async {
-                                  final res = await ref
-                                      .read(ventasRepositoryProvider)
-                                      .getInventarioByQuery(search);
-                                  if (res.error.isNotEmpty) {
-                                    if (context.mounted) {
-                                      NotificationsService.show(context,
-                                          res.error, SnackbarCategory.error);
-                                    }
-                                    return <Inventario>[];
-                                  }
-                                  return res.resultado;
-                                },
-                                setSearch: (search) => ref
-                                    .read(ventaFormProvider(venta).notifier)
-                                    .updateState(productoSearch: search),
-                                initialItems: <Inventario>[], //
-                              ));
-
-                          if (res?.item != null) {
+                          final inventario = await searchInventario(
+                              context: context, ref: ref);
+                          if (inventario != null) {
                             final exist = ventaForm.venProductos.value
-                                .any((e) => e.codigo == res!.item!.invSerie);
+                                .any((e) => e.codigo == inventario.invSerie);
                             if (exist) {
                               if (context.mounted) {
                                 NotificationsService.show(
@@ -420,21 +338,20 @@ class _VentaForm extends ConsumerWidget {
                               }
                               return;
                             }
-
                             ref
                                 .read(ventaFormProvider(venta).notifier)
                                 .updateState(
                                     nuevoProducto: Producto(
                                   cantidad: 0,
-                                  codigo: res!.item!.invSerie,
-                                  descripcion: res.item!.invNombre,
+                                  codigo: inventario.invSerie,
+                                  descripcion: inventario.invNombre,
                                   valUnitarioInterno:
                                       Parse.parseDynamicToDouble(
-                                          res.item!.invprecios[0]),
+                                          inventario.invprecios[0]),
                                   valorUnitario: Parse.parseDynamicToDouble(
-                                      res.item!.invprecios[0]),
-                                  llevaIva: res.item!.invIva,
-                                  incluyeIva: res.item!.invIncluyeIva,
+                                      inventario.invprecios[0]),
+                                  llevaIva: inventario.invIva,
+                                  incluyeIva: inventario.invIncluyeIva,
                                   recargoPorcentaje: 0,
                                   recargo: 0,
                                   descPorcentaje: venta.venDescPorcentaje,
@@ -445,11 +362,21 @@ class _VentaForm extends ConsumerWidget {
                                 ));
                           }
                         },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                              color:
+                                  ventaForm.nuevoProducto.errorMessage != null
+                                      ? Colors.red
+                                      : Colors.black),
+                        ),
                         icon: const Icon(Icons.create),
-                        label: Text(ventaForm
-                                .nuevoProducto.value.descripcion.isEmpty
-                            ? "Ingrese un producto*"
-                            : '${ventaForm.nuevoProducto.value.descripcion} \$${ventaForm.nuevoProducto.value.valorUnitario}'),
+                        label: Text(
+                          ventaForm.nuevoProducto.errorMessage != null
+                              ? ventaForm.nuevoProducto.errorMessage!
+                              : ventaForm.nuevoProducto.value.descripcion == ''
+                                  ? "Producto*"
+                                  : '${ventaForm.nuevoProducto.value.descripcion} \$${ventaForm.nuevoProducto.value.valorUnitario}',
+                        ),
                       ),
                     ),
                   ),
@@ -461,17 +388,24 @@ class _VentaForm extends ConsumerWidget {
                         label: 'Precio',
                         controller: montoController,
                         keyboardType: const TextInputType.numberWithOptions(),
+                        onFieldSubmitted: (_) {
+                          ref
+                              .read(ventaFormProvider(venta).notifier)
+                              .agregarProducto(montoController);
+                        },
                         onChanged: (p0) {
                           ref
                               .read(ventaFormProvider(venta).notifier)
                               .updateState(monto: p0);
                         },
                         suffixIcon: IconButton(
-                            onPressed: () {
-                              ref
-                                  .read(ventaFormProvider(venta).notifier)
-                                  .agregarProducto(montoController);
-                            },
+                            onPressed: ventaForm.monto == 0
+                                ? null
+                                : () {
+                                    ref
+                                        .read(ventaFormProvider(venta).notifier)
+                                        .agregarProducto(montoController);
+                                  },
                             icon: const Icon(Icons.add_circle)),
                       ),
                     ),
@@ -482,9 +416,11 @@ class _VentaForm extends ConsumerWidget {
                 height: size.wScreen(1),
               ),
               _ProductsList(
-                size: size,
-                products: ventaForm.venProductos.value,
-              ),
+                  size: size,
+                  products: ventaForm.venProductos.value,
+                  eliminarProducto: ref
+                      .read(ventaFormProvider(venta).notifier)
+                      .eliminarProducto),
               Container(
                   padding: EdgeInsets.only(
                       left: size.iScreen(1.5),
@@ -629,15 +565,15 @@ class _VentaForm extends ConsumerWidget {
     );
   }
 }
-// ...existing code...
 
 class _ProductsList extends ConsumerWidget {
   final List<Producto> products;
   final Responsive size;
-  const _ProductsList({
-    required this.size,
-    required this.products,
-  });
+  final void Function(String codigo) eliminarProducto;
+  const _ProductsList(
+      {required this.size,
+      required this.products,
+      required this.eliminarProducto});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -651,7 +587,7 @@ class _ProductsList extends ConsumerWidget {
           direction: DismissDirection.endToStart,
           onDismissed: (direction) {
             // Elimina el producto de la lista
-            print(producto);
+            eliminarProducto(producto.codigo);
 
             // Muestra un mensaje de confirmación
             ScaffoldMessenger.of(context).showSnackBar(
@@ -684,8 +620,7 @@ class _ProductsList extends ConsumerWidget {
                 Column(
                   children: [
                     SizedBox(
-                      width: size.width *
-                          0.4, // Ajusta el ancho según sea necesario
+                      width: size.width * 0.4,
                       child: Text(
                         producto.descripcion,
                         textAlign: TextAlign.start,
@@ -694,8 +629,7 @@ class _ProductsList extends ConsumerWidget {
                         ),
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
-                        maxLines:
-                            4, // Ajusta el número de líneas según sea necesario
+                        maxLines: 4,
                       ),
                     ),
                   ],
@@ -714,21 +648,6 @@ class _ProductsList extends ConsumerWidget {
           ),
         );
       }).toList(),
-    );
-  }
-}
-
-class _ItemWidget<T> extends StatelessWidget {
-  final T item;
-  final void Function(BuildContext context, T item) onItemSelected;
-
-  const _ItemWidget({required this.item, required this.onItemSelected});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(item.toString()), // Customize this as needed
-      onTap: () => onItemSelected(context, item),
     );
   }
 }

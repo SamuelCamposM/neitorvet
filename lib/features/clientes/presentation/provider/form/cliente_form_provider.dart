@@ -39,13 +39,13 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
           perCredito: cliente.perCredito,
           perDocTipo: cliente.perDocTipo,
           perDocumento: cliente.perDocumento,
-          perEspecialidad: cliente.perEspecialidad,
+          perEspecialidad: cliente.perEspecialidad ?? "",
           perEstado: cliente.perEstado,
-          perFecNacimiento: cliente.perFecNacimiento,
+          perFecNacimiento: cliente.perFecNacimiento ?? "",
           perFecReg: cliente.perFecReg,
           perFecUpd: cliente.perFecUpd,
-          perFoto: cliente.perFoto ?? "" ,
-          perGenero: cliente.perGenero,
+          perFoto: cliente.perFoto ?? "",
+          perGenero: cliente.perGenero ?? "",
           perNombreComercial: cliente.perNombreComercial,
           perObligado: cliente.perObligado,
           perObsevacion: cliente.perObsevacion,
@@ -268,7 +268,7 @@ class ClienteFormState {
   final String perFecReg;
   final String perFecUpd;
   final String perFoto;
-  final String? perGenero;
+  final String perGenero;
   final String perNombreComercial;
   final String perObligado;
   final String perObsevacion;

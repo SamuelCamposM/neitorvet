@@ -175,7 +175,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       nuevoProducto: nuevoProducto != null
           ? ProductoInput.dirty(nuevoProducto)
           : state.nuevoProducto,
-      monto: double.tryParse(monto ?? "-") ?? state.monto,
+      monto: monto == '' ? 0 : double.tryParse(monto ?? "") ?? state.monto,
       productoSearch: productoSearch ?? state.productoSearch,
       venProductos: Productos.dirty(venProductos ?? state.venProductos.value),
       venCostoProduccion: venCostoProduccion ?? state.venCostoProduccion,
@@ -291,6 +291,12 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   }
 
   void agregarProducto(TextEditingController controller) {
+    if (state.nuevoProducto.isNotValid) {
+      print(state.nuevoProducto.errorMessage);
+      state = state.copyWith(
+          nuevoProducto: ProductoInput.dirty(const ProductoInput.pure().value));
+      return;
+    }
     final producto = state.nuevoProducto.value.copyWith(
         cantidad: state.monto / state.nuevoProducto.value.valorUnitario);
 
@@ -301,6 +307,16 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       nuevoProducto: const ProductoInput.pure(),
     );
     controller.text = '';
+  }
+
+  void eliminarProducto(String codigo) {
+    final updatedProductos = state.venProductos.value
+        .where((producto) => producto.codigo != codigo)
+        .toList();
+    _calcularTotales(updatedProductos, state.porcentajeFormaPago);
+    state = state.copyWith(
+      venProductos: Productos.dirty(updatedProductos),
+    );
   }
 
   Future<bool> onFormSubmit() async {

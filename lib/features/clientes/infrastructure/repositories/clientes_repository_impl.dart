@@ -6,7 +6,7 @@ class ClientesRepositoryImpl extends ClientesRepository {
 
   ClientesRepositoryImpl({required this.datasource});
   @override
-  Future<ResponseClientes> getClientesByPage(
+  Future<ResponseClientesPaginacion> getClientesByPage(
       {int cantidad = 10,
       int page = 0,
       String perfil = 'CLIENTES',
@@ -20,5 +20,10 @@ class ClientesRepositoryImpl extends ClientesRepository {
         input: input,
         orden: orden,
         search: search);
+  }
+
+  @override
+  Future<ResponseCliente> getClientesByQueryInVentas(String search) {
+    return datasource.getClientesByQueryInVentas(search);
   }
 }

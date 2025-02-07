@@ -148,7 +148,7 @@ class Venta {
         venAbono: json["venAbono"],
         venDescPorcentaje:
             Parse.parseDynamicToDouble(json["venDescPorcentaje"]),
-        venOtrosDetalles: json["venOtrosDetalles"],
+        venOtrosDetalles: json["venOtrosDetalles"].toString(),
         venObservacion: json["venObservacion"],
         venSubTotal12: Parse.parseDynamicToDouble(json["venSubTotal12"]),
         venSubtotal0: Parse.parseDynamicToDouble(json["venSubtotal0"]),

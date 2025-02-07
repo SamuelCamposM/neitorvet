@@ -1,0 +1,150 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:neitorvet/config/config.dart';
+import 'package:neitorvet/features/venta/domain/entities/venta.dart';
+import 'package:neitorvet/features/shared/utils/responsive.dart';
+
+class VentaCard extends StatelessWidget {
+  final Venta venta;
+  final Responsive size;
+  final bool redirect;
+
+  const VentaCard({
+    Key? key,
+    required this.venta,
+    required this.size,
+    this.redirect = true,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Slidable(
+      key: ValueKey(venta.venId),
+      startActionPane: ActionPane(
+        motion:
+            const DrawerMotion(), // Puedes cambiar ScrollMotion por otro tipo de Motion
+        children: [
+          SlidableAction(
+            onPressed: (context) {
+              context.push(
+                  '/PDF/Factura/${Uri.encodeComponent('${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}')}');
+            },
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.red,
+            icon: Icons.picture_as_pdf,
+            label: 'PDF',
+          ),
+        ],
+      ),
+      // endActionPane: ActionPane(
+      //   motion: const DrawerMotion(), // Puedes cambiar DrawerMotion por otro tipo de Motion
+      //   children: [
+      //     SlidableAction(
+      //       onPressed: (context) {
+      //         // Acción adicional
+      //       },
+      //       backgroundColor: Colors.green,
+      //       foregroundColor: Colors.white,
+      //       icon: Icons.share,
+      //       label: 'Compartir',
+      //     ),
+      //   ],
+      // ),
+      child: GestureDetector(
+        onTap: redirect
+            ? () {
+                context.push('/venta/${venta.venId}');
+              }
+            : null,
+        child: Container(
+          width: size.wScreen(100),
+          padding: EdgeInsets.all(size.iScreen(1.0)),
+          margin: EdgeInsets.symmetric(
+              horizontal: size.iScreen(1.2), vertical: size.iScreen(0.5)),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withAlpha((0.5 * 255).toInt()),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4), // Desplazamiento de la sombra
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: size.wScreen(60.0),
+                    child: Text(
+                      "# ${venta.venNumFactura}",
+                      style: TextStyle(
+                          fontSize: size.iScreen(1.5),
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(
+                    width: size.wScreen(60.0),
+                    child: Text(
+                      venta.venNomCliente,
+                      style: TextStyle(
+                        fontSize: size.iScreen(1.5),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    venta.venRucCliente,
+                    style: TextStyle(
+                      fontSize: size.iScreen(1.5),
+                    ),
+                  ),
+                  Text(
+                    "Fecha: ${venta.venFechaFactura}",
+                    style: TextStyle(
+                      fontSize: size.iScreen(1.5),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: size.wScreen(20),
+                child: Column(
+                  children: [
+                    Text(
+                      "Total",
+                      style: TextStyle(
+                          fontSize: size.iScreen(1.5),
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "\$${venta.venTotal.toStringAsFixed(2)}",
+                      style: TextStyle(
+                          fontSize: size.iScreen(1.7),
+                          fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        final pdfUrl = Uri.encodeComponent(
+                            '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}');
+                        context.push('/PDF/Factura/$pdfUrl');
+                      },
+                      icon: Icon(Icons.receipt, color: colors.secondary),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

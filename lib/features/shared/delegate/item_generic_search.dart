@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
 
-class ItemGenericSearch<T extends Inventario> extends StatelessWidget {
+class ItemGenericSearch<T> extends StatelessWidget {
   final T item;
   final String title;
   final void Function(BuildContext context, T item) onItemSelected;

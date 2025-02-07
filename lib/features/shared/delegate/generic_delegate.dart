@@ -47,7 +47,7 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
       () async {
         if (search.isEmpty) {
           if (!debounceItems.isClosed) {
-            debounceItems.add([]);
+            // debounceItems.add([]);
           }
           return;
         }

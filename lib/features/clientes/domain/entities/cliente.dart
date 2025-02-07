@@ -32,8 +32,8 @@ class Cliente {
   final String perDocumento;
   final String? perGenero;
   final String? perRecomendacion;
-  final String perFecNacimiento;
-  final String perEspecialidad;
+  final String? perFecNacimiento;
+  final String? perEspecialidad;
   final String perTitulo;
   final String perSenescyt;
   final String perPersonal;
@@ -90,7 +90,7 @@ class Cliente {
   });
 
   factory Cliente.fromJson(Map<String, dynamic> json) => Cliente(
-        perNombreComercial: json["perNombreComercial"],
+        perNombreComercial: json["perNombreComercial"] ?? '',
         perEmpresa: List<String>.from(json["perEmpresa"].map((x) => x)),
         perPais: json["perPais"],
         perProvincia: json["perProvincia"],

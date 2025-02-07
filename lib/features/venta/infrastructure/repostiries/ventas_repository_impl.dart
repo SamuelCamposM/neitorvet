@@ -9,7 +9,7 @@ class VentasRepositoryImpl extends VentasRepository {
   Future<ResponseVentas> getVentasByPage(
       {int cantidad = 10,
       int page = 0,
-      String estado = 'FACTURAS',
+      String estado = 'NOTA VENTAS',
       String input = 'venId',
       bool orden = false,
       String search = ''}) {

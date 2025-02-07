@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:neitorvet/features/shared/screen/full_screen_loader.dart';
+import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/venta/presentation/widgets/venta_card.dart';
 
 class VentasScreen extends StatelessWidget {
   const VentasScreen({super.key});
@@ -13,6 +14,7 @@ class VentasScreen extends StatelessWidget {
   Widget build(
     BuildContext context,
   ) {
+    final size = Responsive.of(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -21,32 +23,40 @@ class VentasScreen extends StatelessWidget {
               // final ventasState = ref.watch(ventasProvider);
               return IconButton(
                   onPressed: () async {
-                    // final ventasState = ref.read(ventasProvider);
-                    // // final searchedMovies = ref.read(searchmoviespro);
-                    // final searchVentaResult = await showSearch<SearchResult>(
-                    //     query: ventasState.search,
-                    //     context: context,
-                    //     delegate: SearchVentaDelegate(
-                    //       setSearch:
-                    //           ref.read(ventasProvider.notifier).setSearch,
-                    //       initalVentas: ventasState.searchedVentas,
-                    //       searchVentas: ref
-                    //           .read(ventasProvider.notifier)
-                    //           .searchVentasByQuery,
-                    //     ));
-                    // if (searchVentaResult?.wasLoading == true) {
-                    //   ref
-                    //       .read(ventasProvider.notifier)
-                    //       .searchVentasByQueryWhileWasLoading();
+                    final ventasState = ref.read(ventasProvider);
+                    // final searchedMovies = ref.read(searchmoviespro);
+                    final searchVentaResult = await showSearch(
+                        query: ventasState.search,
+                        context: context,
+                        delegate: GenericDelegate(
+                          onlySelect: false,
+                          itemWidgetBuilder: (item, onItemSelected) {
+                            return VentaCard(venta: item, size: size);
+                          },
+                          setSearch:
+                              ref.read(ventasProvider.notifier).setSearch,
+                          initialItems: ventasState.searchedVentas,
+                          searchItems: ({search = ''}) {
+                            return ref
+                                .read(ventasProvider.notifier)
+                                .searchVentasByQuery(search: search);
+                          },
+                        ));
+                    // if (searchVentaResult?.item != null) {
+                    //   cliente
                     // }
-                    // if (searchVentaResult?.setBusqueda == true) {
-                    //   ref.read(ventasProvider.notifier).handleSearch();
-                    // }
-                    // if (!context.mounted) return;
-                    // if (searchVentaResult?.venta != null) {
-                    //   context.push(
-                    //       '/venta/${searchVentaResult?.venta?.perId}');
-                    // }
+                    if (searchVentaResult?.wasLoading == true) {
+                      ref
+                          .read(ventasProvider.notifier)
+                          .searchVentasByQueryWhileWasLoading();
+                    }
+                    if (searchVentaResult?.setBusqueda == true) {
+                      ref.read(ventasProvider.notifier).handleSearch();
+                    }
+                    if (!context.mounted) return;
+                    if (searchVentaResult?.item != null) {
+                      context.push('/venta/${searchVentaResult?.item?.venId}');
+                    }
                   },
                   icon: const Icon(Icons.search));
             },
@@ -59,14 +69,7 @@ class VentasScreen extends StatelessWidget {
           },
         ),
       ),
-      body: Consumer(builder: (context, ref, child) {
-        final ventasState = ref.watch(ventasProvider);
-        if (ventasState.isLoading) {
-          return const FullScreenLoader();
-        }
-        return const VentasView();
-        // },
-      }),
+      body: const VentasView(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           context.push('/venta/0');
@@ -157,7 +160,7 @@ class VentasViewState extends ConsumerState<VentasView> {
                     items: const [
                       DropdownMenuItem(
                         value: 'venId',
-                        child: Text('ID'),
+                        child: Text('Fecha'),
                       ),
                       DropdownMenuItem(
                         value: 'perDocumento',
@@ -197,17 +200,11 @@ class VentasViewState extends ConsumerState<VentasView> {
                   itemCount: ventasState.ventas.length,
                   itemBuilder: (context, index) {
                     final venta = ventasState.ventas[index];
-                    return InvoiceInfoCard(
-                        numeroFactura: venta.venNumFactura,
-                        cliente: venta.venNomCliente,
-                        documento: venta.venRucCliente,
-                        fecha: venta.venFechaFactura,
-                        total: venta.venTotal,
-                        size: size,
-                        invoiceId: venta.venId,
-                        redirect: true,
-                        pdfUrl:
-                            'https://syscontable.neitor.com/reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}');
+                    return VentaCard(
+                      venta: venta,
+                      size: size,
+                      redirect: true,
+                    );
                   },
                 ),
               ),
@@ -227,133 +224,6 @@ class VentasViewState extends ConsumerState<VentasView> {
             ),
           ),
       ],
-    );
-  }
-}
-
-class InvoiceInfoCard extends StatelessWidget {
-  final String numeroFactura;
-  final String cliente;
-  final String documento;
-  final String fecha;
-  final double total;
-  final Responsive size;
-  final int invoiceId;
-  final bool redirect;
-  final String pdfUrl;
-
-  const InvoiceInfoCard(
-      {Key? key,
-      required this.numeroFactura,
-      required this.cliente,
-      required this.fecha,
-      required this.total,
-      required this.size,
-      required this.invoiceId,
-      this.redirect = true,
-      required this.documento,
-      required this.pdfUrl})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: redirect
-          ? () {
-              context.push('/venta/$invoiceId');
-            }
-          : null,
-      child: Container(
-        width: size.wScreen(100),
-        padding: EdgeInsets.all(size.iScreen(1.0)),
-        margin: EdgeInsets.symmetric(
-            horizontal: size.iScreen(1.2), vertical: size.iScreen(0.5)),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withAlpha((0.5 * 255).toInt()),
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: const Offset(0, 4), // Desplazamiento de la sombra
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: size.wScreen(60.0),
-                  child: Text(
-                    "# $numeroFactura",
-                    style: TextStyle(
-                        fontSize: size.iScreen(1.5),
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(
-                  width: size.wScreen(60.0),
-                  child: Text(
-                    cliente,
-                    style: TextStyle(
-                      fontSize: size.iScreen(1.5),
-                    ),
-                  ),
-                ),
-                Text(
-                  documento,
-                  style: TextStyle(
-                    fontSize: size.iScreen(1.5),
-                  ),
-                ),
-                Text(
-                  "Fecha: $fecha",
-                  style: TextStyle(
-                    fontSize: size.iScreen(1.5),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              width: size.wScreen(20),
-              child: Column(
-                children: [
-                  Text(
-                    "Total",
-                    style: TextStyle(
-                        fontSize: size.iScreen(1.5),
-                        fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "\$${total.toStringAsFixed(2)}",
-                    style: TextStyle(
-                        fontSize: size.iScreen(1.7),
-                        fontWeight: FontWeight.bold),
-                  ),
-                  TextButton(
-                      onPressed: () {},
-                      onLongPress: () {
-                        context.push(
-                            '/PDF/Factura/${Uri.encodeComponent(pdfUrl)}');
-                      },
-                      child: Text(
-                        'PDF',
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: size.iScreen(1.7),
-                            fontWeight: FontWeight.bold),
-                      ))
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

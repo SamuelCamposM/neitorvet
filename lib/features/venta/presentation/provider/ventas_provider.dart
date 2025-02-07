@@ -57,7 +57,10 @@ class VentasNotifier extends StateNotifier<VentasState> {
       if (data['tabla'] == 'venta') {
         // Agrega a la lista de ventas
         final newVenta = Venta.fromJson(data);
-        state = state.copyWith(ventas: [...state.ventas, newVenta]);
+        state = state.copyWith(ventas: [
+          newVenta,
+          ...state.ventas,
+        ]);
       }
     });
   }
@@ -69,7 +72,12 @@ class VentasNotifier extends StateNotifier<VentasState> {
     state = state.copyWith(isLoading: true);
 
     final ventas = await ventasRepository.getVentasByPage(
-        cantidad: state.cantidad, page: state.page, search: state.search);
+        cantidad: state.cantidad,
+        page: state.page,
+        search: state.search,
+        estado: state.estado,
+        input: state.input,
+        orden: state.orden);
 
     if (ventas.error.isNotEmpty) {
       state = state.copyWith(isLoading: false, error: ventas.error);
@@ -272,7 +280,7 @@ class VentasState {
       this.error = '',
       this.total = 0,
       this.search = '',
-      this.estado = 'FACTURAS',
+      this.estado = 'NOTA VENTAS',
       this.input = 'venId',
       this.orden = false,
       this.searchedVentas = const [],
