@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/config/local_notifications/local_notifications.dart';
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -11,20 +12,16 @@ class VentasScreen extends StatelessWidget {
   const VentasScreen({super.key});
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     final size = Responsive.of(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
           Consumer(
             builder: (context, ref, child) {
-              // final ventasState = ref.watch(ventasProvider);
               return IconButton(
                   onPressed: () async {
                     final ventasState = ref.read(ventasProvider);
-                    // final searchedMovies = ref.read(searchmoviespro);
                     final searchVentaResult = await showSearch(
                         query: ventasState.search,
                         context: context,
@@ -42,9 +39,6 @@ class VentasScreen extends StatelessWidget {
                                 .searchVentasByQuery(search: search);
                           },
                         ));
-                    // if (searchVentaResult?.item != null) {
-                    //   cliente
-                    // }
                     if (searchVentaResult?.wasLoading == true) {
                       ref
                           .read(ventasProvider.notifier)
@@ -210,6 +204,21 @@ class VentasViewState extends ConsumerState<VentasView> {
               ),
             ],
           ),
+        ),
+        Positioned(
+          bottom: 40,
+          left: 0,
+          right: 0,
+          child: IconButton(
+              onPressed: () {
+                LocalNotifications.showLocalNotification(
+                  id: 0,
+                  title: 'Descarga completada',
+                  body: 'Toca para abrir el archivo',
+                  data: '/path/to/your/file.pdf', // Asegúrate de proporcionar una ruta válida
+                );
+              },
+              icon: const Icon(Icons.notification_add)),
         ),
         if (ventasState.isLoading)
           Positioned(

@@ -5,6 +5,7 @@ import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:neitorvet/config/local_notifications/local_notifications.dart';
 
 class ShowPdfScreen extends StatefulWidget {
   final String infoPdf;
@@ -57,6 +58,15 @@ class ShowPdfScreenState extends State<ShowPdfScreen> {
             });
           },
         );
+
+        // Mostrar notificación
+        LocalNotifications.showLocalNotification(
+          id: 0,
+          title: 'Descarga completada',
+          body: 'Toca para abrir el archivo',
+          data: filePath,
+        );
+
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Descarga completada: $filePath')),
@@ -82,6 +92,12 @@ class ShowPdfScreenState extends State<ShowPdfScreen> {
         _isDownloading = false;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    LocalNotifications.initializeLocalNotifications();
   }
 
   @override
@@ -122,7 +138,7 @@ class ShowPdfScreenState extends State<ShowPdfScreen> {
                 padding: EdgeInsets.symmetric(
                     horizontal: size.iScreen(1.0), vertical: size.iScreen(1.0)),
                 color: Colors.grey[300],
-                child: const PDF().cachedFromUrl(widget.infoPdf),
+                child: PDF().cachedFromUrl(widget.infoPdf),
               ),
       ),
     );

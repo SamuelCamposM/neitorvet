@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:neitorvet/config/config.dart';
+import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 
-class VentaCard extends StatelessWidget {
+class VentaCard extends ConsumerWidget {
   final Venta venta;
   final Responsive size;
   final bool redirect;
@@ -18,7 +20,7 @@ class VentaCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     final colors = Theme.of(context).colorScheme;
     return Slidable(
       key: ValueKey(venta.venId),
@@ -28,8 +30,13 @@ class VentaCard extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (context) {
-              context.push(
-                  '/PDF/Factura/${Uri.encodeComponent('${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}')}');
+              final pdfUrl =
+                  '${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
+              ref
+                  .read(downloadPdfProvider.notifier)
+                  .downloadPDF(context, pdfUrl);
+              // context.push(
+              // '/PDF/Factura/${Uri.encodeComponent('${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}')}');
             },
             backgroundColor: Colors.transparent,
             foregroundColor: Colors.red,
@@ -132,9 +139,13 @@ class VentaCard extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        final pdfUrl = Uri.encodeComponent(
-                            '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}');
-                        context.push('/PDF/Factura/$pdfUrl');
+                        final pdfUrl =
+                            '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
+                        ref
+                            .read(downloadPdfProvider.notifier)
+                            .downloadPDF(context, pdfUrl);
+
+                        // context.push('/PDF/Factura/$pdfUrl');
                       },
                       icon: Icon(Icons.receipt, color: colors.secondary),
                     )

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/config/config.dart';
+import 'package:neitorvet/config/local_notifications/local_notifications.dart';
 import 'package:neitorvet/config/provider/device_type_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Environment.initEnvironment();
+  await LocalNotifications.requestPermisionLocalNotification();
+  await LocalNotifications.initializeLocalNotifications();
   runApp(const ProviderScope(child: MainApp()));
 }
 
