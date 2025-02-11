@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
+import 'package:neitorvet/features/venta/domain/entities/body_correo.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
@@ -88,6 +89,18 @@ class VentasDatasourceImpl extends VentasDatasource {
         resultado: [],
         error: ErrorApi.getErrorMessage(e),
       );
+    }
+  }
+
+  @override
+  Future<ResponseCorreoVenta> sendCorreo(BodyCorreo bodyCorreo) async {
+    try {
+      final res = await dio.post("/mensajeria", data: bodyCorreo.toJson());
+      final String msg = res.data['msg'];
+      return ResponseCorreoVenta(msg: msg, error: '');
+    } catch (e) {
+      return ResponseCorreoVenta(
+          msg: '', error: 'Hubo un error al enviar correo');
     }
   }
 }

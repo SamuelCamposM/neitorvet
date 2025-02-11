@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/auth/presentation/providers/login_form_provider.dart';
 import 'package:neitorvet/features/shared/shared.dart';
+import 'package:neitorvet/features/shared/utils/responsive.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -11,6 +12,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final responsive = Responsive.of(context);
     final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
     return GestureDetector(
@@ -22,14 +24,21 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 80),
+            const SizedBox(height: 45),
             // Icon Banner
-            const Icon(
-              Icons.production_quantity_limits_rounded,
-              color: Colors.white,
-              size: 100,
+            SizedBox(
+              width: responsive.wScreen(40),
+              child: Image.asset(
+                'assets/images/logoNeitor.png',
+                fit: BoxFit.cover,
+              ),
             ),
-            const SizedBox(height: 80),
+            // const Icon(
+            //   Icons.production_quantity_limits_rounded,
+            //   color: Colors.white,
+            //   size: 100,
+            // ),
+            const SizedBox(height: 45),
 
             Container(
               height: size.height - 260, // 80 los dos sizebox y 100 el ícono
@@ -78,12 +87,13 @@ class _LoginForm extends ConsumerWidget {
         children: [
           const Spacer(),
           Text('Login', style: textStyles.titleLarge),
-          const Spacer(),
+          const Spacer(), 
           CustomTextFormField(
             label: 'Empresa',
             onChanged: ref.read(loginFormProvider.notifier).onEmpresaChange,
             errorMessage:
                 loginForm.isFormPosted ? loginForm.empresa.errorMessage : null,
+            toUpperCase: true,
           ),
           const SizedBox(height: 30),
           CustomTextFormField(

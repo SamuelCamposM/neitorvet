@@ -4,6 +4,8 @@ import 'package:neitorvet/config/router/app_router.notifier.dart';
 import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
+import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
+import 'package:neitorvet/features/shared/screen/send_email.dart';
 import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
 
 import 'package:neitorvet/features/venta/presentation/screens/screens.dart';
@@ -69,6 +71,23 @@ final goRouterProvider = Provider((ref) {
             labelPdf: label,
             infoPdf: url,
           );
+        },
+      ),
+      GoRoute(
+        path: '/send-email',
+        builder: (context, state) {
+          final emails = state.queryParams['emails']?.split(',') ?? [];
+          final labels = state.queryParams['labels']?.split(',').map((label) {
+                final parts = label.split(':');
+                return Labels(label: parts[0], value: parts[1]);
+              }).toList() ??
+              [];
+          final idRegistro =
+              int.tryParse(state.queryParams['idRegistro'] ?? '0') ?? 0;
+          return SendEmail(
+              emailsAndLabelsDefault:
+                  EmailAndLabels(emails: emails, labels: labels),
+              idRegistro: idRegistro);
         },
       ),
 

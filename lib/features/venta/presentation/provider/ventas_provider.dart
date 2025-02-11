@@ -280,7 +280,7 @@ class VentasState {
       this.error = '',
       this.total = 0,
       this.search = '',
-      this.estado = 'NOTA VENTAS',
+      this.estado = 'FACTURAS',
       this.input = 'venId',
       this.orden = false,
       this.searchedVentas = const [],

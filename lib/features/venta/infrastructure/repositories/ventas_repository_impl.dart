@@ -1,4 +1,5 @@
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
+import 'package:neitorvet/features/venta/domain/entities/body_correo.dart';
 import 'package:neitorvet/features/venta/domain/repositories/ventas_repository.dart';
 
 class VentasRepositoryImpl extends VentasRepository {
@@ -35,5 +36,10 @@ class VentasRepositoryImpl extends VentasRepository {
   @override
   Future<ResponseInventario> getInventarioByQuery(String search) {
     return datasource.getInventarioByQuery(search);
+  }
+
+  @override
+  Future<ResponseCorreoVenta> sendCorreo(BodyCorreo bodyCorreo) {
+    return datasource.sendCorreo(bodyCorreo);
   }
 }

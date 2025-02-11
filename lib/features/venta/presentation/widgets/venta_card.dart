@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:neitorvet/config/config.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
+import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 
@@ -38,10 +39,28 @@ class VentaCard extends ConsumerWidget {
               // context.push(
               // '/PDF/Factura/${Uri.encodeComponent('${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}')}');
             },
-            backgroundColor: Colors.transparent,
-            foregroundColor: Colors.red,
             icon: Icons.picture_as_pdf,
             label: 'PDF',
+          ),
+          SlidableAction(
+            onPressed: (context) {
+              //SI MANDAR A ALLAMAR EL PROVIDER EMAIL ACA, daria problema por que se destruiria al instante ref.read
+              final initialEmails = venta.venEmailCliente;
+
+              final initialLabels = [
+                Labels(label: 'Ruc Cliente', value: venta.venRucCliente),
+                Labels(label: 'Cliente', value: venta.venNomCliente)
+              ];
+              final emailsParam = initialEmails.join(',');
+              final labelsParam = initialLabels
+                  .map((label) => '${label.label}:${label.value}')
+                  .join(',');
+
+              context.push(
+                  '/send-email?emails=$emailsParam&labels=$labelsParam&idRegistro=${venta.venId}');
+            },
+            icon: Icons.email,
+            label: 'Email',
           ),
         ],
       ),

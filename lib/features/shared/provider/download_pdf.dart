@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:neitorvet/config/local_notifications/local_notifications.dart';
@@ -62,12 +63,12 @@ class PdfDownloadNotifier extends StateNotifier<PdfDownloadState> {
           body: 'Toca para abrir el archivo',
           data: filePath,
         );
-
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Descarga completada: $filePath')),
           );
         }
+        OpenFile.open(filePath);
       } else if (status.isPermanentlyDenied) {
         await openAppSettings();
       } else {

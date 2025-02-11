@@ -7,6 +7,7 @@ import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/shared/widgets/email_list.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
@@ -288,126 +289,98 @@ class _VentaForm extends ConsumerWidget {
                   ),
                 ],
               ),
-              Wrap(
-                alignment: WrapAlignment.center,
-                children: ventaForm.venEmailCliente
-                    .map((e) => Container(
-                        decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(8)),
-                        margin: EdgeInsets.all(size.iScreen(0.4)),
-                        padding: EdgeInsets.symmetric(
-                            vertical: size.iScreen(0.2),
-                            horizontal: size.iScreen(1.0)),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              e,
-                              style: TextStyle(
-                                  fontSize: size.iScreen(1.8),
-                                  fontWeight: FontWeight.normal),
-                            ),
-                            const Icon(
-                              Icons.close_rounded,
-                              color: Colors.red,
-                            )
-                          ],
-                        )))
-                    .toList(),
+              EmailList(
+                emails: ventaForm.venEmailCliente,
+                eliminarEmail: (email) {
+                  
+                },
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   SizedBox(
                     width: size.wScreen(50.0),
-                    child: Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          final inventario = await searchInventario(
-                              context: context, ref: ref);
-                          if (inventario != null) {
-                            final exist = ventaForm.venProductos.value
-                                .any((e) => e.codigo == inventario.invSerie);
-                            if (exist) {
-                              if (context.mounted) {
-                                NotificationsService.show(
-                                    context,
-                                    'Este Producto ya se encuentra en la lista',
-                                    SnackbarCategory.error);
-                              }
-                              return;
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final inventario =
+                            await searchInventario(context: context, ref: ref);
+                        if (inventario != null) {
+                          final exist = ventaForm.venProductos.value
+                              .any((e) => e.codigo == inventario.invSerie);
+                          if (exist) {
+                            if (context.mounted) {
+                              NotificationsService.show(
+                                  context,
+                                  'Este Producto ya se encuentra en la lista',
+                                  SnackbarCategory.error);
                             }
-                            ref
-                                .read(ventaFormProvider(venta).notifier)
-                                .updateState(
-                                    nuevoProducto: Producto(
-                                  cantidad: 0,
-                                  codigo: inventario.invSerie,
-                                  descripcion: inventario.invNombre,
-                                  valUnitarioInterno:
-                                      Parse.parseDynamicToDouble(
-                                          inventario.invprecios[0]),
-                                  valorUnitario: Parse.parseDynamicToDouble(
-                                      inventario.invprecios[0]),
-                                  llevaIva: inventario.invIva,
-                                  incluyeIva: inventario.invIncluyeIva,
-                                  recargoPorcentaje: 0,
-                                  recargo: 0,
-                                  descPorcentaje: venta.venDescPorcentaje,
-                                  descuento: 0,
-                                  precioSubTotalProducto: 0,
-                                  valorIva: 0,
-                                  costoProduccion: 0,
-                                ));
+                            return;
                           }
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                              color:
-                                  ventaForm.nuevoProducto.errorMessage != null
-                                      ? Colors.red
-                                      : Colors.black),
-                        ),
-                        icon: const Icon(Icons.create),
-                        label: Text(
-                          ventaForm.nuevoProducto.errorMessage != null
-                              ? ventaForm.nuevoProducto.errorMessage!
-                              : ventaForm.nuevoProducto.value.descripcion == ''
-                                  ? "Producto*"
-                                  : '${ventaForm.nuevoProducto.value.descripcion} \$${ventaForm.nuevoProducto.value.valorUnitario}',
-                        ),
+                          ref
+                              .read(ventaFormProvider(venta).notifier)
+                              .updateState(
+                                  nuevoProducto: Producto(
+                                cantidad: 0,
+                                codigo: inventario.invSerie,
+                                descripcion: inventario.invNombre,
+                                valUnitarioInterno: Parse.parseDynamicToDouble(
+                                    inventario.invprecios[0]),
+                                valorUnitario: Parse.parseDynamicToDouble(
+                                    inventario.invprecios[0]),
+                                llevaIva: inventario.invIva,
+                                incluyeIva: inventario.invIncluyeIva,
+                                recargoPorcentaje: 0,
+                                recargo: 0,
+                                descPorcentaje: venta.venDescPorcentaje,
+                                descuento: 0,
+                                precioSubTotalProducto: 0,
+                                valorIva: 0,
+                                costoProduccion: 0,
+                              ));
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                            color: ventaForm.nuevoProducto.errorMessage != null
+                                ? Colors.red
+                                : Colors.black),
+                      ),
+                      icon: const Icon(Icons.create),
+                      label: Text(
+                        ventaForm.nuevoProducto.errorMessage != null
+                            ? ventaForm.nuevoProducto.errorMessage!
+                            : ventaForm.nuevoProducto.value.descripcion == ''
+                                ? "Producto*"
+                                : '${ventaForm.nuevoProducto.value.descripcion} \$${ventaForm.nuevoProducto.value.valorUnitario}',
                       ),
                     ),
                   ),
                   SizedBox(
                     width: size.wScreen(30.0),
-                    child: Expanded(
-                      child: CustomInputField(
-                        textAlign: TextAlign.center,
-                        label: 'Precio',
-                        controller: montoController,
-                        keyboardType: const TextInputType.numberWithOptions(),
-                        onFieldSubmitted: (_) {
-                          ref
-                              .read(ventaFormProvider(venta).notifier)
-                              .agregarProducto(montoController);
-                        },
-                        onChanged: (p0) {
-                          ref
-                              .read(ventaFormProvider(venta).notifier)
-                              .updateState(monto: p0);
-                        },
-                        suffixIcon: IconButton(
-                            onPressed: ventaForm.monto == 0
-                                ? null
-                                : () {
-                                    ref
-                                        .read(ventaFormProvider(venta).notifier)
-                                        .agregarProducto(montoController);
-                                  },
-                            icon: const Icon(Icons.add_circle)),
-                      ),
+                    child: CustomInputField(
+                      textAlign: TextAlign.center,
+                      label: 'Precio',
+                      controller: montoController,
+                      keyboardType: const TextInputType.numberWithOptions(),
+                      onFieldSubmitted: (_) {
+                        ref
+                            .read(ventaFormProvider(venta).notifier)
+                            .agregarProducto(montoController);
+                      },
+                      onChanged: (p0) {
+                        ref
+                            .read(ventaFormProvider(venta).notifier)
+                            .updateState(monto: p0);
+                      },
+                      suffixIcon: IconButton(
+                          onPressed: ventaForm.monto == 0
+                              ? null
+                              : () {
+                                  ref
+                                      .read(ventaFormProvider(venta).notifier)
+                                      .agregarProducto(montoController);
+                                },
+                          icon: const Icon(Icons.add_circle)),
                     ),
                   ),
                 ],

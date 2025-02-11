@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final String? label;
@@ -9,6 +10,8 @@ class CustomTextFormField extends StatelessWidget {
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
   final void Function(String)? onFieldSubmitted;
+  final bool toUpperCase;
+
   const CustomTextFormField({
     super.key,
     this.label,
@@ -19,6 +22,7 @@ class CustomTextFormField extends StatelessWidget {
     this.onChanged,
     this.validator,
     this.onFieldSubmitted,
+    this.toUpperCase = false,
   });
 
   @override
@@ -51,6 +55,7 @@ class CustomTextFormField extends StatelessWidget {
         obscureText: obscureText,
         keyboardType: keyboardType,
         onFieldSubmitted: onFieldSubmitted,
+        inputFormatters: toUpperCase ? [UpperCaseTextFormatter()] : [],
         style: const TextStyle(fontSize: 20, color: Colors.black54),
         decoration: InputDecoration(
           floatingLabelStyle: const TextStyle(
@@ -69,6 +74,17 @@ class CustomTextFormField extends StatelessWidget {
           // icon: Icon( Icons.supervised_user_circle_outlined, color: colors.primary, )
         ),
       ),
+    );
+  }
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }

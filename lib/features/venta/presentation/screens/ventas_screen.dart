@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:neitorvet/config/local_notifications/local_notifications.dart';
+import 'package:go_router/go_router.dart'; 
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -205,21 +204,21 @@ class VentasViewState extends ConsumerState<VentasView> {
             ],
           ),
         ),
-        Positioned(
-          bottom: 40,
-          left: 0,
-          right: 0,
-          child: IconButton(
-              onPressed: () {
-                LocalNotifications.showLocalNotification(
-                  id: 0,
-                  title: 'Descarga completada',
-                  body: 'Toca para abrir el archivo',
-                  data: '/path/to/your/file.pdf', // Asegúrate de proporcionar una ruta válida
-                );
-              },
-              icon: const Icon(Icons.notification_add)),
-        ),
+        // Positioned(
+        //   bottom: 40,
+        //   left: 0,
+        //   right: 0,
+        //   child: IconButton(
+        //       onPressed: () {
+        //         LocalNotifications.showLocalNotification(
+        //           id: 0,
+        //           title: 'Descarga completada',
+        //           body: 'Toca para abrir el archivo',
+        //           data: '/path/to/your/file.pdf', // Asegúrate de proporcionar una ruta válida
+        //         );
+        //       },
+        //       icon: const Icon(Icons.notification_add)),
+        // ),
         if (ventasState.isLoading)
           Positioned(
             bottom: 40,

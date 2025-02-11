@@ -1,3 +1,4 @@
+import 'package:neitorvet/features/venta/domain/entities/body_correo.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
@@ -41,6 +42,16 @@ class ResponseInventario {
   });
 }
 
+class ResponseCorreoVenta {
+  final String msg;
+  final String error;
+
+  ResponseCorreoVenta({
+    required this.msg,
+    required this.error,
+  });
+}
+
 abstract class VentasDatasource {
   Future<ResponseVentas> getVentasByPage(
       {int cantidad = 10,
@@ -53,4 +64,5 @@ abstract class VentasDatasource {
   Future<ResponseFormasPago> getFormasPago();
   Future<ResponseSecuencia> getSecuencia(String tipo);
   Future<ResponseInventario> getInventarioByQuery(String search);
+  Future<ResponseCorreoVenta> sendCorreo(BodyCorreo bodyCorreo);
 }

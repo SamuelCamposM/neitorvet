@@ -239,6 +239,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     );
   }
 
+  //* TODO: CREAR UNA FUNCION PARA AGREGAR EMAIL GLOBAL
   bool agregarEmail(TextEditingController controller) {
     if (state.nuevoEmail.isNotValid) {
       state = state.copyWith(nuevoEmail: Email.dirty(state.nuevoEmail.value));
@@ -439,7 +440,6 @@ class VentaFormState {
   final bool isFormValid;
   final bool isPosted;
   final bool isPosting;
-
   final ProductoInput nuevoProducto;
   final String productoSearch;
   final List<String> placasData;
