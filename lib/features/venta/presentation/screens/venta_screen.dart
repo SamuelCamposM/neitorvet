@@ -76,8 +76,8 @@ class _FloatingButton extends ConsumerWidget {
 
         if (exitoso && context.mounted) {
           context.pop('/ventas');
-          NotificationsService.show(
-              context, '${ventasState.estado} Creada', SnackbarCategory.success);
+          NotificationsService.show(context, '${ventasState.estado} Creada',
+              SnackbarCategory.success);
         }
       },
       child: ventaState.isPosting
@@ -100,10 +100,11 @@ class _VentaForm extends ConsumerWidget {
   _VentaForm({required this.venta, required this.secuencia});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ventaForm = ref.watch(ventaFormProvider(venta));
+    final ventaFState = ref.watch(ventaFormProvider(venta));
     ref.watch(clientesProvider);
     final ventasState = ref.watch(ventasProvider);
     final size = Responsive.of(context);
+    final updateForm = ref.read(ventaFormProvider(venta).notifier).updateState;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -143,11 +144,11 @@ class _VentaForm extends ConsumerWidget {
                   ),
                   CustomRadioBotton(
                     size: size,
-                    selectedValue: ventaForm.venFacturaCredito,
+                    selectedValue: ventaFState.ventaForm.venFacturaCredito,
                     onChanged: (String? value) {
-                      ref
-                          .read(ventaFormProvider(venta).notifier)
-                          .updateState(venFacturaCredito: value);
+                      updateForm(
+                          ventaForm: ventaFState.ventaForm
+                              .copyWith(venFacturaCredito: value));
                     },
                     questionText: 'Crédito',
                   ),
@@ -160,12 +161,12 @@ class _VentaForm extends ConsumerWidget {
                     child: CustomInputField(
                       readOnly: true,
                       controller: TextEditingController(
-                          text: ventaForm.venRucCliente.value),
+                          text: ventaFState.ventaForm.venRucClienteInput.value),
                       label: 'Ruc Cliente',
                       onChanged: (p0) {
-                        ref
-                            .read(ventaFormProvider(venta).notifier)
-                            .updateState(venRucCliente: p0);
+                        updateForm(
+                            ventaForm: ventaFState.ventaForm
+                                .copyWith(venRucCliente: p0));
                       },
                     ),
                   ),
@@ -173,8 +174,9 @@ class _VentaForm extends ConsumerWidget {
                     final cliente =
                         await searchClienteResult(context: context, ref: ref);
                     if (cliente != null) {
-                      ref.read(ventaFormProvider(venta).notifier).updateState(
-                            placasData: cliente.perOtros,
+                      updateForm(
+                          placasData: cliente.perOtros,
+                          ventaForm: ventaFState.ventaForm.copyWith(
                             venRucCliente: cliente.perDocNumero,
                             venNomCliente: cliente.perNombre,
                             venIdCliente: cliente.perId,
@@ -186,7 +188,7 @@ class _VentaForm extends ConsumerWidget {
                             venOtrosDetalles: cliente.perOtros.isEmpty
                                 ? ""
                                 : cliente.perOtros[0],
-                          );
+                          ));
                     }
                   }),
                   customBtnModals(size, Icons.add, () {
@@ -199,7 +201,7 @@ class _VentaForm extends ConsumerWidget {
                   }),
                 ],
               ),
-              if (!ventaForm.ocultarEmail)
+              if (!ventaFState.ocultarEmail)
                 CustomInputField(
                   autofocus: true,
                   label: 'Correo',
@@ -214,7 +216,7 @@ class _VentaForm extends ConsumerWidget {
                         .read(ventaFormProvider(venta).notifier)
                         .updateState(nuevoEmail: p0);
                   },
-                  errorMessage: ventaForm.nuevoEmail.errorMessage,
+                  errorMessage: ventaFState.nuevoEmail.errorMessage,
                   suffixIcon: IconButton(
                       onPressed: () {
                         ref
@@ -226,12 +228,12 @@ class _VentaForm extends ConsumerWidget {
               CustomInputField(
                 readOnly: true,
                 label: 'Cliente',
-                controller:
-                    TextEditingController(text: ventaForm.venNomCliente),
+                controller: TextEditingController(
+                    text: ventaFState.ventaForm.venNomCliente),
                 onChanged: (p0) {
-                  ref
-                      .read(ventaFormProvider(venta).notifier)
-                      .updateState(venNomCliente: p0);
+                  updateForm(
+                      ventaForm:
+                          ventaFState.ventaForm.copyWith(venNomCliente: p0));
                 },
                 // errorMessage: clienteForm.perCanton.errorMessage,
               ),
@@ -243,14 +245,14 @@ class _VentaForm extends ConsumerWidget {
                     child: CustomSelectField(
                       size: size,
                       label: 'F. de Pago',
-                      value: ventaForm.venFormaPago,
+                      value: ventaFState.ventaForm.venFormaPago,
                       onChanged: (String? value) {
                         final exist = ventasState.formasPago
                             .any((e) => e.fpagoNombre == value);
                         if (exist) {
-                          ref
-                              .read(ventaFormProvider(venta).notifier)
-                              .updateState(venFormaPago: value);
+                          updateForm(
+                              ventaForm: ventaFState.ventaForm
+                                  .copyWith(venFormaPago: value));
                           ref
                               .read(ventaFormProvider(venta).notifier)
                               .setPorcentajeFormaPago(value!);
@@ -268,26 +270,27 @@ class _VentaForm extends ConsumerWidget {
                       final placa = await searchPlacas(
                           context: context,
                           ref: ref,
-                          venOtrosDetalles: ventaForm.venOtrosDetalles,
-                          placasData: ventaForm.placasData,
+                          venOtrosDetalles:
+                              ventaFState.ventaForm.venOtrosDetalles,
+                          placasData: ventaFState.placasData,
                           setSearch: (String search) {
-                            ref
-                                .read(ventaFormProvider(venta).notifier)
-                                .updateState(venOtrosDetalles: search);
+                            updateForm(
+                                ventaForm: ventaFState.ventaForm
+                                    .copyWith(venOtrosDetalles: search));
                           });
                       if (placa != null) {
-                        ref
-                            .read(ventaFormProvider(venta).notifier)
-                            .updateState(venOtrosDetalles: placa);
+                        updateForm(
+                            ventaForm: ventaFState.ventaForm
+                                .copyWith(venOtrosDetalles: placa));
                       }
                     },
                     icon: const Icon(Icons.create),
-                    label: Text(ventaForm.venOtrosDetalles),
+                    label: Text(ventaFState.ventaForm.venOtrosDetalles),
                   ),
                 ],
               ),
               EmailList(
-                emails: ventaForm.venEmailCliente,
+                emails: ventaFState.ventaForm.venEmailCliente,
                 eliminarEmail: (email) {
                   ref
                       .read(ventaFormProvider(venta).notifier)
@@ -304,7 +307,8 @@ class _VentaForm extends ConsumerWidget {
                         final inventario =
                             await searchInventario(context: context, ref: ref);
                         if (inventario != null) {
-                          final exist = ventaForm.venProductos.value
+                          final exist = ventaFState
+                              .ventaForm.venProductosInput.value
                               .any((e) => e.codigo == inventario.invSerie);
                           if (exist) {
                             if (context.mounted) {
@@ -340,17 +344,18 @@ class _VentaForm extends ConsumerWidget {
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
-                            color: ventaForm.nuevoProducto.errorMessage != null
-                                ? Colors.red
-                                : Colors.black),
+                            color:
+                                ventaFState.nuevoProducto.errorMessage != null
+                                    ? Colors.red
+                                    : Colors.black),
                       ),
                       icon: const Icon(Icons.create),
                       label: Text(
-                        ventaForm.nuevoProducto.errorMessage != null
-                            ? ventaForm.nuevoProducto.errorMessage!
-                            : ventaForm.nuevoProducto.value.descripcion == ''
+                        ventaFState.nuevoProducto.errorMessage != null
+                            ? ventaFState.nuevoProducto.errorMessage!
+                            : ventaFState.nuevoProducto.value.descripcion == ''
                                 ? "Producto*"
-                                : '${ventaForm.nuevoProducto.value.descripcion} \$${ventaForm.nuevoProducto.value.valorUnitario}',
+                                : '${ventaFState.nuevoProducto.value.descripcion} \$${ventaFState.nuevoProducto.value.valorUnitario}',
                       ),
                     ),
                   ),
@@ -372,7 +377,7 @@ class _VentaForm extends ConsumerWidget {
                             .updateState(monto: p0);
                       },
                       suffixIcon: IconButton(
-                          onPressed: ventaForm.monto == 0
+                          onPressed: ventaFState.monto == 0
                               ? null
                               : () {
                                   ref
@@ -389,7 +394,7 @@ class _VentaForm extends ConsumerWidget {
               ),
               _ProductsList(
                   size: size,
-                  products: ventaForm.venProductos.value,
+                  products: ventaFState.ventaForm.venProductosInput.value,
                   eliminarProducto: ref
                       .read(ventaFormProvider(venta).notifier)
                       .eliminarProducto),
@@ -419,7 +424,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '${ventaForm.venSubTotal12}',
+                            '${ventaFState.ventaForm.venSubTotal12}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -436,7 +441,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '${ventaForm.venSubtotal0}',
+                            '${ventaFState.ventaForm.venSubtotal0}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -447,13 +452,13 @@ class _VentaForm extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Descuento:',
+                            'Descuenasdasdto:',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '${ventaForm.venDescuento}',
+                            '${ventaFState.ventaForm.venDescuento}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -470,7 +475,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '${ventaForm.venSubTotal}',
+                            '${ventaFState.ventaForm.venSubTotal}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -487,7 +492,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            ventaForm.venAbono,
+                            ventaFState.ventaForm.venAbono,
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -505,7 +510,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.normal),
                           ),
                           Text(
-                            '${ventaForm.venTotalIva}',
+                            '${ventaFState.ventaForm.venTotalIva}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -522,7 +527,7 @@ class _VentaForm extends ConsumerWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '${ventaForm.venTotal}',
+                            '${ventaFState.ventaForm.venTotal}',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.8),
                                 fontWeight: FontWeight.bold),

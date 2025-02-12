@@ -81,7 +81,6 @@ class SendEmail extends ConsumerWidget {
             EmailList(
               emails: sendEmailState.emails.value,
               eliminarEmail: (String e) {
-                print(e);
                 ref
                     .read(sendEmailProvider(emailsAndLabelsDefault).notifier)
                     .eliminarEmail(e);

@@ -81,7 +81,7 @@ class VentaCard extends ConsumerWidget {
       child: GestureDetector(
         onTap: redirect
             ? () {
-                // context.push('/venta/${venta.venId}');
+                context.push('/venta/${venta.venId}');
               }
             : null,
         child: Container(

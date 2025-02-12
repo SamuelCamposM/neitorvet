@@ -138,7 +138,7 @@ class ShowPdfScreenState extends State<ShowPdfScreen> {
                 padding: EdgeInsets.symmetric(
                     horizontal: size.iScreen(1.0), vertical: size.iScreen(1.0)),
                 color: Colors.grey[300],
-                child: PDF().cachedFromUrl(widget.infoPdf),
+                child: const PDF().cachedFromUrl(widget.infoPdf),
               ),
       ),
     );
