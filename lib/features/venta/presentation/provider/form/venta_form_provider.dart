@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -252,6 +250,16 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     return true;
   }
 
+  void eliminarEmail(String email) {
+    final updatedEmails =
+        state.venEmailCliente.where((e) => e != email).toList();
+    state = state.copyWith(
+      venEmailCliente: updatedEmails,
+      isFormValid:
+          Formz.validate([GenericRequiredListStr.dirty(updatedEmails)]),
+    );
+  }
+
   void handleOcultarEmail() {
     state = state.copyWith(ocultarEmail: !state.ocultarEmail);
   }
@@ -405,16 +413,16 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       // socket.emit('editar-registro', ventaMap);
       const result = true;
       await createUpdateVenta(ventaMap);
-      String jsonString = jsonEncode(ventaMap);
+      // String jsonString = jsonEncode(ventaMap);
 
-      const int chunkSize = 800; // Tamaño de cada parte
-      for (int i = 0; i < jsonString.length; i += chunkSize) {
-        // print(jsonString.substring(
-        //     i,
-        //     i + chunkSize > jsonString.length
-        //         ? jsonString.length
-        //         : i + chunkSize));
-      }
+      // const int chunkSize = 800; // Tamaño de cada parte
+      // for (int i = 0; i < jsonString.length; i += chunkSize) {
+      //   // print(jsonString.substring(
+      //   //     i,
+      //   //     i + chunkSize > jsonString.length
+      //   //         ? jsonString.length
+      //   //         : i + chunkSize));
+      // }
 
       // Actualizar el estado para indicar que ya no se está posteando
       state = state.copyWith(isPosting: false);

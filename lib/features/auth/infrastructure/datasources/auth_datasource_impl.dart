@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:neitorvet/config/config.dart';
 import 'package:neitorvet/features/auth/domain/domain.dart';
 import 'package:neitorvet/features/auth/infrastructure/infrastructure.dart';
+import 'package:neitorvet/features/shared/errors/error_api.dart';
 
 class AuthDatasourceImpl extends AuthDatasource {
   final dio = Dio(
@@ -17,16 +18,7 @@ class AuthDatasourceImpl extends AuthDatasource {
       final user = UserMapper.userJsonToEntity(res.data);
       return user;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw CustomError(
-            e.response?.data['message'] ?? 'Credentials are wrong');
-      }
-      if (e.type == DioExceptionType.connectionTimeout) {
-        throw CustomError('Revisar conexión a internet o intentar más tarde');
-      }
-      throw Exception('Something went wrong');
-    } catch (e) {
-      throw Exception('Something went wrong');
+      throw CustomError(ErrorApi.getErrorMessage(e));
     }
   }
 
@@ -44,16 +36,7 @@ class AuthDatasourceImpl extends AuthDatasource {
       final user = UserMapper.userJsonToEntity(response.data);
       return user;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw CustomError(
-            e.response?.data['message'] ?? 'Credentials are wrong');
-      }
-      if (e.type == DioExceptionType.connectionTimeout) {
-        throw CustomError('Revisar conexión a internet o intentar más tarde');
-      }
-      throw Exception('Something went wrong');
-    } catch (e) {
-      throw Exception('Something went wrong');
+      throw CustomError(ErrorApi.getErrorMessage(e));
     }
   }
 

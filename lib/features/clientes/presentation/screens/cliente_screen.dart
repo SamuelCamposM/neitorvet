@@ -54,11 +54,6 @@ class _FloatingButton extends ConsumerWidget {
   final Cliente cliente;
 
   const _FloatingButton({required this.cliente});
-  void showSnackBar(BuildContext context) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Producto Actualizado')));
-  }
 
   @override
   Widget build(BuildContext context, ref) {

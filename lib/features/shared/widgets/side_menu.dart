@@ -19,7 +19,7 @@ class SideMenuState extends ConsumerState<SideMenu> {
   Widget build(BuildContext context) {
     final hasNotch = MediaQuery.of(context).viewPadding.top > 35;
     final textStyles = Theme.of(context).textTheme;
-
+    final authState = ref.watch(authProvider);
     return NavigationDrawer(
         elevation: 1,
         selectedIndex: navDrawerIndex,
@@ -35,23 +35,12 @@ class SideMenuState extends ConsumerState<SideMenu> {
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(20, hasNotch ? 0 : 20, 16, 0),
-            child: Text('Saludos', style: textStyles.titleMedium),
+            child:
+                Text(authState.user!.rucempresa, style: textStyles.titleMedium),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 16, 10),
-            child: Text('Tony Stark', style: textStyles.titleSmall),
-          ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.home_outlined),
-            label: Text('Productos'),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
-            child: Divider(),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(28, 10, 16, 10),
-            child: Text('Otras opciones'),
+            child: Text(authState.user!.nombre, style: textStyles.titleSmall),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart'; 
+import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
+import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
@@ -123,66 +124,98 @@ class VentasViewState extends ConsumerState<VentasView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (ventasState.search.isNotEmpty)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Buscando por: ${ventasState.search}',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        ref
-                            .read(ventasProvider.notifier)
-                            .resetQuery(search: '');
-                      },
-                    ),
-                  ],
-                ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  DropdownButton<String>(
-                    value: ventasState.input,
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'venId',
-                        child: Text('Fecha'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'perDocumento',
-                        child: Text('DOCUMENTO'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'perNombre',
-                        child: Text('NOMBRE'),
+                if (ventasState.search.isNotEmpty)
+                  Wrap(
+                    children: [
+                      Chip(
+                        label: Text('Buscando por: ${ventasState.search}'),
+                        deleteIcon: const Icon(Icons.clear),
+                        onDeleted: () {
+                          ref
+                              .read(ventasProvider.notifier)
+                              .resetQuery(search: '');
+                        },
                       ),
                     ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        ref.read(ventasProvider.notifier).resetQuery(
-                              input: value,
-                            );
-                      }
-                    },
                   ),
-                  IconButton(
-                    icon: Icon(
-                      ventasState.orden
-                          ? Icons.arrow_upward
-                          : Icons.arrow_downward,
-                    ),
-                    onPressed: () {
-                      ref.read(ventasProvider.notifier).resetQuery(
-                            orden: !ventasState.orden,
+              const SizedBox(height: 10),
+              ExpansionTile(
+                
+                title: const Text('Buscar  - Ordenar'),
+                children: [
+                  Row(
+                    verticalDirection: VerticalDirection.down,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2101),
                           );
-                    },
+                          if (picked != null) {
+                            // Realiza la búsqueda con la fecha seleccionada
+                            // ref.read(ventasProvider.notifier).resetQuery(
+                            //       fecha: picked,
+                            //     );
+                          }
+                        },
+                        child: const Text('Seleccionar fecha inicio'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2101),
+                          );
+                          if (picked != null) {
+                            // Realiza la búsqueda con la fecha seleccionada
+                            // ref.read(ventasProvider.notifier).resetQuery(
+                            //       fecha: picked,
+                            //     );
+                          }
+                        },
+                        child: const Text('Seleccionar fecha fin'),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: CustomSelectField(
+                          size: size,
+                          label: 'Ordenar Por',
+                          value: ventasState.input,
+                          onChanged: (String? value) {
+                            ref.read(ventasProvider.notifier).resetQuery(
+                                  input: value,
+                                );
+                          },
+                          options: const [
+                            "venId",
+                            "perDocumento",
+                            "perNombre",
+                          ].toList(),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          ventasState.orden
+                              ? Icons.arrow_upward
+                              : Icons.arrow_downward,
+                        ),
+                        onPressed: () {
+                          ref.read(ventasProvider.notifier).resetQuery(
+                                orden: !ventasState.orden,
+                              );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),

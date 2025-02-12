@@ -61,29 +61,26 @@ class _FloatingButton extends ConsumerWidget {
   final Venta venta;
 
   const _FloatingButton({required this.venta});
-  void showSnackBar(BuildContext context) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Producto Actualizado')));
-  }
 
   @override
   Widget build(BuildContext context, ref) {
-    final productFormState = ref.watch(ventaFormProvider(venta));
+    final ventaState = ref.watch(ventaFormProvider(venta));
+    final ventasState = ref.watch(ventasProvider);
     return FloatingActionButton(
       onPressed: () async {
-        if (productFormState.isPosting) {
+        if (ventaState.isPosting) {
           return;
         }
         final exitoso =
             await ref.read(ventaFormProvider(venta).notifier).onFormSubmit();
 
         if (exitoso && context.mounted) {
+          context.pop('/ventas');
           NotificationsService.show(
-              context, 'Venta Actualizado', SnackbarCategory.success);
+              context, '${ventasState.estado} Creada', SnackbarCategory.success);
         }
       },
-      child: productFormState.isPosting
+      child: ventaState.isPosting
           ? SpinPerfect(
               duration: const Duration(seconds: 1),
               spins: 10,
@@ -292,7 +289,9 @@ class _VentaForm extends ConsumerWidget {
               EmailList(
                 emails: ventaForm.venEmailCliente,
                 eliminarEmail: (email) {
-                  
+                  ref
+                      .read(ventaFormProvider(venta).notifier)
+                      .eliminarEmail(email);
                 },
               ),
               Row(
@@ -563,9 +562,9 @@ class _ProductsList extends ConsumerWidget {
             eliminarProducto(producto.codigo);
 
             // Muestra un mensaje de confirmación
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${producto.descripcion} eliminado')),
-            );
+
+            NotificationsService.show(context,
+                '${producto.descripcion} Eliminado', SnackbarCategory.error);
           },
           background: Container(
             color: Colors.red,
@@ -587,13 +586,19 @@ class _ProductsList extends ConsumerWidget {
                 ),
               ],
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
-                Column(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width: size.width * 0.4,
+                    Text('Código: ${producto.codigo}'),
+                    Text('Precio: \$${producto.valorUnitario}'),
+                    Text('Cantidad: ${producto.cantidad}'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
                       child: Text(
                         producto.descripcion,
                         textAlign: TextAlign.start,
@@ -605,15 +610,6 @@ class _ProductsList extends ConsumerWidget {
                         maxLines: 4,
                       ),
                     ),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text('Cantidad: ${producto.cantidad}'),
-                    Text('Precio: \$${producto.valorUnitario}'),
-                    Text('Código: ${producto.codigo}'),
-                    Text('Iva: \$${producto.valorIva}'),
                   ],
                 ),
               ],

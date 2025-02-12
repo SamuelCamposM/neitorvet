@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:neitorvet/config/config.dart';
+import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
@@ -20,18 +23,23 @@ final ventasProvider =
   (ref) {
     final ventasRepository = ref.watch(ventasRepositoryProvider);
     final socket = ref.watch(socketProvider);
+    final downloadPDF = ref.watch(downloadPdfProvider.notifier).downloadPDF;
     return VentasNotifier(
-      socket: socket,
-      ventasRepository: ventasRepository,
-    );
+        socket: socket,
+        ventasRepository: ventasRepository,
+        downloadPDF: downloadPDF);
   },
 );
 
 class VentasNotifier extends StateNotifier<VentasState> {
   final VentasRepository ventasRepository;
   final io.Socket socket;
-
-  VentasNotifier({required this.ventasRepository, required this.socket})
+  final Future<void> Function(BuildContext? context, String infoPdf)
+      downloadPDF;
+  VentasNotifier(
+      {required this.ventasRepository,
+      required this.socket,
+      required this.downloadPDF})
       : super(VentasState()) {
     _initializeSocketListeners();
     loadNextPage();
@@ -56,7 +64,13 @@ class VentasNotifier extends StateNotifier<VentasState> {
     socket.on("server:guardadoExitoso", (data) {
       if (data['tabla'] == 'venta') {
         // Agrega a la lista de ventas
+
         final newVenta = Venta.fromJson(data);
+        if (newVenta.venUser == 'admin') {
+          final pdfUrl =
+              '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${newVenta.venId}&empresa=${newVenta.venEmpresa}';
+          downloadPDF(null, pdfUrl);
+        }
         state = state.copyWith(ventas: [
           newVenta,
           ...state.ventas,

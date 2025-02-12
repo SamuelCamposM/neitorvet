@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/auth/presentation/providers/login_form_provider.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 
@@ -60,14 +61,6 @@ class LoginScreen extends StatelessWidget {
 class _LoginForm extends ConsumerWidget {
   const _LoginForm();
 
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      // duration: const Duration(seconds: 2),
-    ));
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loginForm = ref.watch(loginFormProvider);
@@ -75,7 +68,8 @@ class _LoginForm extends ConsumerWidget {
       authProvider,
       (_, next) {
         if (next.errorMessage!.isEmpty) return;
-        showSnackbar(context, next.errorMessage!);
+        NotificationsService.show(
+            context, next.errorMessage!, SnackbarCategory.error);
       },
     );
 
@@ -87,7 +81,7 @@ class _LoginForm extends ConsumerWidget {
         children: [
           const Spacer(),
           Text('Login', style: textStyles.titleLarge),
-          const Spacer(), 
+          const Spacer(),
           CustomTextFormField(
             label: 'Empresa',
             onChanged: ref.read(loginFormProvider.notifier).onEmpresaChange,

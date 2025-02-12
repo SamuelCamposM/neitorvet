@@ -23,7 +23,7 @@ class PdfDownloadNotifier extends StateNotifier<PdfDownloadState> {
   PdfDownloadNotifier()
       : super(PdfDownloadState(isDownloading: false, progress: 0.0));
 
-  Future<void> downloadPDF(BuildContext context, String infoPdf) async {
+  Future<void> downloadPDF(BuildContext? context, String infoPdf) async {
     Dio dio = Dio();
     try {
       state = PdfDownloadState(isDownloading: true, progress: 0.0);
@@ -63,7 +63,7 @@ class PdfDownloadNotifier extends StateNotifier<PdfDownloadState> {
           body: 'Toca para abrir el archivo',
           data: filePath,
         );
-        if (context.mounted) {
+        if (context != null && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Descarga completada: $filePath')),
           );
@@ -72,14 +72,14 @@ class PdfDownloadNotifier extends StateNotifier<PdfDownloadState> {
       } else if (status.isPermanentlyDenied) {
         await openAppSettings();
       } else {
-        if (context.mounted) {
+        if (context != null && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Permiso de almacenamiento denegado')),
           );
         }
       }
     } catch (e) {
-      if (context.mounted) {
+      if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al descargar el archivo')),
         );
