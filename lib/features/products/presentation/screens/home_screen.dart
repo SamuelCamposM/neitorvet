@@ -5,7 +5,7 @@ import 'package:neitorvet/config/menu/menu_item.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 // import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/shared.dart';
-import 'package:neitorvet/features/shared/widgets/custom_app_bar.dart';
+import 'package:neitorvet/features/shared/widgets/ui/custom_app_bar.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

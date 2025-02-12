@@ -1,5 +1,5 @@
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
-import 'package:neitorvet/features/clientes/domain/entities/clienteForeign.dart';
+import 'package:neitorvet/features/clientes/domain/entities/cliente_foreign.dart';
 
 class ResponseClientesPaginacion {
   final List<Cliente> resultado;

@@ -7,7 +7,7 @@ import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
-import 'package:neitorvet/features/shared/widgets/email_list.dart';
+import 'package:neitorvet/features/shared/widgets/form/email_list.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';

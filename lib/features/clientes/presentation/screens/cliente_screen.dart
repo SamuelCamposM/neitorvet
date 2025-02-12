@@ -107,8 +107,8 @@ class _ClienteForm extends ConsumerWidget {
             const SizedBox(height: 10),
             const Text('Mis datos', textAlign: TextAlign.center),
             const SizedBox(height: 15),
-            CustomProductField(
-              autoFocus: true,
+            CustomInputField(
+              autofocus: true,
               isTopField: true,
               label: 'Nombre',
               initialValue: clienteForm.perNombre.value,
@@ -119,7 +119,7 @@ class _ClienteForm extends ConsumerWidget {
               },
               errorMessage: clienteForm.perNombre.errorMessage,
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Canton',
               initialValue: clienteForm.perCanton.value,
               onChanged: (p0) {
@@ -129,7 +129,7 @@ class _ClienteForm extends ConsumerWidget {
               },
               errorMessage: clienteForm.perCanton.errorMessage,
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Direccion',
               initialValue: clienteForm.perDireccion.value,
               onChanged: (p0) {
@@ -139,7 +139,7 @@ class _ClienteForm extends ConsumerWidget {
               },
               errorMessage: clienteForm.perDireccion.errorMessage,
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Doc Numero',
               initialValue: clienteForm.perDocNumero.value,
               onChanged: (p0) {
@@ -149,7 +149,7 @@ class _ClienteForm extends ConsumerWidget {
               },
               errorMessage: clienteForm.perDocNumero.errorMessage,
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Pais',
               initialValue: clienteForm.perPais.value,
               onChanged: (p0) {
@@ -159,7 +159,7 @@ class _ClienteForm extends ConsumerWidget {
               },
               errorMessage: clienteForm.perPais.errorMessage,
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Provincia',
               initialValue: clienteForm.perProvincia.value,
               onChanged: (p0) {
@@ -169,7 +169,7 @@ class _ClienteForm extends ConsumerWidget {
               },
               errorMessage: clienteForm.perProvincia.errorMessage,
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Recomendacion',
               initialValue: clienteForm.perRecomendacion.value,
               onChanged: (p0) {
@@ -179,7 +179,7 @@ class _ClienteForm extends ConsumerWidget {
               },
               errorMessage: clienteForm.perRecomendacion.errorMessage,
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Codigo',
               initialValue: clienteForm.perCodigo,
               onChanged: (p0) {
@@ -188,7 +188,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perCodigo: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Credito',
               initialValue: clienteForm.perCredito,
               onChanged: (p0) {
@@ -197,7 +197,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perCredito: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Doc Tipo',
               initialValue: clienteForm.perDocTipo,
               onChanged: (p0) {
@@ -206,7 +206,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perDocTipo: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Documento',
               initialValue: clienteForm.perDocumento,
               onChanged: (p0) {
@@ -215,7 +215,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perDocumento: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Especialidad',
               initialValue: clienteForm.perEspecialidad,
               onChanged: (p0) {
@@ -224,7 +224,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perEspecialidad: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Estado',
               initialValue: clienteForm.perEstado,
               onChanged: (p0) {
@@ -233,7 +233,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perEstado: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Fec Nacimiento',
               initialValue: clienteForm.perFecNacimiento,
               onChanged: (p0) {
@@ -242,7 +242,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perFecNacimiento: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Fec Reg',
               initialValue: clienteForm.perFecReg,
               onChanged: (p0) {
@@ -251,7 +251,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perFecReg: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Fec Upd',
               initialValue: clienteForm.perFecUpd,
               onChanged: (p0) {
@@ -260,7 +260,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perFecUpd: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Foto',
               initialValue: clienteForm.perFoto,
               onChanged: (p0) {
@@ -269,7 +269,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perFoto: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Genero',
               initialValue: clienteForm.perGenero,
               onChanged: (p0) {
@@ -278,7 +278,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perGenero: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Nombre Comercial',
               initialValue: clienteForm.perNombreComercial,
               onChanged: (p0) {
@@ -287,7 +287,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perNombreComercial: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Obligado',
               initialValue: clienteForm.perObligado,
               onChanged: (p0) {
@@ -296,7 +296,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perObligado: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Obsevacion',
               initialValue: clienteForm.perObsevacion,
               onChanged: (p0) {
@@ -305,7 +305,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perObsevacion: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Personal',
               initialValue: clienteForm.perPersonal,
               onChanged: (p0) {
@@ -314,7 +314,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perPersonal: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Senescyt',
               initialValue: clienteForm.perSenescyt,
               onChanged: (p0) {
@@ -323,7 +323,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perSenescyt: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Telefono',
               initialValue: clienteForm.perTelefono,
               onChanged: (p0) {
@@ -332,7 +332,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perTelefono: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Tiempo Credito',
               initialValue: clienteForm.perTiempoCredito,
               onChanged: (p0) {
@@ -341,7 +341,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perTiempoCredito: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Tipo Proveedor',
               initialValue: clienteForm.perTipoProveedor,
               onChanged: (p0) {
@@ -350,7 +350,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perTipoProveedor: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Titulo',
               initialValue: clienteForm.perTitulo,
               onChanged: (p0) {
@@ -359,7 +359,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perTitulo: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'User',
               initialValue: clienteForm.perUser,
               onChanged: (p0) {
@@ -368,7 +368,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perUser: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               label: 'Usuario',
               initialValue: clienteForm.perUsuario,
               onChanged: (p0) {
@@ -377,7 +377,7 @@ class _ClienteForm extends ConsumerWidget {
                     .updateState(perUsuario: p0);
               },
             ),
-            CustomProductField(
+            CustomInputField(
               isBottomField: true,
               label: 'Nickname',
               initialValue: clienteForm.perNickname ?? '',

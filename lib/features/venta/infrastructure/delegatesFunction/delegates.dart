@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
 import 'package:neitorvet/features/shared/delegate/item_generic_search.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
-import 'package:neitorvet/features/clientes/domain/entities/clienteForeign.dart';
+import 'package:neitorvet/features/clientes/domain/entities/cliente_foreign.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_repository_provider.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';

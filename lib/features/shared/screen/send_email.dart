@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/shared/shared.dart';
-import 'package:neitorvet/features/shared/widgets/email_list.dart';
+import 'package:neitorvet/features/shared/widgets/form/email_list.dart';
 
 class SendEmail extends ConsumerWidget {
   final EmailAndLabels emailsAndLabelsDefault;

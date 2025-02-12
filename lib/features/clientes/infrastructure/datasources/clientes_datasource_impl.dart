@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:neitorvet/features/clientes/domain/datasources/clientes_datasource.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
-import 'package:neitorvet/features/clientes/domain/entities/clienteForeign.dart';
+import 'package:neitorvet/features/clientes/domain/entities/cliente_foreign.dart';
 import 'package:neitorvet/features/shared/errors/error_api.dart';
 
 class ClientesDatasourceImpl extends ClientesDatasource {

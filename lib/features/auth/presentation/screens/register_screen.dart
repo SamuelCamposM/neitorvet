@@ -93,14 +93,14 @@ class _RegisterForm extends StatelessWidget {
             obscureText: true,
           ),
           const SizedBox(height: 30),
-          SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: CustomFilledButton(
-                text: 'Crear',
-                buttonColor: Colors.black,
-                onPressed: () {},
-              )),
+          // SizedBox(
+          //     width: double.infinity,
+          //     height: 60,
+          //     child: CustomFilledButton(
+          //       text: 'Crear',
+          //       buttonColor: Colors.black,
+          //       onPressed: () {},
+          //     )),
           const Spacer(flex: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

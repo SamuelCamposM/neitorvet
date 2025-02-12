@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
-import 'package:neitorvet/features/shared/shared.dart';
 
 class SideMenu extends ConsumerStatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -44,11 +43,12 @@ class SideMenuState extends ConsumerState<SideMenu> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: CustomFilledButton(
-                onPressed: () {
-                  ref.read(authProvider.notifier).logout();
-                },
-                text: 'Cerrar sesión'),
+            child: FilledButton(
+              child: const Text('Cerrar sesión'),
+              onPressed: () {
+                ref.read(authProvider.notifier).logout();
+              },
+            ),
           ),
         ]);
   }
