@@ -2,6 +2,8 @@
 //
 //     final venta = ventaFromJson(jsonString);
 
+import 'dart:convert';
+
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
@@ -403,8 +405,8 @@ class VentaForm extends Venta {
 
   VentaForm copyWith({
     //* REQUERIDOS
-    String? venRucClienteInput,
-    List<Producto>? venProductosInput,
+    String? venRucCliente,
+    List<Producto>? venProductos,
     // GenericRequiredInput? venRucClienteInput,
     // Productos? venProductosInput,
     //* VENTA
@@ -418,7 +420,7 @@ class VentaForm extends Venta {
     double? venTotalIva,
     int? venIdCliente,
     int? venEmpIva,
-    List<Producto>? venProductos,
+    // List<Producto>? venProductos,
     List<String>? venCeluCliente,
     List<String>? venEmailCliente,
     String? fechaSustentoFactura,
@@ -455,7 +457,7 @@ class VentaForm extends Venta {
     String? venOption,
     String? venOtros,
     String? venOtrosDetalles,
-    String? venRucCliente,
+    // String? venRucCliente,
     String? venTelfCliente,
     String? venTipoDocuCliente,
     String? venTipoDocumento,
@@ -464,12 +466,13 @@ class VentaForm extends Venta {
   }) =>
       VentaForm(
           //*REQUERIDOS
-          venRucClienteInput: venRucClienteInput != null
-              ? GenericRequiredInput.dirty(venRucClienteInput)
-              : this.venRucClienteInput,
-          venProductosInput: venProductosInput != null
-              ? Productos.dirty(venProductosInput)
-              : this.venProductosInput,
+          venRucClienteInput: venRucCliente != null
+              ? GenericRequiredInput.dirty(venRucCliente)
+              : venRucClienteInput,
+          venProductosInput: venProductos != null
+              ? Productos.dirty(venProductos)
+              : venProductosInput,
+
           //*SUS EQUIVALENTES
           venRucCliente: venRucCliente ?? this.venRucCliente,
           venProductos: venProductos ?? this.venProductos,
@@ -642,5 +645,43 @@ class VentaForm extends Venta {
       venEmpLeyenda: venta.venEmpLeyenda,
       venEmpIva: venta.venEmpIva,
     );
+  }
+}
+
+class BusquedaVenta {
+  final String venFechaFactura1;
+  final String venFechaFactura2;
+
+  const BusquedaVenta({
+    this.venFechaFactura1 = '',
+    this.venFechaFactura2 = '',
+  });
+
+  factory BusquedaVenta.fromJson(Map<String, dynamic> json) => BusquedaVenta(
+        venFechaFactura1: json["venFechaFactura1"],
+        venFechaFactura2: json["venFechaFactura2"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "venFechaFactura1": venFechaFactura1,
+        "venFechaFactura2": venFechaFactura2,
+      };
+
+  BusquedaVenta copyWith({
+    String? venFechaFactura1,
+    String? venFechaFactura2,
+  }) {
+    return BusquedaVenta(
+      venFechaFactura1: venFechaFactura1 ?? this.venFechaFactura1,
+      venFechaFactura2: venFechaFactura2 ?? this.venFechaFactura2,
+    );
+  }
+
+  bool isSearching() {
+    return venFechaFactura1.isNotEmpty || venFechaFactura2.isNotEmpty;
+  }
+
+  String toJsonString() {
+    return jsonEncode(toJson());
   }
 }

@@ -54,12 +54,13 @@ class ResponseCorreoVenta {
 
 abstract class VentasDatasource {
   Future<ResponseVentas> getVentasByPage(
-      {int cantidad = 10,
-      int page = 0,
-      String estado = 'NOTA VENTAS',
-      String input = 'venId',
-      bool orden = false,
-      String search = ''});
+      {required int cantidad,
+      required int page,
+      required String estado,
+      required String input,
+      required bool orden,
+      required String search,
+      required BusquedaVenta busquedaVenta});
 
   Future<ResponseFormasPago> getFormasPago();
   Future<ResponseSecuencia> getSecuencia(String tipo);

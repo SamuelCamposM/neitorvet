@@ -23,7 +23,7 @@ class CustomDatePickerButton extends StatelessWidget {
       children: [
         SizedBox(
           width: double.infinity, // Ocupa todo el ancho disponible
-          child: OutlinedButton.icon(
+          child: ElevatedButton(
             onPressed: () async {
               DateTime? pickedDate = await showDatePicker(
                 context: context,
@@ -44,23 +44,33 @@ class CustomDatePickerButton extends StatelessWidget {
                 color: errorMessage != null ? Colors.red : colors.primary,
               ),
             ),
-            icon: const Icon(Icons.calendar_today),
-            label: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                      color: errorMessage != null ? Colors.red : colors.primary,
-                      fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.left, // Alinear texto a la izquierda
+                const Padding(
+                  padding: EdgeInsets.only(left: 1, right: 4),
+                  child: Icon(Icons.calendar_month),
                 ),
-                Text(
-                  value == '' ? 'Seleccione' : value,
-                  style: TextStyle(
-                    color: errorMessage != null ? Colors.red : colors.primary,
-                  ),
-                  textAlign: TextAlign.left, // Alinear texto a la izquierda
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                          color: errorMessage != null
+                              ? Colors.red
+                              : colors.primary,
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.left, // Alinear texto a la izquierda
+                    ),
+                    Text(
+                      value == '' ? 'Seleccione' : value,
+                      style: TextStyle(
+                        color:
+                            errorMessage != null ? Colors.red : colors.primary,
+                      ),
+                      textAlign: TextAlign.left, // Alinear texto a la izquierda
+                    ),
+                  ],
                 ),
               ],
             ),

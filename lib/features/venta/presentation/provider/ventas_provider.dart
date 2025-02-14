@@ -91,7 +91,8 @@ class VentasNotifier extends StateNotifier<VentasState> {
         search: state.search,
         estado: state.estado,
         input: state.input,
-        orden: state.orden);
+        orden: state.orden,
+        busquedaVenta: state.busquedaVenta);
 
     if (ventas.error.isNotEmpty) {
       state = state.copyWith(isLoading: false, error: ventas.error);
@@ -110,19 +111,18 @@ class VentasNotifier extends StateNotifier<VentasState> {
   }
 
   Future<List<Venta>> searchVentasByQueryWhileWasLoading() async {
+    state = state.copyWith(isLoading: true);
     final ventas = await ventasRepository.getVentasByPage(
-      search: state.search,
-      cantidad: state.cantidad,
-      input: state.input,
-      orden: state.orden,
-      page: 0,
-      estado: state.estado,
-    );
+        search: state.search,
+        cantidad: state.cantidad,
+        input: state.input,
+        orden: state.orden,
+        page: 0,
+        estado: state.estado,
+        busquedaVenta: state.busquedaVenta);
     // ref.read(searchQueryProvider.notifier).update((state) => search);
     if (ventas.error.isNotEmpty) {
-      state = state.copyWith(
-        error: ventas.error,
-      );
+      state = state.copyWith(error: ventas.error, isLoading: false);
       return [];
     }
 
@@ -131,7 +131,10 @@ class VentasNotifier extends StateNotifier<VentasState> {
         totalSearched: ventas.total,
         total: ventas.total,
         ventas: ventas.resultado,
-        isLastPage: false);
+        isLastPage: false,
+        isLoading: false,
+        isSearching:
+            state.search.isNotEmpty || state.busquedaVenta.isSearching());
     return ventas.resultado;
   }
 
@@ -143,6 +146,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
       orden: state.orden,
       page: 0,
       estado: state.estado,
+      busquedaVenta: state.busquedaVenta,
     );
     // ref.read(searchQueryProvider.notifier).update((state) => search);
     if (ventas.error.isNotEmpty) {
@@ -154,7 +158,8 @@ class VentasNotifier extends StateNotifier<VentasState> {
         search: search,
         searchedVentas: ventas.resultado,
         totalSearched: ventas.total,
-        isLastPage: false);
+        isLastPage: false,
+        isSearching: search.isNotEmpty || state.busquedaVenta.isSearching());
     return ventas.resultado;
   }
 
@@ -185,6 +190,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     String? estado,
     String? input,
     bool? orden,
+    BusquedaVenta? busquedaVenta,
   }) async {
     if (state.isLoading) {
       return;
@@ -198,6 +204,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
       estado: estado ?? state.estado,
       input: input ?? state.input,
       orden: orden ?? state.orden,
+      busquedaVenta: busquedaVenta ?? state.busquedaVenta,
     );
 
     if (ventas.error.isNotEmpty) {
@@ -214,7 +221,10 @@ class VentasNotifier extends StateNotifier<VentasState> {
         estado: estado,
         input: input,
         orden: orden,
-        isLastPage: false);
+        isLastPage: false,
+        busquedaVenta: busquedaVenta,
+        isSearching: (search ?? state.search).isNotEmpty ||
+            (busquedaVenta ?? state.busquedaVenta).isSearching());
   }
 
   void handleSearch() async {
@@ -284,6 +294,8 @@ class VentasState {
   final List<Venta> searchedVentas;
   final int totalSearched;
   final List<FormaPago> formasPago;
+  final BusquedaVenta busquedaVenta;
+  final bool isSearching;
 
   VentasState(
       {this.isLastPage = false,
@@ -299,24 +311,27 @@ class VentasState {
       this.orden = false,
       this.searchedVentas = const [],
       this.totalSearched = 0,
-      this.formasPago = const []});
+      this.formasPago = const [],
+      this.busquedaVenta = const BusquedaVenta(),
+      this.isSearching = false});
 
-  VentasState copyWith({
-    bool? isLastPage,
-    bool? isLoading,
-    int? cantidad,
-    int? page,
-    List<Venta>? ventas,
-    String? error,
-    int? total,
-    String? search,
-    String? estado,
-    String? input,
-    bool? orden,
-    List<Venta>? searchedVentas,
-    int? totalSearched,
-    List<FormaPago>? formasPago,
-  }) {
+  VentasState copyWith(
+      {bool? isLastPage,
+      bool? isLoading,
+      int? cantidad,
+      int? page,
+      List<Venta>? ventas,
+      String? error,
+      int? total,
+      String? search,
+      String? estado,
+      String? input,
+      bool? orden,
+      List<Venta>? searchedVentas,
+      int? totalSearched,
+      List<FormaPago>? formasPago,
+      BusquedaVenta? busquedaVenta,
+      bool? isSearching}) {
     return VentasState(
       isLastPage: isLastPage ?? this.isLastPage,
       isLoading: isLoading ?? this.isLoading,
@@ -332,6 +347,8 @@ class VentasState {
       searchedVentas: searchedVentas ?? this.searchedVentas,
       totalSearched: totalSearched ?? this.totalSearched,
       formasPago: formasPago ?? this.formasPago,
+      busquedaVenta: busquedaVenta ?? this.busquedaVenta,
+      isSearching: isSearching ?? this.isSearching,
     );
   }
 }

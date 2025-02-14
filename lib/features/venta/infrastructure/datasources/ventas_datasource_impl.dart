@@ -13,16 +13,25 @@ class VentasDatasourceImpl extends VentasDatasource {
 
   @override
   Future<ResponseVentas> getVentasByPage(
-      {int cantidad = 10,
-      int page = 0,
-      String estado = 'NOTA VENTAS',
-      String input = 'venId',
-      bool orden = false,
-      String search = ''}) async {
+      {required int cantidad,
+      required int page,
+      required String estado,
+      required String input,
+      required bool orden,
+      required String search,
+      required BusquedaVenta busquedaVenta}) async {
     try {
-      final response = await dio.get(
-        '/ventas/?search=$search&cantidad=$cantidad&page=$page&input=$input&orden=$orden&estado=$estado',
-      );
+      final queryParameters = {
+        'search': search,
+        'cantidad': cantidad,
+        'page': page,
+        'input': input,
+        'orden': orden,
+        'estado': estado,
+        'datos': busquedaVenta.toJsonString(), // Con
+      };
+      final response =
+          await dio.get('/ventas/', queryParameters: queryParameters);
       final List<Venta> newVentas = response.data['data']['results']
           .map<Venta>((e) => Venta.fromJson(e))
           .toList();

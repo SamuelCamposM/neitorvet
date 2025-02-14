@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
 import 'package:neitorvet/features/shared/shared.dart';
+import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
+import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
@@ -17,6 +19,22 @@ class VentasScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              final ventasState = ref.watch(ventasProvider);
+              return IconButton(
+                  onPressed: () {
+                    ref.read(ventasProvider.notifier).resetQuery(
+                        busquedaVenta: const BusquedaVenta(), search: '');
+                  },
+                  icon: ventasState.isSearching
+                      ? const Icon(
+                          Icons.close,
+                          color: Colors.red,
+                        )
+                      : const SizedBox());
+            },
+          ),
           Consumer(
             builder: (context, ref, child) {
               return IconButton(
@@ -147,39 +165,27 @@ class VentasViewState extends ConsumerState<VentasView> {
                     verticalDirection: VerticalDirection.down,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2101),
-                          );
-                          if (picked != null) {
-                            // Realiza la búsqueda con la fecha seleccionada
-                            // ref.read(ventasProvider.notifier).resetQuery(
-                            //       fecha: picked,
-                            //     );
-                          }
-                        },
-                        child: const Text('Seleccionar fecha inicio'),
+                      Expanded(
+                        child: CustomDatePickerButton(
+                          label: 'Fecha inicio',
+                          value: ventasState.busquedaVenta.venFechaFactura1,
+                          getDate: (String date) {
+                            ref.read(ventasProvider.notifier).resetQuery(
+                                busquedaVenta: ventasState.busquedaVenta
+                                    .copyWith(venFechaFactura1: date));
+                          },
+                        ),
                       ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2101),
-                          );
-                          if (picked != null) {
-                            // Realiza la búsqueda con la fecha seleccionada
-                            // ref.read(ventasProvider.notifier).resetQuery(
-                            //       fecha: picked,
-                            //     );
-                          }
-                        },
-                        child: const Text('Seleccionar fecha fin'),
+                      Expanded(
+                        child: CustomDatePickerButton(
+                          label: 'Fecha Fin',
+                          value: ventasState.busquedaVenta.venFechaFactura2,
+                          getDate: (String date) {
+                            ref.read(ventasProvider.notifier).resetQuery(
+                                busquedaVenta: ventasState.busquedaVenta
+                                    .copyWith(venFechaFactura2: date));
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -196,10 +202,16 @@ class VentasViewState extends ConsumerState<VentasView> {
                                   input: value,
                                 );
                           },
-                          options: const [
-                            "venId",
-                            "perDocumento",
-                            "perNombre",
+                          options: [
+                            Option(label: "Fec. Reg.", value: "venId"),
+                            Option(
+                              label: "Nombre Cliente",
+                              value: "venNomCliente",
+                            ),
+                            Option(
+                              label: "Documento",
+                              value: "venRucCliente",
+                            ),
                           ].toList(),
                         ),
                       ),

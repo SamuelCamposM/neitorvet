@@ -72,7 +72,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       placasData: placasData ?? state.placasData,
       ventaForm: ventaForm ?? state.ventaForm,
     );
-    _touchedEverything();
+    _touchedEverything(false);
   }
 
   bool agregarEmail(TextEditingController controller) {
@@ -119,7 +119,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
 
     state = state.copyWith(
         ventaForm: state.ventaForm.copyWith(
-      venProductosInput: newProductos,
+      venProductos: newProductos,
       venCostoProduccion: resultTotales.venCostoProduccion,
       venDescuento: resultTotales.venDescuento,
       venSubTotal: resultTotales.venSubTotal,
@@ -170,13 +170,13 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
 
     state = state.copyWith(
         ventaForm: state.ventaForm.copyWith(
-      venProductosInput: updatedProductos,
+      venProductos: updatedProductos,
     ));
   }
 
   Future<bool> onFormSubmit() async {
     // Marcar todos los campos como tocados
-    _touchedEverything();
+    _touchedEverything(true);
 
     // Esperar un breve momento para asegurar que el estado se actualice
 
@@ -217,12 +217,25 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
   }
 
-  void _touchedEverything() {
-    state = state.copyWith(
-        isFormValid: Formz.validate([
-      GenericRequiredInput.dirty(state.ventaForm.venRucClienteInput.value),
-      Productos.dirty(state.ventaForm.venProductosInput.value)
-    ]));
+  void _touchedEverything(bool submit) {
+    if (submit) {
+      state = state.copyWith(
+          ventaForm: state.ventaForm.copyWith(
+            venRucCliente: state.ventaForm.venRucCliente,
+            venProductos: state.ventaForm.venProductos,
+          ),
+          isFormValid: Formz.validate([
+            GenericRequiredInput.dirty(
+                state.ventaForm.venRucClienteInput.value),
+            Productos.dirty(state.ventaForm.venProductosInput.value)
+          ]));
+    } else {
+      state = state.copyWith(
+          isFormValid: Formz.validate([
+        GenericRequiredInput.dirty(state.ventaForm.venRucClienteInput.value),
+        Productos.dirty(state.ventaForm.venProductosInput.value)
+      ]));
+    }
   }
 }
 

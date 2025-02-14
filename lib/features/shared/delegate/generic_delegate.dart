@@ -112,12 +112,13 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
               : IconButton(
                   onPressed: () {
                     if (!onlySelect) {
+                      _debounceTimer!.cancel();
+                      clearStreams();
                       close(
                           context,
                           SearchGenericResult(
                               setBusqueda: true,
                               wasLoading: snapshot.data ?? false));
-                      clearStreams();
                     }
                   },
                   icon: const Icon(
@@ -156,6 +157,8 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
 
       if (context.mounted) {
         if (!onlySelect) {
+          clearStreams();
+          _debounceTimer!.cancel();
           close(context,
               SearchGenericResult(setBusqueda: true, wasLoading: wasLoading));
         }

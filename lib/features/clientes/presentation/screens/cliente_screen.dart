@@ -145,7 +145,11 @@ class _ClienteForm extends ConsumerWidget {
               onChanged: (String? value) {
                 updateForm(clienteForm: clienteFormCopyWith(perDocTipo: value));
               },
-              options: const ['RUC', "CEDULA", "PASAPORTE"],
+              options: [
+                Option(label: 'RUC', value: 'RUC'),
+                Option(label: "CEDULA", value: "CEDULA"),
+                Option(label: "PASAPORTE", value: "PASAPORTE"),
+              ],
             ),
             CustomInputField(
               autofocus: true,

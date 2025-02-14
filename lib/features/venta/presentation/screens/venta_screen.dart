@@ -175,7 +175,7 @@ class _VentaForm extends ConsumerWidget {
                       updateForm(
                           placasData: cliente.perOtros,
                           ventaForm: ventaFState.ventaForm.copyWith(
-                            venRucClienteInput: cliente.perDocNumero,
+                            venRucCliente: cliente.perDocNumero,
                             venNomCliente: cliente.perNombre,
                             venIdCliente: cliente.perId,
                             venTipoDocuCliente: cliente.perDocTipo,
@@ -258,7 +258,8 @@ class _VentaForm extends ConsumerWidget {
                       },
                       options: ventasState.formasPago.map(
                         (e) {
-                          return e.fpagoNombre;
+                          return Option(
+                              label: e.fpagoNombre, value: e.fpagoNombre);
                         },
                       ).toList(),
                     ),
