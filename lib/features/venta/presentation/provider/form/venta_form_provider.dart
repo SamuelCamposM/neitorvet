@@ -72,6 +72,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       placasData: placasData ?? state.placasData,
       ventaForm: ventaForm ?? state.ventaForm,
     );
+    _touchedEverything();
   }
 
   bool agregarEmail(TextEditingController controller) {
@@ -118,7 +119,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
 
     state = state.copyWith(
         ventaForm: state.ventaForm.copyWith(
-      venProductosInput: Productos.dirty(newProductos),
+      venProductosInput: newProductos,
       venCostoProduccion: resultTotales.venCostoProduccion,
       venDescuento: resultTotales.venDescuento,
       venSubTotal: resultTotales.venSubTotal,
@@ -169,7 +170,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
 
     state = state.copyWith(
         ventaForm: state.ventaForm.copyWith(
-      venProductosInput: Productos.dirty(updatedProductos),
+      venProductosInput: updatedProductos,
     ));
   }
 
@@ -249,8 +250,8 @@ class VentaFormState {
     this.placasData = const [],
     this.ocultarEmail = true,
     this.productoSearch = '',
-    VentaForm? ventaForm, // Make this parameter optional
-  }) : ventaForm = ventaForm ?? VentaForm(); // Provide default value here
+    required this.ventaForm, // Make this parameter optional
+  }); // Provide default value here
 
   VentaFormState copyWith(
       {Email? nuevoEmail,

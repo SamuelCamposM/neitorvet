@@ -8,6 +8,11 @@ import 'package:neitorvet/features/clientes/presentation/provider/form/cliente_f
 
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
+import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
+import 'package:neitorvet/features/shared/widgets/form/custom_expandable_email_list.dart';
+import 'package:neitorvet/features/shared/widgets/form/custom_expandable_phone_list.dart';
+import 'package:neitorvet/features/shared/widgets/form/custom_expandable_placa_list.dart';
 
 class ClienteScreen extends ConsumerWidget {
   final int clienteId;
@@ -91,302 +96,176 @@ class _ClienteForm extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final clienteForm = ref.watch(clienteFormProvider(cliente));
-    final textStyles = Theme.of(context).textTheme;
-
+    final size = Responsive.of(context);
+    final clienteFState = ref.watch(clienteFormProvider(cliente));
+    final updateForm =
+        ref.read(clienteFormProvider(cliente).notifier).updateState;
+    final clienteFormCopyWith = clienteFState.clienteForm.copyWith;
+    //* VALIDADOS
+    // perDocTipoInput
+    // perDocNumeroInput
+    // perNombreInput
+    // perDireccionInput
+    // perFecNacimientoInput
+    // perCelularInput
+    // perOtrosInput
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
-            Center(
-                child: Text(clienteForm.perNombre.value,
-                    textAlign: TextAlign.center, style: textStyles.titleSmall)),
-            const SizedBox(height: 10),
-            const Text('Mis datos', textAlign: TextAlign.center),
-            const SizedBox(height: 15),
+            RichText(
+              textAlign: TextAlign.left,
+              text: TextSpan(
+                text: 'Cliente: ',
+                style: TextStyle(
+                  fontSize: size.iScreen(1.8),
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black,
+                ),
+                children: [
+                  TextSpan(
+                    text: clienteFState.clienteForm.perId == 0
+                        ? 'NUEVO'
+                        : cliente.perNombre,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            CustomSelectField(
+              errorMessage:
+                  clienteFState.clienteForm.perDocTipoInput.errorMessage,
+              size: size,
+              label: 'F. de Pago',
+              value: clienteFState.clienteForm.perDocTipo,
+              onChanged: (String? value) {
+                updateForm(clienteForm: clienteFormCopyWith(perDocTipo: value));
+              },
+              options: const ['RUC', "CEDULA", "PASAPORTE"],
+            ),
             CustomInputField(
               autofocus: true,
-              isTopField: true,
-              label: 'Nombre',
-              initialValue: clienteForm.perNombre.value,
+              label: 'Número Doc.',
+              initialValue: clienteFState.clienteForm.perDocNumeroInput.value,
               onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perNombre: p0);
+                updateForm(clienteForm: clienteFormCopyWith(perDocNumero: p0));
               },
-              errorMessage: clienteForm.perNombre.errorMessage,
+              errorMessage:
+                  clienteFState.clienteForm.perDocNumeroInput.errorMessage,
             ),
             CustomInputField(
-              label: 'Canton',
-              initialValue: clienteForm.perCanton.value,
+              label: 'Nombres',
+              initialValue: clienteFState.clienteForm.perNombre,
               onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perCanton: p0);
+                updateForm(clienteForm: clienteFormCopyWith(perNombre: p0));
               },
-              errorMessage: clienteForm.perCanton.errorMessage,
+              errorMessage:
+                  clienteFState.clienteForm.perNombreInput.errorMessage,
             ),
             CustomInputField(
-              label: 'Direccion',
-              initialValue: clienteForm.perDireccion.value,
+              label: 'Dirección',
+              initialValue: clienteFState.clienteForm.perDireccionInput.value,
               onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perDireccion: p0);
+                updateForm(clienteForm: clienteFormCopyWith(perDireccion: p0));
               },
-              errorMessage: clienteForm.perDireccion.errorMessage,
+              errorMessage:
+                  clienteFState.clienteForm.perDireccionInput.errorMessage,
             ),
-            CustomInputField(
-              label: 'Doc Numero',
-              initialValue: clienteForm.perDocNumero.value,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perDocNumero: p0);
-              },
-              errorMessage: clienteForm.perDocNumero.errorMessage,
-            ),
-            CustomInputField(
-              label: 'Pais',
-              initialValue: clienteForm.perPais.value,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perPais: p0);
-              },
-              errorMessage: clienteForm.perPais.errorMessage,
-            ),
-            CustomInputField(
-              label: 'Provincia',
-              initialValue: clienteForm.perProvincia.value,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perProvincia: p0);
-              },
-              errorMessage: clienteForm.perProvincia.errorMessage,
-            ),
-            CustomInputField(
-              label: 'Recomendacion',
-              initialValue: clienteForm.perRecomendacion.value,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perRecomendacion: p0);
-              },
-              errorMessage: clienteForm.perRecomendacion.errorMessage,
-            ),
-            CustomInputField(
-              label: 'Codigo',
-              initialValue: clienteForm.perCodigo,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perCodigo: p0);
+            // CustomInputField(
+            //   label: 'Fecha Nacimiento',
+            //   initialValue: clienteFState.clienteForm.perFecNacimiento,
+            //   onChanged: (p0) {
+            //     updateForm(
+            //         clienteForm: clienteFormCopyWith(perFecNacimiento: p0));
+            //   },
+            // ),
+            CustomDatePickerButton(
+              label: 'Fecha Nacimiento',
+              value: clienteFState.clienteForm.perFecNacimiento,
+              getDate: (String date) {
+                updateForm(
+                    clienteForm: clienteFormCopyWith(perFecNacimiento: date));
               },
             ),
-            CustomInputField(
-              label: 'Credito',
-              initialValue: clienteForm.perCredito,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perCredito: p0);
+
+            CustomExpandableEmailList(
+              errorMessage:
+                  clienteFState.clienteForm.perEmailInput.errorMessage,
+              label: 'Correos: ',
+              onAddValue: (p0) {
+                updateForm(
+                    clienteForm: clienteFormCopyWith(
+                        perEmail: [p0, ...clienteFState.clienteForm.perEmail]));
               },
-            ),
-            CustomInputField(
-              label: 'Doc Tipo',
-              initialValue: clienteForm.perDocTipo,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perDocTipo: p0);
+              onDeleteValue: (p0) {
+                updateForm(clienteForm: clienteFormCopyWith(perEmail: p0));
               },
+              values: clienteFState.clienteForm.perEmail,
             ),
-            CustomInputField(
-              label: 'Documento',
-              initialValue: clienteForm.perDocumento,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perDocumento: p0);
+            CustomExpandablePhoneList(
+              errorMessage:
+                  clienteFState.clienteForm.perCelularInput.errorMessage,
+              label: 'Celulares:',
+              onAddValue: (p0) {
+                updateForm(
+                    clienteForm: clienteFormCopyWith(perCelular: [
+                  p0,
+                  ...clienteFState.clienteForm.perCelular
+                ]));
               },
-            ),
-            CustomInputField(
-              label: 'Especialidad',
-              initialValue: clienteForm.perEspecialidad,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perEspecialidad: p0);
+              onDeleteValue: (p0) {
+                updateForm(clienteForm: clienteFormCopyWith(perCelular: p0));
               },
+              values: clienteFState.clienteForm.perCelular,
             ),
-            CustomInputField(
-              label: 'Estado',
-              initialValue: clienteForm.perEstado,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perEstado: p0);
+            CustomExpandablePlacaList(
+              errorMessage:
+                  clienteFState.clienteForm.perOtrosInput.errorMessage,
+              label: 'Placas:',
+              onAddValue: (p0) {
+                updateForm(
+                    clienteForm: clienteFormCopyWith(
+                        perOtros: [p0, ...clienteFState.clienteForm.perOtros]));
               },
-            ),
-            CustomInputField(
-              label: 'Fec Nacimiento',
-              initialValue: clienteForm.perFecNacimiento,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perFecNacimiento: p0);
+              onDeleteValue: (p0) {
+                updateForm(clienteForm: clienteFormCopyWith(perOtros: p0));
               },
+              values: clienteFState.clienteForm.perOtros,
             ),
-            CustomInputField(
-              label: 'Fec Reg',
-              initialValue: clienteForm.perFecReg,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perFecReg: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Fec Upd',
-              initialValue: clienteForm.perFecUpd,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perFecUpd: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Foto',
-              initialValue: clienteForm.perFoto,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perFoto: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Genero',
-              initialValue: clienteForm.perGenero,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perGenero: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Nombre Comercial',
-              initialValue: clienteForm.perNombreComercial,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perNombreComercial: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Obligado',
-              initialValue: clienteForm.perObligado,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perObligado: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Obsevacion',
-              initialValue: clienteForm.perObsevacion,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perObsevacion: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Personal',
-              initialValue: clienteForm.perPersonal,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perPersonal: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Senescyt',
-              initialValue: clienteForm.perSenescyt,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perSenescyt: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Telefono',
-              initialValue: clienteForm.perTelefono,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perTelefono: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Tiempo Credito',
-              initialValue: clienteForm.perTiempoCredito,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perTiempoCredito: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Tipo Proveedor',
-              initialValue: clienteForm.perTipoProveedor,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perTipoProveedor: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Titulo',
-              initialValue: clienteForm.perTitulo,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perTitulo: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'User',
-              initialValue: clienteForm.perUser,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perUser: p0);
-              },
-            ),
-            CustomInputField(
-              label: 'Usuario',
-              initialValue: clienteForm.perUsuario,
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perUsuario: p0);
-              },
-            ),
-            CustomInputField(
-              isBottomField: true,
-              label: 'Nickname',
-              initialValue: clienteForm.perNickname ?? '',
-              onChanged: (p0) {
-                ref
-                    .read(clienteFormProvider(cliente).notifier)
-                    .updateState(perNickname: p0);
-              },
-            ),
+
+            // CustomInputField(
+            //
+            //   label: 'perCelularInput',
+            //   initialValue: clienteFState.clienteForm.perCelularInput.value,
+            //   onChanged: (p0) {
+            //     updateForm(
+            //         clienteForm: clienteFormCopyWith(perCelular: p0));
+            //   },
+            //   errorMessage:
+            //       clienteFState.clienteForm.perCelularInput.errorMessage,
+            // ),
+            // CustomInputField(
+            //
+            //   label: 'perOtrosInput',
+            //   initialValue: clienteFState.clienteForm.perOtrosInput.value,
+            //   onChanged: (p0) {
+            //     updateForm(clienteForm: clienteFormCopyWith(perOtros: p0));
+            //   },
+            //   errorMessage:
+            //       clienteFState.clienteForm.perOtrosInput.errorMessage,
+            // ),
+            // Text(clienteFState.clienteForm.perDocTipoInput.value),
+            // Text(clienteFState.clienteForm.perDocNumeroInput.value),
+            // Text(clienteFState.clienteForm.perNombreInput.value),
+            // Text(clienteFState.clienteForm.perDireccionInput.value),
+
+            // Text(clienteFState.clienteForm.perEmailInput.value.toString()),
+            // Text(clienteFState.clienteForm.perCelularInput.value.toString()),
+            // Text(clienteFState.clienteForm.perOtrosInput.value.toString()),
             const SizedBox(height: 100),
           ],
         ),

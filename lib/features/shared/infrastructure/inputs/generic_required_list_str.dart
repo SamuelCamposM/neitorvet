@@ -7,7 +7,7 @@ enum GenericRequiredListStrError { empty }
 class GenericRequiredListStr
     extends FormzInput<List<String>, GenericRequiredListStrError> {
   // Call super.pure to represent an unmodified form input.
-  GenericRequiredListStr.pure() : super.pure([]);
+   const GenericRequiredListStr.pure() : super.pure(const []);
 
   // Call super.dirty to represent a modified form input.
   const GenericRequiredListStr.dirty(super.value) : super.dirty();

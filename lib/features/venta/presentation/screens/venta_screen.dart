@@ -2,7 +2,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
@@ -100,10 +99,9 @@ class _VentaForm extends ConsumerWidget {
   _VentaForm({required this.venta, required this.secuencia});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ventaFState = ref.watch(ventaFormProvider(venta));
-    ref.watch(clientesProvider);
-    final ventasState = ref.watch(ventasProvider);
     final size = Responsive.of(context);
+    final ventaFState = ref.watch(ventaFormProvider(venta));
+    final ventasState = ref.watch(ventasProvider);
     final updateForm = ref.read(ventaFormProvider(venta).notifier).updateState;
 
     return Padding(
@@ -177,7 +175,7 @@ class _VentaForm extends ConsumerWidget {
                       updateForm(
                           placasData: cliente.perOtros,
                           ventaForm: ventaFState.ventaForm.copyWith(
-                            venRucCliente: cliente.perDocNumero,
+                            venRucClienteInput: cliente.perDocNumero,
                             venNomCliente: cliente.perNombre,
                             venIdCliente: cliente.perId,
                             venTipoDocuCliente: cliente.perDocTipo,

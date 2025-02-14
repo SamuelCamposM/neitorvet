@@ -67,6 +67,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         user: null,
         errorMessage: errorMessage);
   }
+
+  Map<String, dynamic> dataDefaultMap(
+      {String userProperty = 'user', String empresaPropery = 'rucempresa'}) {
+    return {
+      "rucempresa": state.user?.rucempresa,
+      "rol": state.user?.rol,
+      userProperty: state.user?.usuario,
+      empresaPropery: state.user?.rucempresa,
+    };
+  }
 }
 
 class AuthState {

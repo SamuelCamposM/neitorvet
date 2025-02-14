@@ -18,7 +18,7 @@ class CustomInputField extends StatelessWidget {
   final bool readOnly;
   final IconButton? suffixIcon;
   final bool autofocus;
-  const CustomInputField({
+  const  CustomInputField({
     super.key,
     this.isTopField = false,
     this.isBottomField = false,

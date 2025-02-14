@@ -140,8 +140,8 @@ class VentasViewState extends ConsumerState<VentasView> {
                   ),
               const SizedBox(height: 10),
               ExpansionTile(
-                
-                title: const Text('Buscar  - Ordenar'),
+                dense: true,
+                title: const Text('Buscar - Ordenar'),
                 children: [
                   Row(
                     verticalDirection: VerticalDirection.down,
