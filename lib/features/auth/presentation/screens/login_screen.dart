@@ -74,30 +74,53 @@ class _LoginForm extends ConsumerWidget {
     );
 
     final textStyles = Theme.of(context).textTheme;
-
+    if (loginForm.isLoadingData) {
+      return const FullScreenLoader();
+    }
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 50),
+      padding: const EdgeInsets.symmetric(horizontal: 45),
       child: Column(
         children: [
           const Spacer(),
           Text('Login', style: textStyles.titleLarge),
           const Spacer(),
-          CustomTextFormField(
+          CustomInputField(
             label: 'Empresa',
+            autofocus: true,
+            toUpperCase: true,
+            initialValue: loginForm.empresa.value,
             onChanged: ref.read(loginFormProvider.notifier).onEmpresaChange,
             errorMessage:
                 loginForm.isFormPosted ? loginForm.empresa.errorMessage : null,
-            toUpperCase: true,
           ),
           const SizedBox(height: 30),
-          CustomTextFormField(
+          CustomInputField(
             label: 'Usuario',
+            initialValue: loginForm.usuario.value,
             onChanged: ref.read(loginFormProvider.notifier).onUsuarioChange,
             errorMessage:
                 loginForm.isFormPosted ? loginForm.usuario.errorMessage : null,
           ),
+
+          // CustomTextFormField(
+          //   label: 'Usuario',
+          //   onChanged: ref.read(loginFormProvider.notifier).onUsuarioChange,
+          //   errorMessage:
+          //       loginForm.isFormPosted ? loginForm.usuario.errorMessage : null,
+          // ),
           const SizedBox(height: 30),
-          CustomTextFormField(
+          // CustomTextFormField(
+          //   initialValue: loginForm.password.value,
+          //   label: 'Contraseña',
+          //   obscureText: true,
+          //   onChanged: ref.read(loginFormProvider.notifier).onPasswordChange,
+          //   onFieldSubmitted: (_) =>
+          //       ref.read(loginFormProvider.notifier).onFormSubmit(),
+          //   errorMessage:
+          //       loginForm.isFormPosted ? loginForm.password.errorMessage : null,
+          // ),
+          CustomInputField(
+              initialValue: loginForm.password.value,
             label: 'Contraseña',
             obscureText: true,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChange,
@@ -116,17 +139,30 @@ class _LoginForm extends ConsumerWidget {
                     : ref.read(loginFormProvider.notifier).onFormSubmit,
                 child: const Text('Ingresar'),
               )),
-          const Spacer(flex: 2),
+          const Spacer(),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('¿No tienes cuenta?'),
-              TextButton(
-                  onPressed: () => context.push('/register'),
-                  child: const Text('Crea una aquí'))
+              Row(
+                children: [
+                  const Text('Recuerdame'),
+                  Checkbox(
+                    value: loginForm.rememberMe,
+                    onChanged:
+                        ref.read(loginFormProvider.notifier).onRememberMeChange,
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  TextButton(
+                      onPressed: () => context.push('/register'),
+                      child: const Text('¿Olvidaste tu contraseña?'))
+                ],
+              )
             ],
           ),
-          const Spacer(flex: 1),
+          const Spacer(),
         ],
       ),
     );

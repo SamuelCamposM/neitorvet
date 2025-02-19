@@ -14,17 +14,29 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final scaffoldKey = GlobalKey<ScaffoldState>();
-
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      drawer: SideMenu(scaffoldKey: scaffoldKey),
-      appBar: CustomAppBar(
-        title: 'Home',
-        userName: authState.user!.nombre, // Reemplaza con el nombre del usuario
-        moduleName: 'Home',
-        logoUrl: authState.user!.logo, // Ruta de la imagen del logo
-      ),
-      body: _HomeView(),
-    );
+        drawer: SideMenu(scaffoldKey: scaffoldKey),
+        appBar: CustomAppBar(
+          title: 'Home',
+          userName:
+              authState.user!.nombre, // Reemplaza con el nombre del usuario
+          moduleName: 'Home',
+          logoUrl: authState.user!.logo, // Ruta de la imagen del logo
+        ),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                colors.secondary.withValues(alpha: 0.5),
+                colors.primary.withValues(alpha: 0.5),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: _HomeView(),
+        ));
   }
 }
 
@@ -104,3 +116,35 @@ class _CustomCard extends StatelessWidget {
     );
   }
 }
+
+// import 'package:flutter/material.dart';
+
+// void main() {
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: HomeScreen(),
+//     );
+//   }
+// }
+
+// class HomeScreen extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text('Navigation Drawer')),
+//       drawer: Drawer(
+//         child: Column(
+//           children: [
+//         ],
+//         ),
+//       ),
+//       body: Center(child: Text('Pantalla principal')),
+//     );
+//   }
+// }

@@ -1,9 +1,10 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
-import 'package:neitorvet/features/clientes/presentation/provider/cliente_provider.dart';
+import 'package:neitorvet/features/clientes/presentation/provider/cliente_provider.dart'; 
 import 'package:neitorvet/features/clientes/presentation/provider/form/cliente_form_provider.dart';
 
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -39,7 +40,7 @@ class ClienteScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(clienteState.cliente?.perId == 0
-              ? 'Crear Cliente'
+              ? 'Nuevo Cliente'
               : 'Editar Cliente'),
         ),
         body: clienteState.isLoading
@@ -62,10 +63,10 @@ class _FloatingButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final productFormState = ref.watch(clienteFormProvider(cliente));
+    final ventaState = ref.watch(clienteFormProvider(cliente));
     return FloatingActionButton(
       onPressed: () async {
-        if (productFormState.isPosting) {
+        if (ventaState.isPosting) {
           return;
         }
         final exitoso = await ref
@@ -73,11 +74,12 @@ class _FloatingButton extends ConsumerWidget {
             .onFormSubmit();
 
         if (exitoso && context.mounted) {
-          NotificationsService.show(
-              context, 'Cliente Actualizado', SnackbarCategory.success);
+          context.pop('/cliente');
+          NotificationsService.show(context, ventaState.clienteForm.perNombre,
+              SnackbarCategory.success);
         }
       },
-      child: productFormState.isPosting
+      child: ventaState.isPosting
           ? SpinPerfect(
               duration: const Duration(seconds: 1),
               spins: 10,

@@ -19,7 +19,7 @@ final clienteFormProvider = StateNotifierProvider.family
 });
 
 class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
-  final Future<void> Function(Map<String, dynamic> clienteMap)
+  final Future<void> Function(Map<String, dynamic> clienteMap, bool editando)
       createUpdateCliente;
   final Map<String, dynamic> Function(
       {String userProperty, String empresaPropery}) dataDefaultMap;
@@ -55,17 +55,18 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
     state = state.copyWith(isPosting: true);
     final clienteMap = {
       ...state.clienteForm.toCliente().toJson(),
-      ...dataDefaultMap(empresaPropery: 'perEmpresa', userProperty: 'perUser')
+      'perEmpresa': ['TE2021'],
+      ...dataDefaultMap(empresaPropery: 'perEmpresa', userProperty: 'perUser'),
+      "tabla": "proveedor",
     };
 
     try {
       // socket.emit('editar-registro', clienteMap);
       const result = true;
-      //  await onSubmitCallback(productMap);
-      await createUpdateCliente(clienteMap);
+      await createUpdateCliente(clienteMap, state.clienteForm.perId != 0);
+
       // Actualizar el estado para indicar que ya no se está posteando
       state = state.copyWith(isPosting: false);
-
       return result;
     } catch (e) {
       // Actualizar el estado para indicar que ya no se está posteando

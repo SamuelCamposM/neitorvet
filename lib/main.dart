@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/config/config.dart';
 import 'package:neitorvet/config/local_notifications/local_notifications.dart';
 import 'package:neitorvet/config/provider/device_type_provider.dart';
+import 'package:neitorvet/config/provider/theme_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -23,7 +24,9 @@ class MainApp extends ConsumerWidget {
       ref.read(contextProvider.notifier).state = context;
     });
     final appRouter = ref.watch(goRouterProvider);
-
+    const Brightness brightness =
+        Brightness.light; // Cambia a Brightness.dark para el tema oscuro
+    final AppTheme appTheme = ref.watch(themeNotifierProvider);
     return MaterialApp.router(
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -36,7 +39,7 @@ class MainApp extends ConsumerWidget {
       ],
       scaffoldMessengerKey: NotificationsService.messengerKey,
       routerConfig: appRouter,
-      theme: AppTheme().getTheme(),
+      theme: appTheme.getTheme(brightness),
       debugShowCheckedModeBanner: false,
     );
   }

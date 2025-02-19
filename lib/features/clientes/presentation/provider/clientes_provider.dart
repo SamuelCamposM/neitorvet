@@ -38,7 +38,31 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
 
     socket.on('disconnect', (_) {});
 
-    socket.on("server:actualizadoExitoso", (data) {});
+    socket.on("server:actualizadoExitoso", (data) {
+      if (data['tabla'] == 'proveedor') {
+        // Edita de la lista de clientes
+        final updatedCliente = Cliente.fromJson(data);
+        final updatedClientesList = state.clientes.map((cliente) {
+          return cliente.perId == updatedCliente.perId
+              ? updatedCliente
+              : cliente;
+        }).toList();
+        state = state.copyWith(clientes: updatedClientesList);
+      }
+    });
+
+    socket.on("server:guardadoExitoso", (data) {
+      if (data['tabla'] == 'proveedor') {
+        // Agrega a la lista de clientes
+
+        final newCliente = Cliente.fromJson(data);
+
+        state = state.copyWith(clientes: [
+          newCliente,
+          ...state.clientes,
+        ]);
+      }
+    });
   }
 
   Future loadNextPage() async {
@@ -187,8 +211,13 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
         totalSearched: 0);
   }
 
-  Future<void> createUpdateCliente(Map<String, dynamic> clienteMap) async {
-    socket.emit('client:actualizarData', clienteMap);
+  Future<void> createUpdateCliente(
+      Map<String, dynamic> clienteMap, bool editando) async {
+    if (editando) {
+      socket.emit('client:actualizarData', clienteMap);
+    } else {
+      socket.emit("client:guardarData", clienteMap);
+    }
   }
 
   @override

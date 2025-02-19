@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomInputField extends StatelessWidget {
   final bool isTopField; // La idea es que tenga bordes redondeados arriba
@@ -18,7 +19,9 @@ class CustomInputField extends StatelessWidget {
   final bool readOnly;
   final IconButton? suffixIcon;
   final bool autofocus;
-  const  CustomInputField({
+  final bool toUpperCase; // Nuevo parámetro para convertir a mayúsculas
+
+  const CustomInputField({
     super.key,
     this.isTopField = false,
     this.isBottomField = false,
@@ -37,21 +40,26 @@ class CustomInputField extends StatelessWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.suffixIcon,
+    this.toUpperCase = false, // Inicializando el nuevo parámetro
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+
     return TextFormField(
       autofocus: autofocus,
       readOnly: readOnly,
       controller: controller,
       onChanged: onChanged,
+      inputFormatters: toUpperCase ? [_UpperCaseTextFormatter()] : [],
       onFieldSubmitted: onFieldSubmitted,
       validator: validator,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: const TextStyle(fontSize: 15, color: Colors.black54),
+      style: const TextStyle(
+        fontSize: 15,
+      ),
       maxLines: maxLines,
       initialValue: controller == null ? initialValue : null,
       decoration: InputDecoration(
@@ -59,7 +67,6 @@ class CustomInputField extends StatelessWidget {
             ? FloatingLabelBehavior.always
             : FloatingLabelBehavior.auto,
         floatingLabelStyle: const TextStyle(
-          color: Colors.black,
           fontWeight: FontWeight.bold,
           fontSize: 15,
         ),
@@ -84,6 +91,17 @@ class CustomInputField extends StatelessWidget {
         suffixIcon: suffixIcon,
       ),
       textAlign: textAlign!,
+    );
+  }
+}
+
+class _UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }

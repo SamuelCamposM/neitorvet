@@ -35,6 +35,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              //    brightness: Brightness.dark, SE QUEDA EN BLACNO SIN IMPORTAR SI ESTA EN DARK O LIGHT el color de letra
               Text(
                 moduleName,
                 style: const TextStyle(fontSize: 16),
@@ -49,7 +50,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: actions ??
           [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
+            IconButton(
+                onPressed: () {}, icon: const Icon(Icons.search_rounded)),
           ],
     );
   }

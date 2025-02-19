@@ -4,16 +4,52 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/clientes/presentation/delegates/search_cliente_delegate.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
+import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class ClientesScreen extends StatelessWidget {
+class ClientesScreen extends ConsumerStatefulWidget {
   const ClientesScreen({super.key});
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  ConsumerState createState() => ClientesViewState();
+}
+
+class ClientesViewState extends ConsumerState<ClientesScreen> {
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(
+      () {
+        if (scrollController.position.pixels + 400 >=
+            scrollController.position.maxScrollExtent) {
+          ref.read(clientesProvider.notifier).loadNextPage();
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = Responsive.of(context);
+    final clientesState = ref.watch(clientesProvider);
+    ref.listen(
+      clientesProvider,
+      (_, next) {
+        if (next.error.isEmpty) return;
+        NotificationsService.show(
+            context, next.error, SnackbarCategory.success);
+      },
+    );
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -63,166 +99,119 @@ class ClientesScreen extends StatelessWidget {
           },
         ),
       ),
-      body: const ClientesView(),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (clientesState.search.isNotEmpty)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Buscando por: ${clientesState.search}',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          ref
+                              .read(clientesProvider.notifier)
+                              .resetQuery(search: '');
+                        },
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: CustomSelectField(
+                        size: size,
+                        label: 'Ordenar Por',
+                        value: clientesState.input,
+                        onChanged: (String? value) {
+                          ref.read(clientesProvider.notifier).resetQuery(
+                                input: value,
+                              );
+                        },
+                        options: [
+                          Option(label: "Fec. Reg.", value: "perId"),
+                          Option(
+                            label: "Documento",
+                            value: "perDocumento",
+                          ),
+                          Option(
+                            label: "Nombre",
+                            value: "perNombre",
+                          ),
+                        ].toList(),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        clientesState.orden
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                      ),
+                      onPressed: () {
+                        ref.read(clientesProvider.notifier).resetQuery(
+                              orden: !clientesState.orden,
+                            );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: clientesState.clientes.length,
+                    itemBuilder: (context, index) {
+                      final cliente = clientesState.clientes[index];
+                      return UserInfoCard(
+                        nombreUsuario: cliente.perNombre,
+                        cedula: cliente.perDocNumero,
+                        correo: cliente.perEmail.isNotEmpty
+                            ? cliente.perEmail[0]
+                            : '--- --- ---',
+                        size: size,
+                        perId: cliente.perId,
+                        fotoUrl: cliente.perFoto ?? '',
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (clientesState.isLoading)
+            Positioned(
+              bottom: 40,
+              left: 0,
+              right: 0,
+              child: SizedBox(
+                width: size.wScreen(100),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           context.push('/cliente/0');
         },
         child: const Icon(Icons.add),
       ),
-    );
-  }
-}
-
-class ClientesView extends ConsumerStatefulWidget {
-  const ClientesView({super.key});
-
-  @override
-  ConsumerState createState() => ClientesViewState();
-}
-
-class ClientesViewState extends ConsumerState<ClientesView> {
-  final ScrollController scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    scrollController.addListener(
-      () {
-        if (scrollController.position.pixels + 400 >=
-            scrollController.position.maxScrollExtent) {
-          ref.read(clientesProvider.notifier).loadNextPage();
-        }
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final size = Responsive.of(context);
-    final clientesState = ref.watch(clientesProvider);
-    ref.listen(
-      clientesProvider,
-      (_, next) {
-        if (next.error.isEmpty) return;
-        NotificationsService.show(
-            context, next.error, SnackbarCategory.success);
-      },
-    );
-
-    return Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (clientesState.search.isNotEmpty)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Buscando por: ${clientesState.search}',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        ref
-                            .read(clientesProvider.notifier)
-                            .resetQuery(search: '');
-                      },
-                    ),
-                  ],
-                ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  DropdownButton<String>(
-                    value: clientesState.input,
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'perId',
-                        child: Text('ID'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'perDocumento',
-                        child: Text('DOCUMENTO'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'perNombre',
-                        child: Text('NOMBRE'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        ref.read(clientesProvider.notifier).resetQuery(
-                              input: value,
-                            );
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      clientesState.orden
-                          ? Icons.arrow_upward
-                          : Icons.arrow_downward,
-                    ),
-                    onPressed: () {
-                      ref.read(clientesProvider.notifier).resetQuery(
-                            orden: !clientesState.orden,
-                          );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  itemCount: clientesState.clientes.length,
-                  itemBuilder: (context, index) {
-                    final cliente = clientesState.clientes[index];
-                    return UserInfoCard(
-                      nombreUsuario: cliente.perNombre,
-                      cedula: cliente.perDocNumero,
-                      correo: cliente.perEmail.isNotEmpty
-                          ? cliente.perEmail[0]
-                          : '--- --- ---',
-                      size: size,
-                      perId: cliente.perId,
-                      fotoUrl: cliente.perFoto ?? '',
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (clientesState.isLoading)
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: SizedBox(
-              width: size.wScreen(100),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          ),
-      ],
     );
   }
 }
@@ -248,6 +237,7 @@ class UserInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       margin: EdgeInsets.symmetric(
           horizontal: size.iScreen(1), vertical: size.iScreen(.25)),
@@ -304,11 +294,11 @@ class UserInfoCard extends StatelessWidget {
             padding: EdgeInsets.all(size.iScreen(.50)),
             width: size.wScreen(100),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(8.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withAlpha((0.5 * 255).toInt()),
+                  color: colors.shadow.withAlpha((0.5 * 255).toInt()),
                   spreadRadius: 2,
                   blurRadius: 8,
                   offset: const Offset(0, 4), // Desplazamiento de la sombra

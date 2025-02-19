@@ -36,7 +36,7 @@ class VentaScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-              ventaState.venta?.venId == 0 ? 'Crear Venta' : 'Editar Venta'),
+              ventaState.venta?.venId == 0 ? 'Nueva Venta' : 'Editar Venta'),
         ),
         body: ventaState.isLoading
             ? const FullScreenLoader()
@@ -116,8 +116,7 @@ class _VentaForm extends ConsumerWidget {
                   text: 'Factura #: ',
                   style: TextStyle(
                     fontSize: size.iScreen(1.8),
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black,
+                    fontWeight: FontWeight.normal, 
                   ),
                   children: [
                     TextSpan(
@@ -403,9 +402,8 @@ class _VentaForm extends ConsumerWidget {
                       right: size.iScreen(1.5),
                       top: size.iScreen(0.5)),
                   width: size.wScreen(95.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: const BorderRadius.only(
+                  decoration: const BoxDecoration(  
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(8.0),
                       topRight: Radius.circular(8.0),
                     ),
@@ -574,19 +572,19 @@ class _ProductsList extends ConsumerWidget {
             color: Colors.red,
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: const Icon(Icons.delete, color: Colors.white),
+            child: const Icon(
+              Icons.delete,
+            ),
           ),
           child: Container(
             padding: const EdgeInsets.all(5.0),
             width: size.wScreen(100), // Ajusta el ancho según lo necesites
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(10.0),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
-                  color: Colors.grey.withAlpha((0.5 * 255).toInt()),
                   blurRadius: 1.0,
-                  offset: const Offset(0.0, 3.0),
+                  offset: Offset(0.0, 3.0),
                 ),
               ],
             ),

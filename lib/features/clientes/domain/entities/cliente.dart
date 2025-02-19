@@ -88,7 +88,8 @@ class Cliente {
 
   factory Cliente.fromJson(Map<String, dynamic> json) => Cliente(
         perNombreComercial: json["perNombreComercial"] ?? '',
-        perEmpresa: List<String>.from(json["perEmpresa"].map((x) => x)),
+        perEmpresa: List<String>.from(
+            Parse.parseDynamicToListString(json["perEmpresa"]).map((x) => x)),
         perPais: json["perPais"],
         perProvincia: json["perProvincia"],
         perCanton: json["perCanton"],

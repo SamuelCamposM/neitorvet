@@ -5,8 +5,12 @@ import 'package:neitorvet/features/shared/delegate/item_generic_search.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente_foreign.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_repository_provider.dart';
+import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
+import 'package:neitorvet/features/venta/domain/entities/venta.dart';
+import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
+import 'package:neitorvet/features/venta/presentation/widgets/venta_card.dart';
 
 Future<ClienteForeign?> searchClienteResult({
   required BuildContext context,
@@ -83,10 +87,13 @@ Future<Inventario?> searchInventario({
         onItemSelected: onItemSelected,
       ),
       searchItems: ({search = ''}) async {
-        final res = await ref.read(ventasRepositoryProvider).getInventarioByQuery(search);
+        final res = await ref
+            .read(ventasRepositoryProvider)
+            .getInventarioByQuery(search);
         if (res.error.isNotEmpty) {
           if (context.mounted) {
-            NotificationsService.show(context, res.error, SnackbarCategory.error);
+            NotificationsService.show(
+                context, res.error, SnackbarCategory.error);
           }
           return <Inventario>[];
         }
@@ -97,4 +104,27 @@ Future<Inventario?> searchInventario({
     ),
   );
   return res?.item;
+}
+
+Future<SearchGenericResult<Venta>?> searchVentas(
+    {required BuildContext context,
+    required WidgetRef ref,
+    required VentasState ventasState,
+    required Responsive size}) async {
+  return showSearch(
+      query: ventasState.search,
+      context: context,
+      delegate: GenericDelegate(
+        onlySelect: false,
+        itemWidgetBuilder: (item, onItemSelected) {
+          return VentaCard(venta: item, size: size);
+        },
+        setSearch: ref.read(ventasProvider.notifier).setSearch,
+        initialItems: ventasState.searchedVentas,
+        searchItems: ({search = ''}) {
+          return ref
+              .read(ventasProvider.notifier)
+              .searchVentasByQuery(search: search);
+        },
+      ));
 }

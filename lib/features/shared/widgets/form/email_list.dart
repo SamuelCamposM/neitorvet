@@ -14,8 +14,7 @@ class EmailList extends StatelessWidget {
       alignment: WrapAlignment.center,
       children: emails.map((e) {
         return Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
+          decoration: BoxDecoration( 
             borderRadius: BorderRadius.circular(8),
           ),
           margin: EdgeInsets.all(size.iScreen(0.4)),

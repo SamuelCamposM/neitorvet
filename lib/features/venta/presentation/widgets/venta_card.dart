@@ -81,7 +81,7 @@ class VentaCard extends ConsumerWidget {
       child: GestureDetector(
         onTap: redirect
             ? () {
-                context.push('/venta/${venta.venId}');
+                // context.push('/venta/${venta.venId}');
               }
             : null,
         child: Container(
@@ -90,11 +90,11 @@ class VentaCard extends ConsumerWidget {
           margin: EdgeInsets.symmetric(
               horizontal: size.iScreen(1.2), vertical: size.iScreen(0.5)),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(8.0),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withAlpha((0.5 * 255).toInt()),
+                color: colors.shadow.withAlpha((0.5 * 255).toInt()),
                 spreadRadius: 2,
                 blurRadius: 8,
                 offset: const Offset(0, 4), // Desplazamiento de la sombra
