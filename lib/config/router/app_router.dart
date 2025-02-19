@@ -10,7 +10,7 @@ import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
 
 import 'package:neitorvet/features/venta/presentation/screens/screens.dart';
 
-import 'package:neitorvet/features/products/products.dart';
+import 'package:neitorvet/features/home/home.dart';
 
 final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
