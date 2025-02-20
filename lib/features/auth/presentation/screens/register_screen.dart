@@ -9,7 +9,6 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
-    final textStyles = Theme.of(context).textTheme;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -22,23 +21,6 @@ class RegisterScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 80),
             // Icon Banner
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                IconButton(
-                    onPressed: () {
-                      if (!context.canPop()) return;
-                      context.pop();
-                    },
-                    icon: const Icon(Icons.arrow_back_rounded,
-                        size: 40, color: Colors.white)),
-                const Spacer(flex: 1),
-                Text('Nueva cuenta',
-                    style:
-                        textStyles.titleLarge?.copyWith(color: Colors.white)),
-                const Spacer(flex: 2),
-              ],
-            ),
 
             const SizedBox(height: 50),
 

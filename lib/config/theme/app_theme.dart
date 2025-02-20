@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const colorSeed = Color(0xff424CB8);
-const scaffoldBackgroundColor = Color(0xFFF8F7F7);
+const scaffoldBackgroundColor = Colors.blue;
 
 class AppTheme {
   final String primary;
@@ -15,12 +14,17 @@ class AppTheme {
     Color secondaryColor =
         Color(int.parse(secondary.substring(1, 7), radix: 16) + 0xFF000000);
 
+    Color defaultTextColor =
+        brightness == Brightness.dark ? Colors.white : Colors.black;
+
     return ThemeData(
       brightness: brightness,
+      fontFamily: 'Roboto',
+
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         secondary: secondaryColor,
-        brightness: brightness, // Asegura que coincida con ThemeData.brightness
+        brightness: brightness,
       ),
 
       ///* General
@@ -28,30 +32,57 @@ class AppTheme {
 
       ///* Texts
       textTheme: TextTheme(
-          titleLarge: GoogleFonts.montserratAlternates()
-              .copyWith(fontSize: 40, fontWeight: FontWeight.bold),
-          titleMedium: GoogleFonts.montserratAlternates()
-              .copyWith(fontSize: 30, fontWeight: FontWeight.bold),
-          titleSmall:
-              GoogleFonts.montserratAlternates().copyWith(fontSize: 20)),
-      // scaffoldBackgroundColor:
-      //     Color(int.parse(primary.substring(1, 7), radix: 16) + 0xFF000000),
+        titleLarge: TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 40,
+          fontWeight: FontWeight.bold,
+          color: defaultTextColor,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 30,
+          fontWeight: FontWeight.bold,
+          color: defaultTextColor,
+        ),
+        titleSmall: TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 20,
+          color: defaultTextColor,
+        ),
+        bodyLarge: TextStyle(
+          fontFamily: 'Roboto',
+          color: defaultTextColor,
+        ),
+        bodyMedium: TextStyle(
+          fontFamily: 'Roboto',
+          color: defaultTextColor,
+        ),
+        bodySmall: TextStyle(
+          fontFamily: 'Roboto',
+          color: defaultTextColor,
+        ),
+      ),
 
       ///* Buttons
       filledButtonTheme: FilledButtonThemeData(
-          style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all(Color(
-                  int.parse(primary.substring(1, 7), radix: 16) + 0xFF000000)),
-              textStyle: WidgetStatePropertyAll(
-                  GoogleFonts.montserratAlternates()
-                      .copyWith(fontWeight: FontWeight.w700)))),
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.all(primaryColor),
+          textStyle: WidgetStateProperty.all(
+            const TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
 
       ///* AppBar
       appBarTheme: AppBarTheme(
-        titleTextStyle: GoogleFonts.montserratAlternates().copyWith(
+        titleTextStyle: TextStyle(
+          fontFamily: 'Roboto',
           fontSize: 25,
           fontWeight: FontWeight.bold,
-          color: brightness == Brightness.dark ? Colors.white : Colors.black,
+          color: defaultTextColor,
         ),
       ),
 
@@ -63,5 +94,7 @@ class AppTheme {
   }
 
   AppTheme copyWith({String? primary, String? secondary}) => AppTheme(
-      primary: primary ?? this.primary, secondary: secondary ?? this.secondary);
+        primary: primary ?? this.primary,
+        secondary: secondary ?? this.secondary,
+      );
 }

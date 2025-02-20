@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
-import 'package:neitorvet/features/clientes/presentation/provider/cliente_provider.dart'; 
+import 'package:neitorvet/features/clientes/presentation/provider/cliente_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/form/cliente_form_provider.dart';
 
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -116,26 +116,33 @@ class _ClienteForm extends ConsumerWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            RichText(
-              textAlign: TextAlign.left,
-              text: TextSpan(
-                text: 'Cliente: ',
-                style: TextStyle(
-                  fontSize: size.iScreen(1.8),
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black,
-                ),
-                children: [
-                  TextSpan(
-                    text: clienteFState.clienteForm.perId == 0
-                        ? 'NUEVO'
-                        : cliente.perNombre,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+            Row(
+              children: [
+                Text(
+                  'Cliente: ',
+                  style: TextStyle(
+                    fontSize: size.iScreen(1.8),
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.color, // Asegurando el color correcto
                   ),
-                ],
-              ),
+                ),
+                Text(
+                  clienteFState.clienteForm.perId == 0
+                      ? 'NUEVO'
+                      : cliente.perNombre,
+                  style: TextStyle(
+                    fontSize: size.iScreen(1.8),
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.color, // Asegurando el color correcto
+                  ),
+                ),
+              ],
             ),
 
             CustomSelectField(
@@ -201,7 +208,7 @@ class _ClienteForm extends ConsumerWidget {
             CustomExpandableEmailList(
               errorMessage:
                   clienteFState.clienteForm.perEmailInput.errorMessage,
-              label: 'Correos: ',
+              label: 'Correos',
               onAddValue: (p0) {
                 updateForm(
                     clienteForm: clienteFormCopyWith(
@@ -215,7 +222,7 @@ class _ClienteForm extends ConsumerWidget {
             CustomExpandablePhoneList(
               errorMessage:
                   clienteFState.clienteForm.perCelularInput.errorMessage,
-              label: 'Celulares:',
+              label: 'Celulares',
               onAddValue: (p0) {
                 updateForm(
                     clienteForm: clienteFormCopyWith(perCelular: [
@@ -231,7 +238,7 @@ class _ClienteForm extends ConsumerWidget {
             CustomExpandablePlacaList(
               errorMessage:
                   clienteFState.clienteForm.perOtrosInput.errorMessage,
-              label: 'Placas:',
+              label: 'Placas',
               onAddValue: (p0) {
                 updateForm(
                     clienteForm: clienteFormCopyWith(

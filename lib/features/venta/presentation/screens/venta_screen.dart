@@ -110,23 +110,31 @@ class _VentaForm extends ConsumerWidget {
           physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
-              RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  text: 'Factura #: ',
-                  style: TextStyle(
-                    fontSize: size.iScreen(1.8),
-                    fontWeight: FontWeight.normal, 
-                  ),
-                  children: [
-                    TextSpan(
-                      text: secuencia,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+              Row(
+                children: [
+                  Text(
+                    'Factura #: ',
+                    style: TextStyle(
+                      fontSize: size.iScreen(1.8),
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.color, // Asegurando el color correcto
                     ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    secuencia,
+                    style: TextStyle(
+                      fontSize: size.iScreen(1.8),
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.color, // Asegurando el color correcto
+                    ),
+                  ),
+                ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -402,7 +410,7 @@ class _VentaForm extends ConsumerWidget {
                       right: size.iScreen(1.5),
                       top: size.iScreen(0.5)),
                   width: size.wScreen(95.0),
-                  decoration: const BoxDecoration(  
+                  decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(8.0),
                       topRight: Radius.circular(8.0),

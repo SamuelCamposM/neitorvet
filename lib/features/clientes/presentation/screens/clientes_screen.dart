@@ -143,10 +143,10 @@ class ClientesViewState extends ConsumerState<ClientesScreen> {
                               );
                         },
                         options: [
-                          Option(label: "Fec. Reg.", value: "perId"),
+                          // Option(label: "Fec. Reg.", value: "perId"),
                           Option(
                             label: "Documento",
-                            value: "perDocumento",
+                            value: "perDocNumero",
                           ),
                           Option(
                             label: "Nombre",
@@ -306,37 +306,38 @@ class UserInfoCard extends StatelessWidget {
               ],
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // CircleAvatar(
-                //   radius: size.iScreen(3.0),
-                //   backgroundImage: NetworkImage(fotoUrl),
-                //   onBackgroundImageError: (_, __) {
-                //     // Manejar error de carga de imagen
-                //   },
-                // ),
-                SizedBox(width: size.iScreen(.5)),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      nombreUsuario,
-                      style: TextStyle(
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        child: Text(
+                          nombreUsuario,
+                          style: TextStyle(
+                            fontSize: size.iScreen(1.5),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        child: Text(
+                          cedula,
+                          style: TextStyle(
+                            fontSize: size.iScreen(1.5),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        correo,
+                        style: TextStyle(
                           fontSize: size.iScreen(1.5),
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      cedula,
-                      style: TextStyle(
-                        fontSize: size.iScreen(1.5),
+                        ),
                       ),
-                    ),
-                    Text(
-                      correo,
-                      style: TextStyle(
-                        fontSize: size.iScreen(1.5),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

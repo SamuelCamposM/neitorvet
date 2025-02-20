@@ -70,8 +70,8 @@ class CustomInputField extends StatelessWidget {
           fontWeight: FontWeight.bold,
           fontSize: 15,
         ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.black54), // Borde inferior
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: colors.onSurface), // Borde inferior
         ),
         focusedBorder: UnderlineInputBorder(
           borderSide:

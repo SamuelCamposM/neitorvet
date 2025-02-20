@@ -23,155 +23,195 @@ class VentaCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final colors = Theme.of(context).colorScheme;
-    return Slidable(
-      key: ValueKey(venta.venId),
-      startActionPane: ActionPane(
-        motion:
-            const DrawerMotion(), // Puedes cambiar ScrollMotion por otro tipo de Motion
-        children: [
-          SlidableAction(
-            onPressed: (context) {
-              final pdfUrl =
-                  '${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
-              ref
-                  .read(downloadPdfProvider.notifier)
-                  .downloadPDF(context, pdfUrl);
-              // context.push(
-              // '/PDF/Factura/${Uri.encodeComponent('${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}')}');
-            },
-            icon: Icons.picture_as_pdf,
-            label: 'PDF',
-          ),
-          SlidableAction(
-            onPressed: (context) {
-              //SI MANDAR A ALLAMAR EL PROVIDER EMAIL ACA, daria problema por que se destruiria al instante ref.read
-              final initialEmails = venta.venEmailCliente;
+    return Container(
+      margin: EdgeInsets.symmetric(
+          horizontal: size.iScreen(1), vertical: size.iScreen(.25)),
+      child: Slidable(
+        key: ValueKey(venta.venId),
+        startActionPane: ActionPane(
+          motion:
+              const DrawerMotion(), // Puedes cambiar ScrollMotion por otro tipo de Motion
+          children: [
+            SlidableAction(
+              onPressed: (context) {
+                final pdfUrl =
+                    '${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
+                ref
+                    .read(downloadPdfProvider.notifier)
+                    .downloadPDF(context, pdfUrl);
+                // context.push(
+                // '/PDF/Factura/${Uri.encodeComponent('${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}')}');
+              },
+              icon: Icons.picture_as_pdf,
+              label: 'PDF',
+            ),
+            SlidableAction(
+              onPressed: (context) {
+                //SI MANDAR A ALLAMAR EL PROVIDER EMAIL ACA, daria problema por que se destruiria al instante ref.read
+                final initialEmails = venta.venEmailCliente;
 
-              final initialLabels = [
-                Labels(label: 'Ruc Cliente', value: venta.venRucCliente),
-                Labels(label: 'Cliente', value: venta.venNomCliente)
-              ];
-              final emailsParam = initialEmails.join(',');
-              final labelsParam = initialLabels
-                  .map((label) => '${label.label}:${label.value}')
-                  .join(',');
+                final initialLabels = [
+                  Labels(label: 'Ruc Cliente', value: venta.venRucCliente),
+                  Labels(label: 'Cliente', value: venta.venNomCliente)
+                ];
+                final emailsParam = initialEmails.join(',');
+                final labelsParam = initialLabels
+                    .map((label) => '${label.label}:${label.value}')
+                    .join(',');
 
-              context.push(
-                  '/send-email?emails=$emailsParam&labels=$labelsParam&idRegistro=${venta.venId}');
-            },
-            icon: Icons.email,
-            label: 'Email',
-          ),
-        ],
-      ),
-      // endActionPane: ActionPane(
-      //   motion: const DrawerMotion(), // Puedes cambiar DrawerMotion por otro tipo de Motion
-      //   children: [
-      //     SlidableAction(
-      //       onPressed: (context) {
-      //         // Acción adicional
-      //       },
-      //       backgroundColor: Colors.green,
-      //       foregroundColor: Colors.white,
-      //       icon: Icons.share,
-      //       label: 'Compartir',
-      //     ),
-      //   ],
-      // ),
-      child: GestureDetector(
-        onTap: redirect
-            ? () {
-                // context.push('/venta/${venta.venId}');
-              }
-            : null,
-        child: Container(
-          width: size.wScreen(100),
-          padding: EdgeInsets.all(size.iScreen(1.0)),
-          margin: EdgeInsets.symmetric(
-              horizontal: size.iScreen(1.2), vertical: size.iScreen(0.5)),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(8.0),
-            boxShadow: [
-              BoxShadow(
-                color: colors.shadow.withAlpha((0.5 * 255).toInt()),
-                spreadRadius: 2,
-                blurRadius: 8,
-                offset: const Offset(0, 4), // Desplazamiento de la sombra
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: size.wScreen(60.0),
-                    child: Text(
-                      "# ${venta.venNumFactura}",
-                      style: TextStyle(
-                          fontSize: size.iScreen(1.5),
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(
-                    width: size.wScreen(60.0),
-                    child: Text(
-                      venta.venNomCliente,
-                      style: TextStyle(
-                        fontSize: size.iScreen(1.5),
-                      ),
-                    ),
-                  ),
-                  Text(
-                    venta.venRucCliente,
-                    style: TextStyle(
-                      fontSize: size.iScreen(1.5),
-                    ),
-                  ),
-                  Text(
-                    "Fecha: ${venta.venFechaFactura}",
-                    style: TextStyle(
-                      fontSize: size.iScreen(1.5),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: size.wScreen(20),
-                child: Column(
-                  children: [
-                    Text(
-                      "Total",
-                      style: TextStyle(
-                          fontSize: size.iScreen(1.5),
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "\$${venta.venTotal.toStringAsFixed(2)}",
-                      style: TextStyle(
-                          fontSize: size.iScreen(1.7),
-                          fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        final pdfUrl =
-                            '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
-                        ref
-                            .read(downloadPdfProvider.notifier)
-                            .downloadPDF(context, pdfUrl);
-
-                        // context.push('/PDF/Factura/$pdfUrl');
-                      },
-                      icon: Icon(Icons.receipt, color: colors.secondary),
-                    )
-                  ],
+                context.push(
+                    '/send-email?emails=$emailsParam&labels=$labelsParam&idRegistro=${venta.venId}');
+              },
+              icon: Icons.email,
+              label: 'Email',
+            ),
+          ],
+        ),
+        // endActionPane: ActionPane(
+        //   motion: const DrawerMotion(), // Puedes cambiar DrawerMotion por otro tipo de Motion
+        //   children: [
+        //     SlidableAction(
+        //       onPressed: (context) {
+        //         // Acción adicional
+        //       },
+        //       backgroundColor: Colors.green,
+        //       foregroundColor: Colors.white,
+        //       icon: Icons.share,
+        //       label: 'Compartir',
+        //     ),
+        //   ],
+        // ),
+        child: GestureDetector(
+          onTap: redirect
+              ? () {
+                  // context.push('/venta/${venta.venId}');
+                }
+              : null,
+          child: Container(
+            padding: EdgeInsets.all(size.iScreen(.50)),
+            width: size.wScreen(100),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.shadow.withAlpha((0.5 * 255).toInt()),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4), // Desplazamiento de la sombra
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 4, // 75% del ancho 3/4
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        venta.venEstado,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: venta.venEstado == "PENDIENTE"
+                              ? Colors.orange // rojo tomate
+                              : venta.venEstado == "AUTORIZADO" ||
+                                      venta.venEstado == "ACTIVA"
+                                  ? Colors.green.shade800 // verde
+                                  : venta.venEstado == "ANULADA"
+                                      ? Colors.red // rojo
+                                      : Colors.orange, // default
+                        ),
+                      ),
+                      SizedBox(
+                        child: Text(
+                          "# ${venta.venNumFactura}",
+                          style: TextStyle(
+                            fontSize: size.iScreen(1.5),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        child: Text(
+                          venta.venNomCliente,
+                          style: TextStyle(
+                            fontSize: size.iScreen(1.5),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        venta.venRucCliente,
+                        style: TextStyle(
+                          fontSize: size.iScreen(1.5),
+                        ),
+                      ),
+                      Text(
+                        "Fecha: ${venta.venFechaFactura}",
+                        style: TextStyle(
+                          fontSize: size.iScreen(1.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 2, // 25% del ancho 1/4
+                  child: Column(
+                    children: [
+                      Text(
+                        "Total",
+                        style: TextStyle(
+                          fontSize: size.iScreen(1.5),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "\$${venta.venTotal.toStringAsFixed(2)}",
+                        style: TextStyle(
+                          fontSize: size.iScreen(1.7),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          final pdfUrl =
+                              '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
+                          ref
+                              .read(downloadPdfProvider.notifier)
+                              .downloadPDF(context, pdfUrl);
+                          // context.push('/PDF/Factura/$pdfUrl');
+                        },
+                        icon: Icon(Icons.receipt, color: colors.secondary),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(Icons.email,
+                              color: venta.venEnvio == "ENVIADO"
+                                  ? Colors.green.shade800
+                                  : Colors.red),
+                          // SizedBox(
+                          //   width: size.iScreen(0.5),
+                          // ), // Espacio entre el icono y el texto
+                          // Text(
+                          //   venta.venEnvio,
+                          //   style: TextStyle(
+                          //     fontWeight: FontWeight.bold,
+                          //     color: venta.venEnvio == "ENVIADO"
+                          //         ? Colors.green.shade800
+                          //         : Colors.red,
+                          //   ),
+                          // ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

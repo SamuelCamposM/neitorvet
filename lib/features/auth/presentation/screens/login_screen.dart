@@ -14,8 +14,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final responsive = Responsive.of(context);
-    final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
-
+    final colors = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
@@ -45,7 +44,7 @@ class LoginScreen extends StatelessWidget {
               height: size.height - 260, // 80 los dos sizebox y 100 el ícono
               width: double.infinity,
               decoration: BoxDecoration(
-                color: scaffoldBackgroundColor,
+                color: colors.surface,
                 borderRadius:
                     const BorderRadius.only(topLeft: Radius.circular(100)),
               ),
@@ -72,7 +71,6 @@ class _LoginForm extends ConsumerWidget {
             context, next.errorMessage!, SnackbarCategory.error);
       },
     );
-
     final textStyles = Theme.of(context).textTheme;
     if (loginForm.isLoadingData) {
       return const FullScreenLoader();
@@ -120,7 +118,7 @@ class _LoginForm extends ConsumerWidget {
           //       loginForm.isFormPosted ? loginForm.password.errorMessage : null,
           // ),
           CustomInputField(
-              initialValue: loginForm.password.value,
+            initialValue: loginForm.password.value,
             label: 'Contraseña',
             obscureText: true,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChange,
@@ -137,7 +135,9 @@ class _LoginForm extends ConsumerWidget {
                 onPressed: loginForm.isPosting
                     ? null
                     : ref.read(loginFormProvider.notifier).onFormSubmit,
-                child: const Text('Ingresar'),
+                child: Text(
+                  'Ingresar',
+                ),
               )),
           const Spacer(),
           Row(

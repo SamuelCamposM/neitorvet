@@ -252,7 +252,7 @@ class ClientesState {
       this.total = 0,
       this.search = '',
       this.perfil = 'CLIENTES',
-      this.input = 'perId',
+      this.input = 'perDocNumero',
       this.orden = false,
       this.searchedClientes = const [],
       this.totalSearched = 0});

@@ -25,7 +25,7 @@ class MainApp extends ConsumerWidget {
     });
     final appRouter = ref.watch(goRouterProvider);
     const Brightness brightness =
-        Brightness.light; // Cambia a Brightness.dark para el tema oscuro
+        Brightness.dark; // Cambia a Brightness.dark para el tema oscuro
     final AppTheme appTheme = ref.watch(themeNotifierProvider);
     return MaterialApp.router(
       localizationsDelegates: const [
