@@ -37,7 +37,7 @@ class Cliente {
   final int perId;
   final String perCodigo;
   final String perUsuario;
-  final int perOnline;
+  final int? perOnline;
   final int? perSaldo;
   final String perFecReg;
   final String perFecUpd;
@@ -120,13 +120,13 @@ class Cliente {
         perTitulo: json["perTitulo"],
         perSenescyt: json["perSenescyt"],
         perPersonal: json["perPersonal"],
-        perId: json["perId"],
+        perId: json["perId"] == "" ? 0 : json["perId"],
         perCodigo: json["perCodigo"],
         perUsuario: json["perUsuario"],
         perOnline: json["perOnline"],
         perSaldo: Parse.parseDynamicToInt(json["perSaldo"]),
-        perFecReg: json["perFecReg"],
-        perFecUpd: json["perFecUpd"],
+        perFecReg: json["perFecReg"] ?? '',
+        perFecUpd: json["perFecUpd"] ?? '',
         perPermisos: PerPermisos.fromJson(json["perPermisos"]),
       );
 
@@ -177,7 +177,7 @@ class Cliente {
 class PerPermisos {
   PerPermisos();
 
-  factory PerPermisos.fromJson(Map<String, dynamic> json) => PerPermisos();
+  factory PerPermisos.fromJson(Map<String, dynamic>? json) => PerPermisos();
 
   Map<String, dynamic> toJson() => {};
 }

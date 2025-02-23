@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
-import 'package:neitorvet/features/clientes/presentation/screens/clientes_screen.dart';
+import 'package:neitorvet/features/clientes/presentation/widgets/cliente_card.dart'; 
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 
 typedef SarchClientesCallback = Future<List<Cliente>> Function({String search});
@@ -189,7 +189,7 @@ class _ClienteItem extends StatelessWidget {
     final size = Responsive.of(context);
     return GestureDetector(
       onTap: () => onClienteSelected(context, cliente),
-      child: UserInfoCard(
+      child: ClienteCard(
           redirect: false,
           nombreUsuario: cliente.perNombre,
           cedula: cliente.perDocNumero,

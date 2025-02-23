@@ -43,7 +43,8 @@ class ClientesDatasourceImpl extends ClientesDatasource {
   }
 
   @override
-  Future<ResponseCliente> getClientesByQueryInVentas(String search) async {
+  Future<ResponseClientesForeign> getClientesByQueryInVentas(
+      String search) async {
     try {
       final response = await dio.get(
         rucempresa == "TE2021"
@@ -59,12 +60,57 @@ class ClientesDatasourceImpl extends ClientesDatasource {
           .map<ClienteForeign>((e) => ClienteForeign.fromJson(e))
           .toList();
 
-      return ResponseCliente(
+      return ResponseClientesForeign(
         resultado: newClientes,
         error: '',
       );
     } on DioException catch (e) {
-      return ResponseCliente(resultado: [], error: ErrorApi.getErrorMessage(e));
+      return ResponseClientesForeign(
+          resultado: [], error: ErrorApi.getErrorMessage(e));
+    }
+  }
+
+  @override
+  Future<ResponseClienteForeign> getNewClienteByDoc(String doc) async {
+    try {
+      final response = await dio.get(
+        "/proveedores/searchByCedulaOfRuc/0",
+        queryParameters: {
+          'search': doc,
+          'rol': 'CLIENTE',
+        },
+      );
+      final Cliente cliente = Cliente.fromJson(response.data);
+
+      return ResponseClienteForeign(
+        resultado: cliente,
+        error: '',
+      );
+    } on DioException catch (e) {
+      return ResponseClienteForeign(
+          resultado: null, error: ErrorApi.getErrorMessage(e));
+    }
+  }
+
+  @override
+  Future<ResponseClienteForeign> getNewClienteByPlaca(String placa) async {
+    try {
+// get => api/proveedores/searchByPlaca/0?placa=IW571H
+      final response = await dio.get(
+        "proveedores/searchByPlaca/0",
+        queryParameters: {
+          'placa': placa,
+        },
+      );
+      final Cliente cliente = Cliente.fromJson(response.data);
+
+      return ResponseClienteForeign(
+        resultado: cliente,
+        error: '',
+      );
+    } on DioException catch (e) {
+      return ResponseClienteForeign(
+          resultado: null, error: ErrorApi.getErrorMessage(e));
     }
   }
 }

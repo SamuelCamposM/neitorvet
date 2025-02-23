@@ -31,9 +31,10 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
           clienteForm: ClienteForm.fromCliente(cliente),
         ));
 
-  void updateState({ClienteForm? clienteForm}) {
+  void updateState({ClienteForm? clienteForm, String? searchDoc}) {
     state = state.copyWith(
       clienteForm: clienteForm ?? state.clienteForm,
+      searchDoc: searchDoc ?? state.searchDoc,
     );
     _touchedEverything(false);
   }
@@ -131,23 +132,27 @@ class ClienteFormState {
   final bool isPosted;
   final bool isPosting;
 
+  final String searchDoc;
   final ClienteForm clienteForm;
 
   ClienteFormState(
       {this.isFormValid = false,
       this.isPosted = false,
       this.isPosting = false,
+      this.searchDoc = '',
       required this.clienteForm});
   ClienteFormState copyWith(
       {bool? isFormValid,
       bool? isPosted,
       bool? isPosting,
-      ClienteForm? clienteForm}) {
+      ClienteForm? clienteForm,
+      String? searchDoc}) {
     return ClienteFormState(
       isFormValid: isFormValid ?? this.isFormValid,
       isPosted: isPosted ?? this.isPosted,
       isPosting: isPosting ?? this.isPosting,
       clienteForm: clienteForm ?? this.clienteForm,
+      searchDoc: searchDoc ?? this.searchDoc,
     );
   }
 }

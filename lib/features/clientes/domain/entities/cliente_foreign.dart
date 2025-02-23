@@ -22,7 +22,7 @@ class ClienteForeign {
   });
 
   factory ClienteForeign.fromJson(Map<String, dynamic> json) => ClienteForeign(
-        perId: json["perId"],
+        perId: json["perId"] == "" ? 0 : json["perId"],
         perNombre: json["perNombre"],
         perDocNumero: json["perDocNumero"],
         perDocTipo: json["perDocTipo"],

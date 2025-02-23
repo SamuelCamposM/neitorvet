@@ -104,6 +104,7 @@ class _VentaForm extends ConsumerWidget {
     final ventasState = ref.watch(ventasProvider);
     final updateForm = ref.read(ventaFormProvider(venta).notifier).updateState;
 
+    final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
@@ -410,8 +411,9 @@ class _VentaForm extends ConsumerWidget {
                       right: size.iScreen(1.5),
                       top: size.iScreen(0.5)),
                   width: size.wScreen(95.0),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: colors.surfaceContainerHigh,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(8.0),
                       topRight: Radius.circular(8.0),
                     ),
@@ -559,6 +561,7 @@ class _ProductsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).colorScheme;
     return Wrap(
       spacing: 10.0,
       runSpacing: 10.0,
@@ -588,10 +591,12 @@ class _ProductsList extends ConsumerWidget {
             padding: const EdgeInsets.all(5.0),
             width: size.wScreen(100), // Ajusta el ancho según lo necesites
             decoration: BoxDecoration(
+              color: colors.surface,
               borderRadius: BorderRadius.circular(10.0),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
                   blurRadius: 1.0,
+                  color: colors.shadow,
                   offset: Offset(0.0, 3.0),
                 ),
               ],

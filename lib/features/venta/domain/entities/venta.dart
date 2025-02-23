@@ -309,45 +309,17 @@ class Venta {
   }
 }
 
-class Totales {
-  double venSubTotal12;
-  double venSubtotal0;
-  double venDescuento;
-  double venSubTotal;
-  double venTotalIva;
-  double venTotal;
-  double venCostoProduccion;
-
-  Totales({
-    required this.venSubTotal12,
-    required this.venSubtotal0,
-    required this.venDescuento,
-    required this.venSubTotal,
-    required this.venTotalIva,
-    required this.venTotal,
-    required this.venCostoProduccion,
-  });
-
-  factory Totales.inicial() {
-    return Totales(
-      venSubTotal12: 0.0,
-      venSubtotal0: 0.0,
-      venDescuento: 0.0,
-      venSubTotal: 0.0,
-      venTotalIva: 0.0,
-      venTotal: 0.0,
-      venCostoProduccion: 0.0,
-    );
-  }
-}
-
+//* ES LA VENTA PERO CON VALIDACIONES PARA EL FORMULARIO
 class VentaForm extends Venta {
   final GenericRequiredInput venRucClienteInput;
   final Productos venProductosInput;
 
   VentaForm({
+
+    //*VALIDACIONES
     this.venRucClienteInput = const GenericRequiredInput.dirty(''),
     this.venProductosInput = const Productos.dirty([]),
+    //*CAMPOS NORMALES
     required super.venId,
     required super.fechaSustentoFactura,
     required super.venAbono,
@@ -647,6 +619,45 @@ class VentaForm extends Venta {
     );
   }
 }
+
+class Totales {
+  double venSubTotal12;
+  double venSubtotal0;
+  double venDescuento;
+  double venSubTotal;
+  double venTotalIva;
+  double venTotal;
+  double venCostoProduccion;
+
+  Totales({
+    required this.venSubTotal12,
+    required this.venSubtotal0,
+    required this.venDescuento,
+    required this.venSubTotal,
+    required this.venTotalIva,
+    required this.venTotal,
+    required this.venCostoProduccion,
+  });
+
+  factory Totales.inicial() {
+    return Totales(
+      venSubTotal12: 0.0,
+      venSubtotal0: 0.0,
+      venDescuento: 0.0,
+      venSubTotal: 0.0,
+      venTotalIva: 0.0,
+      venTotal: 0.0,
+      venCostoProduccion: 0.0,
+    );
+  }
+}
+
+
+
+
+
+
+
 
 class BusquedaVenta {
   final String venFechaFactura1;

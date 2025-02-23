@@ -9,5 +9,7 @@ abstract class ClientesRepository {
       bool orden = false,
       String search = ''});
 
-  Future<ResponseCliente> getClientesByQueryInVentas(String search);
+  Future<ResponseClientesForeign> getClientesByQueryInVentas(String search);
+  Future<ResponseClienteForeign> getNewClienteByPlaca(String placa);
+  Future<ResponseClienteForeign> getNewClienteByDoc(String doc);
 }

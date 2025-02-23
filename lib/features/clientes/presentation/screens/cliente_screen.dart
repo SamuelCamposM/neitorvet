@@ -1,10 +1,11 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
+import 'package:neitorvet/features/clientes/domain/entities/cliente.dart'; 
 import 'package:neitorvet/features/clientes/presentation/provider/cliente_provider.dart';
+import 'package:neitorvet/features/clientes/presentation/provider/clientes_repository_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/form/cliente_form_provider.dart';
 
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -91,26 +92,38 @@ class _FloatingButton extends ConsumerWidget {
   }
 }
 
-class _ClienteForm extends ConsumerWidget {
+class _ClienteForm extends ConsumerStatefulWidget {
   final Cliente cliente;
 
   const _ClienteForm({required this.cliente});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _ClienteFormState createState() => _ClienteFormState();
+}
+
+class _ClienteFormState extends ConsumerState<_ClienteForm> {
+  late TextEditingController nombreController;
+
+  @override
+  void initState() {
+    super.initState();
+    nombreController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    nombreController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final size = Responsive.of(context);
-    final clienteFState = ref.watch(clienteFormProvider(cliente));
+    final clienteFState = ref.watch(clienteFormProvider(widget.cliente));
     final updateForm =
-        ref.read(clienteFormProvider(cliente).notifier).updateState;
+        ref.read(clienteFormProvider(widget.cliente).notifier).updateState;
     final clienteFormCopyWith = clienteFState.clienteForm.copyWith;
-    //* VALIDADOS
-    // perDocTipoInput
-    // perDocNumeroInput
-    // perNombreInput
-    // perDireccionInput
-    // perFecNacimientoInput
-    // perCelularInput
-    // perOtrosInput
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
@@ -132,7 +145,7 @@ class _ClienteForm extends ConsumerWidget {
                 Text(
                   clienteFState.clienteForm.perId == 0
                       ? 'NUEVO'
-                      : cliente.perNombre,
+                      : widget.cliente.perNombre,
                   style: TextStyle(
                     fontSize: size.iScreen(1.8),
                     fontWeight: FontWeight.bold,
@@ -144,12 +157,11 @@ class _ClienteForm extends ConsumerWidget {
                 ),
               ],
             ),
-
             CustomSelectField(
               errorMessage:
                   clienteFState.clienteForm.perDocTipoInput.errorMessage,
               size: size,
-              label: 'F. de Pago',
+              label: 'Tipo Documento',
               value: clienteFState.clienteForm.perDocTipo,
               onChanged: (String? value) {
                 updateForm(clienteForm: clienteFormCopyWith(perDocTipo: value));
@@ -158,13 +170,43 @@ class _ClienteForm extends ConsumerWidget {
                 Option(label: 'RUC', value: 'RUC'),
                 Option(label: "CEDULA", value: "CEDULA"),
                 Option(label: "PASAPORTE", value: "PASAPORTE"),
+                Option(label: "PLACA", value: "PLACA"),
               ],
             ),
+            if (clienteFState.clienteForm.perDocTipo == 'RUC' ||
+                clienteFState.clienteForm.perDocTipo == 'CEDULA')
+              CustomInputField(
+                autofocus: true,
+                label: 'Buscar por RUC O CEDULA.',
+                initialValue: clienteFState.searchDoc,
+                onChanged: (p0) {
+                  updateForm(searchDoc: p0);
+                },
+                onFieldSubmitted: (p0) async {
+                  //error del endpoint se valida aca
+                  final res = await ref
+                      .read(clientesRepositoryProvider)
+                      .getNewClienteByDoc(p0);
+                  if (res.error.isNotEmpty) {
+                    if (context.mounted) {
+                      NotificationsService.show(
+                          context, res.error, SnackbarCategory.error);
+                    }
+                  }
+
+                  if (res.resultado != null) {
+                    updateForm(
+                        clienteForm: ClienteForm.fromCliente(res.resultado!));
+                    nombreController.text = res.resultado!.perDocNumero;
+                  }
+                },
+              ),
             CustomInputField(
-              autofocus: true,
+              controller: nombreController,
               label: 'Número Doc.',
               initialValue: clienteFState.clienteForm.perDocNumeroInput.value,
               onChanged: (p0) {
+                nombreController.text = p0;
                 updateForm(clienteForm: clienteFormCopyWith(perDocNumero: p0));
               },
               errorMessage:
@@ -188,14 +230,6 @@ class _ClienteForm extends ConsumerWidget {
               errorMessage:
                   clienteFState.clienteForm.perDireccionInput.errorMessage,
             ),
-            // CustomInputField(
-            //   label: 'Fecha Nacimiento',
-            //   initialValue: clienteFState.clienteForm.perFecNacimiento,
-            //   onChanged: (p0) {
-            //     updateForm(
-            //         clienteForm: clienteFormCopyWith(perFecNacimiento: p0));
-            //   },
-            // ),
             CustomDatePickerButton(
               label: 'Fecha Nacimiento',
               value: clienteFState.clienteForm.perFecNacimiento,
@@ -204,7 +238,6 @@ class _ClienteForm extends ConsumerWidget {
                     clienteForm: clienteFormCopyWith(perFecNacimiento: date));
               },
             ),
-
             CustomExpandableEmailList(
               errorMessage:
                   clienteFState.clienteForm.perEmailInput.errorMessage,
@@ -249,36 +282,6 @@ class _ClienteForm extends ConsumerWidget {
               },
               values: clienteFState.clienteForm.perOtros,
             ),
-
-            // CustomInputField(
-            //
-            //   label: 'perCelularInput',
-            //   initialValue: clienteFState.clienteForm.perCelularInput.value,
-            //   onChanged: (p0) {
-            //     updateForm(
-            //         clienteForm: clienteFormCopyWith(perCelular: p0));
-            //   },
-            //   errorMessage:
-            //       clienteFState.clienteForm.perCelularInput.errorMessage,
-            // ),
-            // CustomInputField(
-            //
-            //   label: 'perOtrosInput',
-            //   initialValue: clienteFState.clienteForm.perOtrosInput.value,
-            //   onChanged: (p0) {
-            //     updateForm(clienteForm: clienteFormCopyWith(perOtros: p0));
-            //   },
-            //   errorMessage:
-            //       clienteFState.clienteForm.perOtrosInput.errorMessage,
-            // ),
-            // Text(clienteFState.clienteForm.perDocTipoInput.value),
-            // Text(clienteFState.clienteForm.perDocNumeroInput.value),
-            // Text(clienteFState.clienteForm.perNombreInput.value),
-            // Text(clienteFState.clienteForm.perDireccionInput.value),
-
-            // Text(clienteFState.clienteForm.perEmailInput.value.toString()),
-            // Text(clienteFState.clienteForm.perCelularInput.value.toString()),
-            // Text(clienteFState.clienteForm.perOtrosInput.value.toString()),
             const SizedBox(height: 100),
           ],
         ),

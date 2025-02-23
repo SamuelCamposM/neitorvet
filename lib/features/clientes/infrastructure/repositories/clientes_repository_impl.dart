@@ -23,7 +23,17 @@ class ClientesRepositoryImpl extends ClientesRepository {
   }
 
   @override
-  Future<ResponseCliente> getClientesByQueryInVentas(String search) {
+  Future<ResponseClientesForeign> getClientesByQueryInVentas(String search) {
     return datasource.getClientesByQueryInVentas(search);
+  }
+  
+  @override
+  Future<ResponseClienteForeign> getNewClienteByDoc(String doc) {
+    return datasource.getNewClienteByDoc(doc);
+  }
+  
+  @override
+  Future<ResponseClienteForeign> getNewClienteByPlaca(String placa) {
+    return datasource.getNewClienteByPlaca(placa);
   }
 }

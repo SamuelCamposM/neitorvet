@@ -10,11 +10,21 @@ class ResponseClientesPaginacion {
       {required this.resultado, required this.error, this.total = 0});
 }
 
-class ResponseCliente {
+class ResponseClientesForeign {
   final List<ClienteForeign> resultado;
   final String error;
 
-  ResponseCliente({
+  ResponseClientesForeign({
+    required this.resultado,
+    required this.error,
+  });
+}
+
+class ResponseClienteForeign {
+  final Cliente? resultado;
+  final String error;
+
+  ResponseClienteForeign({
     required this.resultado,
     required this.error,
   });
@@ -29,5 +39,7 @@ abstract class ClientesDatasource {
       bool orden = false,
       String search = ''});
 
-  Future<ResponseCliente> getClientesByQueryInVentas(String search);
+  Future<ResponseClientesForeign> getClientesByQueryInVentas(String search);
+  Future<ResponseClienteForeign> getNewClienteByPlaca(String placa);
+  Future<ResponseClienteForeign> getNewClienteByDoc(String doc);
 }

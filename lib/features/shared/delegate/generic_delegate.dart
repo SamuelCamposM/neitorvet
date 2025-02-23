@@ -30,7 +30,13 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
     required this.setSearch,
     required this.itemWidgetBuilder,
     this.onlySelect = true,
-  }) : super(searchFieldLabel: 'Buscar');
+  }) : super(
+          searchFieldLabel: 'Buscar',
+          searchFieldStyle: const TextStyle(
+            fontSize: 17.0, // Ajusta el tamaño de fuente aquí
+            color: Colors.black,
+          ),
+        );
 
   void clearStreams() {
     debounceItems.close();
