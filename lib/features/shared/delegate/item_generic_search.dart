@@ -13,9 +13,14 @@ class ItemGenericSearch<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title), // Customize this as needed
-      onTap: () => onItemSelected(context, item),
+    return Column(
+      children: [
+        ListTile(
+          title: Text(title), // Customize this as needed
+          onTap: () => onItemSelected(context, item),
+        ),
+        const Divider()
+      ],
     );
   }
 }

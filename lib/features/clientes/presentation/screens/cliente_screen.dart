@@ -1,9 +1,9 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:neitorvet/features/clientes/domain/entities/cliente.dart'; 
+import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/cliente_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_repository_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/form/cliente_form_provider.dart';
@@ -238,49 +238,65 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
                     clienteForm: clienteFormCopyWith(perFecNacimiento: date));
               },
             ),
-            CustomExpandableEmailList(
-              errorMessage:
-                  clienteFState.clienteForm.perEmailInput.errorMessage,
-              label: 'Correos',
-              onAddValue: (p0) {
-                updateForm(
-                    clienteForm: clienteFormCopyWith(
-                        perEmail: [p0, ...clienteFState.clienteForm.perEmail]));
-              },
-              onDeleteValue: (p0) {
-                updateForm(clienteForm: clienteFormCopyWith(perEmail: p0));
-              },
-              values: clienteFState.clienteForm.perEmail,
+            Container(
+              margin: EdgeInsets.symmetric(vertical: size.iScreen(0.3)),
+              color: Colors.grey.shade100,
+              child: CustomExpandableEmailList(
+                errorMessage:
+                    clienteFState.clienteForm.perEmailInput.errorMessage,
+                label: 'Correos',
+                onAddValue: (p0) {
+                  updateForm(
+                      clienteForm: clienteFormCopyWith(perEmail: [
+                    p0,
+                    ...clienteFState.clienteForm.perEmail
+                  ]));
+                },
+                onDeleteValue: (p0) {
+                  updateForm(clienteForm: clienteFormCopyWith(perEmail: p0));
+                },
+                values: clienteFState.clienteForm.perEmail,
+              ),
             ),
-            CustomExpandablePhoneList(
-              errorMessage:
-                  clienteFState.clienteForm.perCelularInput.errorMessage,
-              label: 'Celulares',
-              onAddValue: (p0) {
-                updateForm(
-                    clienteForm: clienteFormCopyWith(perCelular: [
-                  p0,
-                  ...clienteFState.clienteForm.perCelular
-                ]));
-              },
-              onDeleteValue: (p0) {
-                updateForm(clienteForm: clienteFormCopyWith(perCelular: p0));
-              },
-              values: clienteFState.clienteForm.perCelular,
+            Container(
+              margin: EdgeInsets.symmetric(vertical: size.iScreen(0.3)),
+              color: Colors.grey.shade100,
+              child: CustomExpandablePhoneList(
+                errorMessage:
+                    clienteFState.clienteForm.perCelularInput.errorMessage,
+                label: 'Celulares',
+                onAddValue: (p0) {
+                  updateForm(
+                      clienteForm: clienteFormCopyWith(perCelular: [
+                    p0,
+                    ...clienteFState.clienteForm.perCelular
+                  ]));
+                },
+                onDeleteValue: (p0) {
+                  updateForm(clienteForm: clienteFormCopyWith(perCelular: p0));
+                },
+                values: clienteFState.clienteForm.perCelular,
+              ),
             ),
-            CustomExpandablePlacaList(
-              errorMessage:
-                  clienteFState.clienteForm.perOtrosInput.errorMessage,
-              label: 'Placas',
-              onAddValue: (p0) {
-                updateForm(
-                    clienteForm: clienteFormCopyWith(
-                        perOtros: [p0, ...clienteFState.clienteForm.perOtros]));
-              },
-              onDeleteValue: (p0) {
-                updateForm(clienteForm: clienteFormCopyWith(perOtros: p0));
-              },
-              values: clienteFState.clienteForm.perOtros,
+            Container(
+              margin: EdgeInsets.symmetric(vertical: size.iScreen(0.3)),
+              color: Colors.grey.shade100,
+              child: CustomExpandablePlacaList(
+                errorMessage:
+                    clienteFState.clienteForm.perOtrosInput.errorMessage,
+                label: 'Placas',
+                onAddValue: (p0) {
+                  updateForm(
+                      clienteForm: clienteFormCopyWith(perOtros: [
+                    p0,
+                    ...clienteFState.clienteForm.perOtros
+                  ]));
+                },
+                onDeleteValue: (p0) {
+                  updateForm(clienteForm: clienteFormCopyWith(perOtros: p0));
+                },
+                values: clienteFState.clienteForm.perOtros,
+              ),
             ),
             const SizedBox(height: 100),
           ],

@@ -3,7 +3,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 
-
 class ClienteCard extends StatelessWidget {
   final String nombreUsuario;
   final String cedula;
@@ -28,7 +27,7 @@ class ClienteCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Container(
       margin: EdgeInsets.symmetric(
-          horizontal: size.iScreen(1), vertical: size.iScreen(.25)),
+          horizontal: size.iScreen(1), vertical: size.iScreen(0.5)),
       child: Slidable(
         key: ValueKey(perId),
         startActionPane: ActionPane(
@@ -79,17 +78,20 @@ class ClienteCard extends StatelessWidget {
                 }
               : null,
           child: Container(
-            padding: EdgeInsets.all(size.iScreen(.50)),
+            padding: EdgeInsets.all(size.iScreen(1.0)),
             width: size.wScreen(100),
             decoration: BoxDecoration(
-              color: colors.surface,
+              color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8.0),
               boxShadow: [
                 BoxShadow(
-                  color: colors.shadow.withAlpha((0.5 * 255).toInt()),
-                  spreadRadius: 2,
-                  blurRadius: 8,
-                  offset: const Offset(0, 4), // Desplazamiento de la sombra
+                  color: colors.shadow
+                      .withAlpha((0.2 * 255).toInt()), // Reduce la opacidad
+                  spreadRadius: 0,
+                  blurRadius:
+                      4, // Reduce el desenfoque para una sombra más suave
+                  offset: const Offset(0,
+                      2), // Ajusta el desplazamiento para una sombra más sutil
                 ),
               ],
             ),

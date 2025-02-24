@@ -5,6 +5,7 @@ import 'package:neitorvet/config/menu/menu_item.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 // import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/shared.dart';
+import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/ui/custom_app_bar.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -14,7 +15,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final scaffoldKey = GlobalKey<ScaffoldState>();
-    final colors = Theme.of(context).colorScheme;
+    // final colors = Theme.of(context).colorScheme;
     return Scaffold(
         drawer: SideMenu(scaffoldKey: scaffoldKey),
         appBar: CustomAppBar(
@@ -24,19 +25,7 @@ class HomeScreen extends ConsumerWidget {
           moduleName: 'Home',
           logoUrl: authState.user!.logo, // Ruta de la imagen del logo
         ),
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                colors.secondary.withValues(alpha: 0.5),
-                colors.primary.withValues(alpha: 0.5),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: _HomeView(),
-        ));
+        body: _HomeView());
   }
 }
 
@@ -71,46 +60,37 @@ class _CustomCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final size = Responsive.of(context);
     return GestureDetector(
       onTap: () {
         context.push(menuItem.link);
       },
       child: Card(
+        color: Colors.grey.shade200,
         elevation: 4,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                menuItem.icon,
-                size: 48,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              menuItem.icon,
+              size: size.iScreen(7.0),
+              color: colors.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              menuItem.title,
+              style: TextStyle(
+                fontSize: size.iScreen(2.0),
+                fontWeight: FontWeight.bold,
                 color: colors.primary,
               ),
-              const SizedBox(height: 16),
-              Text(
-                menuItem.title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colors.primary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                menuItem.subTitle,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colors.onSurface,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+          ],
         ),
       ),
     );

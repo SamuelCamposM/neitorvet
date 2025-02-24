@@ -23,7 +23,7 @@ const appMenuItems = <MenuItem>[
       title: 'Facturas',
       subTitle: "Nuestros factura",
       link: "/ventas",
-      icon: Icons.receipt),
+      icon: Icons.list_alt_outlined),
   // MenuItem(
   //     title: 'Botones',
   //     subTitle: "Varios botones en Flutter",

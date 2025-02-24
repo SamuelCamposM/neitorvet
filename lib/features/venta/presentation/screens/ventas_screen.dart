@@ -120,7 +120,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
                   children: [
                     Row(
                       verticalDirection: VerticalDirection.down,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Expanded(
                           child: CustomDatePickerButton(

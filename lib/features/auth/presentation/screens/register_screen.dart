@@ -59,6 +59,10 @@ class _RegisterForm extends StatelessWidget {
             label: 'Nombre completo',
             keyboardType: TextInputType.emailAddress,
           ),
+          const CustomTextFormField(
+            label: 'Nombre completo',
+            keyboardType: TextInputType.emailAddress,
+          ),
           const SizedBox(height: 30),
           const CustomTextFormField(
             label: 'Correo',

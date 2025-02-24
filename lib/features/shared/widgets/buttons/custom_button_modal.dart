@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 
-SizedBox customBtnModals(
+Container customBtnModals(
     Responsive size, IconData icon, VoidCallback onPressed) {
-  return SizedBox(
+  return Container(
+    margin: EdgeInsets.symmetric(
+        horizontal: size.iScreen(0.5), vertical: size.iScreen(0.0)),
     height: size.iScreen(4.5), // Tamaño del botón más pequeño
     width: size.iScreen(4.5),
     child: ElevatedButton(

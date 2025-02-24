@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 const colorSeed = Color(0xff424CB8);
-const scaffoldBackgroundColor = Colors.blue;
+const scaffoldBackgroundColor = Colors.white;
 
 class AppTheme {
   final String primary;
@@ -21,14 +21,15 @@ class AppTheme {
       brightness: brightness,
       fontFamily: 'Roboto',
 
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
-        secondary: secondaryColor,
-        brightness: brightness,
-      ),
+      // colorScheme: ColorScheme.fromSeed(
+      //   seedColor: primaryColor,
+      //   secondary: secondaryColor,
+      //   brightness: brightness,
+      // ),
 
       ///* General
       useMaterial3: true,
+      scaffoldBackgroundColor: scaffoldBackgroundColor,
 
       ///* Texts
       textTheme: TextTheme(

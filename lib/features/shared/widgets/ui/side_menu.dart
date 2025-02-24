@@ -59,17 +59,22 @@ class SideMenuState extends ConsumerState<SideMenu> {
             padding: EdgeInsets.zero,
             children: [
               ...appMenuItems.map(
-                (e) => ListTile(
-                  leading: Icon(e.icon),
-                  title: Text(
-                    e.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(e.subTitle),
-                  onTap: () {
-                    context.push(e.link);
-                  },
-                  trailing: const Icon(Icons.keyboard_arrow_right),
+                (e) => Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(e.icon),
+                      title: Text(
+                        e.title,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(e.subTitle),
+                      onTap: () {
+                        context.push(e.link);
+                      },
+                      trailing: const Icon(Icons.keyboard_arrow_right),
+                    ),
+                    const Divider()
+                  ],
                 ),
               )
             ],

@@ -63,6 +63,7 @@ class _LoginForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loginForm = ref.watch(loginFormProvider);
+    final responsive = Responsive.of(context);
     ref.listen(
       authProvider,
       (_, next) {
@@ -129,14 +130,26 @@ class _LoginForm extends ConsumerWidget {
           ),
           const SizedBox(height: 30),
           SizedBox(
-              width: double.infinity,
-              height: 60,
+              width: responsive.wScreen(70),
+              // height: responsive.wScreen(40),
               child: FilledButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all<Color>(Colors.black),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          8.0), // Ajusta el valor según lo redondeado que quieras el botón
+                    ),
+                  ),
+                ),
                 onPressed: loginForm.isPosting
                     ? null
                     : ref.read(loginFormProvider.notifier).onFormSubmit,
                 child: Text(
                   'Ingresar',
+                  style: TextStyle(
+                    fontSize: responsive.iScreen(2.5),
+                  ),
                 ),
               )),
           const Spacer(),
@@ -155,9 +168,10 @@ class _LoginForm extends ConsumerWidget {
               ),
               Row(
                 children: [
-                  TextButton(
-                      onPressed: () => context.push('/register'),
-                      child: const Text('¿Olvidaste tu contraseña?'))
+                  GestureDetector(
+                    onTap: () => context.push('/register'),
+                    child: const Text('¿Olvidaste tu contraseña?'),
+                  )
                 ],
               )
             ],

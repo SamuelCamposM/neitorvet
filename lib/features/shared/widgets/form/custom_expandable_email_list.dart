@@ -40,7 +40,7 @@ class CustomExpandableEmailListState extends State<CustomExpandableEmailList> {
       label: widget.label,
       values: widget.values,
       children: [
-        Padding(
+        Container(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

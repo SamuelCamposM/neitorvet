@@ -34,6 +34,7 @@ class VentaScreen extends ConsumerWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(
               ventaState.venta?.venId == 0 ? 'Nueva Venta' : 'Editar Venta'),
@@ -104,7 +105,7 @@ class _VentaForm extends ConsumerWidget {
     final ventasState = ref.watch(ventasProvider);
     final updateForm = ref.read(ventaFormProvider(venta).notifier).updateState;
 
-    final colors = Theme.of(context).colorScheme;
+    // final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
@@ -354,7 +355,10 @@ class _VentaForm extends ConsumerWidget {
                             color:
                                 ventaFState.nuevoProducto.errorMessage != null
                                     ? Colors.red
-                                    : Colors.black),
+                                    : Colors.grey),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
                       icon: const Icon(Icons.create),
                       label: Text(
@@ -405,14 +409,18 @@ class _VentaForm extends ConsumerWidget {
                   eliminarProducto: ref
                       .read(ventaFormProvider(venta).notifier)
                       .eliminarProducto),
+              SizedBox(
+                height: size.wScreen(1),
+              ),
               Container(
                   padding: EdgeInsets.only(
                       left: size.iScreen(1.5),
                       right: size.iScreen(1.5),
+                      bottom: size.iScreen(1.0),
                       top: size.iScreen(0.5)),
                   width: size.wScreen(95.0),
                   decoration: BoxDecoration(
-                    color: colors.surfaceContainerHigh,
+                    color: Colors.grey.shade200,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(8.0),
                       topRight: Radius.circular(8.0),
@@ -597,7 +605,7 @@ class _ProductsList extends ConsumerWidget {
                 BoxShadow(
                   blurRadius: 1.0,
                   color: colors.shadow,
-                  offset: Offset(0.0, 3.0),
+                  offset: const Offset(0.0, 3.0),
                 ),
               ],
             ),

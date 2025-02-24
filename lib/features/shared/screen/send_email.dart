@@ -40,9 +40,11 @@ class SendEmail extends ConsumerWidget {
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      Text(
-                        label.value,
-                        style: const TextStyle(fontSize: 16),
+                      Expanded(
+                        child: Text(
+                          label.value,
+                          style: const TextStyle(fontSize: 16),
+                        ),
                       ),
                     ],
                   ),
