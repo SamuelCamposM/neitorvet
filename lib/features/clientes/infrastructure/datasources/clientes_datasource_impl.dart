@@ -97,7 +97,7 @@ class ClientesDatasourceImpl extends ClientesDatasource {
     try {
 // get => api/proveedores/searchByPlaca/0?placa=IW571H
       final response = await dio.get(
-        "proveedores/searchByPlaca/0",
+        "/proveedores/searchByPlaca/0",
         queryParameters: {
           'placa': placa,
         },

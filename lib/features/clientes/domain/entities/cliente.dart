@@ -1,3 +1,4 @@
+import 'package:neitorvet/features/clientes/infrastructure/input/generic_required_input.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/infrastructure/inputs/inputs.dart';
 
@@ -121,8 +122,8 @@ class Cliente {
         perSenescyt: json["perSenescyt"],
         perPersonal: json["perPersonal"],
         perId: json["perId"] == "" ? 0 : json["perId"],
-        perCodigo: json["perCodigo"],
-        perUsuario: json["perUsuario"],
+        perCodigo: json["perCodigo"] ?? '',
+        perUsuario: json["perUsuario"] ?? '',
         perOnline: json["perOnline"],
         perSaldo: Parse.parseDynamicToInt(json["perSaldo"]),
         perFecReg: json["perFecReg"] ?? '',
@@ -210,7 +211,7 @@ class ClienteForm extends Cliente {
   // final GenericRequiredInput venRucClienteInput;
   // final Productos venProductosInput;
   final GenericRequiredInput perDocTipoInput;
-  final GenericRequiredInput perDocNumeroInput;
+  final NumDoc perDocNumeroInput;
   final GenericRequiredInput perNombreInput;
   final GenericRequiredInput perDireccionInput;
   final GenericRequiredListStr perCelularInput;
@@ -319,73 +320,76 @@ class ClienteForm extends Cliente {
     String? perFecReg,
     String? perFecUpd,
     PerPermisos? perPermisos,
-  }) =>
-      ClienteForm(
-        //*REQUERIDOS
-        perDocTipoInput: perDocTipo != null
-            ? GenericRequiredInput.dirty(perDocTipo)
-            : perDocTipoInput,
-        perDocNumeroInput: perDocNumero != null
-            ? GenericRequiredInput.dirty(perDocNumero)
-            : perDocNumeroInput,
-        perNombreInput: perNombre != null
-            ? GenericRequiredInput.dirty(perNombre)
-            : perNombreInput,
-        perDireccionInput: perDireccion != null
-            ? GenericRequiredInput.dirty(perDireccion)
-            : perDireccionInput,
-        perCelularInput: perCelular != null
-            ? GenericRequiredListStr.dirty(perCelular)
-            : perCelularInput,
-        perEmailInput: perEmail != null
-            ? GenericRequiredListStr.dirty(perEmail)
-            : perEmailInput,
-        perOtrosInput: perOtros != null
-            ? GenericRequiredListStr.dirty(perOtros)
-            : perOtrosInput,
-        //*SUS EQUIVALENTES
-        perDocTipo: perDocTipo ?? this.perDocTipo,
-        perDocNumero: perDocNumero ?? this.perDocNumero,
-        perNombre: perNombre ?? this.perNombre,
-        perDireccion: perDireccion ?? this.perDireccion,
-        perFecNacimiento: perFecNacimiento ?? this.perFecNacimiento,
-        perCelular: perCelular ?? this.perCelular,
-        perOtros: perOtros ?? this.perOtros,
-        //* LO DEMAS
-        perId: perId ?? this.perId,
-        perNombreComercial: perNombreComercial ?? this.perNombreComercial,
-        perEmpresa: perEmpresa ?? this.perEmpresa,
-        perPais: perPais ?? this.perPais,
-        perProvincia: perProvincia ?? this.perProvincia,
-        perCanton: perCanton ?? this.perCanton,
-        perTipoProveedor: perTipoProveedor ?? this.perTipoProveedor,
-        perTiempoCredito: perTiempoCredito ?? this.perTiempoCredito,
-        perPerfil: perPerfil ?? this.perPerfil,
-        perObligado: perObligado ?? this.perObligado,
-        perCredito: perCredito ?? this.perCredito,
-        perTelefono: perTelefono ?? this.perTelefono,
-        perEstado: perEstado ?? this.perEstado,
-        perObsevacion: perObsevacion ?? this.perObsevacion,
-        perEmail: perEmail ?? this.perEmail,
-        perNickname: perNickname ?? this.perNickname,
-        perUser: perUser ?? this.perUser,
-        perFoto: perFoto ?? this.perFoto,
-        perUbicacion: perUbicacion ?? this.perUbicacion,
-        perDocumento: perDocumento ?? this.perDocumento,
-        perGenero: perGenero ?? this.perGenero,
-        perRecomendacion: perRecomendacion ?? this.perRecomendacion,
-        perEspecialidad: perEspecialidad ?? this.perEspecialidad,
-        perTitulo: perTitulo ?? this.perTitulo,
-        perSenescyt: perSenescyt ?? this.perSenescyt,
-        perPersonal: perPersonal ?? this.perPersonal,
-        perCodigo: perCodigo ?? this.perCodigo,
-        perUsuario: perUsuario ?? this.perUsuario,
-        perOnline: perOnline ?? this.perOnline,
-        perSaldo: perSaldo ?? this.perSaldo,
-        perFecReg: perFecReg ?? this.perFecReg,
-        perFecUpd: perFecUpd ?? this.perFecUpd,
-        // perPermisos: perPermisos ?? this.perPermisos,
-      );
+  }) {
+    final perDocTipoInput = perDocTipo != null
+        ? GenericRequiredInput.dirty(perDocTipo)
+        : this.perDocTipoInput;
+    return ClienteForm(
+      //*REQUERIDOS
+      perDocTipoInput: perDocTipoInput,
+      perDocNumeroInput: perDocNumero != null
+          ? NumDoc.dirty(perDocNumero, perDocTipoInput.value)
+          : perDocNumeroInput,
+      perNombreInput: perNombre != null
+          ? GenericRequiredInput.dirty(perNombre)
+          : perNombreInput,
+      perDireccionInput: perDireccion != null
+          ? GenericRequiredInput.dirty(perDireccion)
+          : perDireccionInput,
+      perCelularInput: perCelular != null
+          ? GenericRequiredListStr.dirty(perCelular)
+          : perCelularInput,
+      perEmailInput: perEmail != null
+          ? GenericRequiredListStr.dirty(perEmail)
+          : perEmailInput,
+      perOtrosInput: perOtros != null
+          ? GenericRequiredListStr.dirty(perOtros)
+          : perOtrosInput,
+      //*SUS EQUIVALENTES
+      perDocTipo: perDocTipo ?? this.perDocTipo,
+      perDocNumero: perDocNumero ?? this.perDocNumero,
+      perNombre: perNombre ?? this.perNombre,
+      perDireccion: perDireccion ?? this.perDireccion,
+      perFecNacimiento: perFecNacimiento ?? this.perFecNacimiento,
+      perCelular: perCelular ?? this.perCelular,
+      perOtros: perOtros ?? this.perOtros,
+      //* LO DEMAS
+      perId: perId ?? this.perId,
+      perNombreComercial: perNombreComercial ?? this.perNombreComercial,
+      perEmpresa: perEmpresa ?? this.perEmpresa,
+      perPais: perPais ?? this.perPais,
+      perProvincia: perProvincia ?? this.perProvincia,
+      perCanton: perCanton ?? this.perCanton,
+      perTipoProveedor: perTipoProveedor ?? this.perTipoProveedor,
+      perTiempoCredito: perTiempoCredito ?? this.perTiempoCredito,
+      perPerfil: perPerfil ?? this.perPerfil,
+      perObligado: perObligado ?? this.perObligado,
+      perCredito: perCredito ?? this.perCredito,
+      perTelefono: perTelefono ?? this.perTelefono,
+      perEstado: perEstado ?? this.perEstado,
+      perObsevacion: perObsevacion ?? this.perObsevacion,
+      perEmail: perEmail ?? this.perEmail,
+      perNickname: perNickname ?? this.perNickname,
+      perUser: perUser ?? this.perUser,
+      perFoto: perFoto ?? this.perFoto,
+      perUbicacion: perUbicacion ?? this.perUbicacion,
+      perDocumento: perDocumento ?? this.perDocumento,
+      perGenero: perGenero ?? this.perGenero,
+      perRecomendacion: perRecomendacion ?? this.perRecomendacion,
+      perEspecialidad: perEspecialidad ?? this.perEspecialidad,
+      perTitulo: perTitulo ?? this.perTitulo,
+      perSenescyt: perSenescyt ?? this.perSenescyt,
+      perPersonal: perPersonal ?? this.perPersonal,
+      perCodigo: perCodigo ?? this.perCodigo,
+      perUsuario: perUsuario ?? this.perUsuario,
+      perOnline: perOnline ?? this.perOnline,
+      perSaldo: perSaldo ?? this.perSaldo,
+      perFecReg: perFecReg ?? this.perFecReg,
+      perFecUpd: perFecUpd ?? this.perFecUpd,
+      // perPermisos: perPermisos ?? this.perPermisos,
+    );
+  }
+
   //CONVIERTE A VENTA
   Cliente toCliente() => Cliente(
         perCelular: perCelular,
@@ -393,7 +397,7 @@ class ClienteForm extends Cliente {
         perDocNumero: perDocNumero,
         perDocTipo: perDocTipo,
         perFecNacimiento: perFecNacimiento,
-        perNombre: perNombreInput.value,
+        perNombre: perNombre,
         // perCelular: perCelular,
         // perDireccion: perDireccion,
         // perDocNumero: perDocNumero,
@@ -439,8 +443,8 @@ class ClienteForm extends Cliente {
   factory ClienteForm.fromCliente(Cliente cliente) {
     return cliente.perId == 0
         ? ClienteForm(
-            perDocTipoInput: const GenericRequiredInput.pure(),
-            perDocNumeroInput: const GenericRequiredInput.pure(),
+            perDocTipoInput: GenericRequiredInput.dirty(cliente.perDocTipo),
+            perDocNumeroInput: NumDoc.pure(cliente.perDocTipo),
             perNombreInput: const GenericRequiredInput.pure(),
             perDireccionInput: const GenericRequiredInput.pure(),
             perCelularInput: const GenericRequiredListStr.pure(),
@@ -488,7 +492,8 @@ class ClienteForm extends Cliente {
           )
         : ClienteForm(
             perDocTipoInput: GenericRequiredInput.dirty(cliente.perDocTipo),
-            perDocNumeroInput: GenericRequiredInput.dirty(cliente.perDocNumero),
+            perDocNumeroInput:
+                NumDoc.dirty(cliente.perDocNumero, cliente.perDocTipo),
             perNombreInput: GenericRequiredInput.dirty(cliente.perNombre),
             perDireccionInput: GenericRequiredInput.dirty(cliente.perDireccion),
             perCelularInput: GenericRequiredListStr.dirty(cliente.perCelular),

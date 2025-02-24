@@ -16,16 +16,16 @@ class AppTheme {
 
     Color defaultTextColor =
         brightness == Brightness.dark ? Colors.white : Colors.black;
-
+    ColorScheme colorScheme = ColorScheme.fromSeed(
+      seedColor: primaryColor,
+      secondary: secondaryColor,
+      brightness: brightness,
+    );
     return ThemeData(
       brightness: brightness,
       fontFamily: 'Roboto',
 
-      // colorScheme: ColorScheme.fromSeed(
-      //   seedColor: primaryColor,
-      //   secondary: secondaryColor,
-      //   brightness: brightness,
-      // ),
+      colorScheme: colorScheme,
 
       ///* General
       useMaterial3: true,
@@ -79,17 +79,21 @@ class AppTheme {
 
       ///* AppBar
       appBarTheme: AppBarTheme(
+        backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
         titleTextStyle: TextStyle(
           fontFamily: 'Roboto',
           fontSize: 25,
           fontWeight: FontWeight.bold,
-          color: defaultTextColor,
+          color: colorScheme.onPrimary,
         ),
       ),
 
       ///* FloatingActionButton
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
         elevation: 4, // Elevación del FAB
+        backgroundColor: colorScheme.secondary,
+        foregroundColor: colorScheme.onSecondary,
       ),
     );
   }

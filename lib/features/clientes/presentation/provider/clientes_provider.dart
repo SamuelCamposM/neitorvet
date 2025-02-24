@@ -52,6 +52,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     });
 
     socket.on("server:guardadoExitoso", (data) {
+      print('hola');
       if (data['tabla'] == 'proveedor') {
         // Agrega a la lista de clientes
 

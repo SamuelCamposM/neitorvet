@@ -102,17 +102,24 @@ class _ClienteForm extends ConsumerStatefulWidget {
 }
 
 class _ClienteFormState extends ConsumerState<_ClienteForm> {
-  late TextEditingController nombreController;
-
+  late TextEditingController docController = TextEditingController();
+  late TextEditingController nombreController = TextEditingController();
+  late TextEditingController dirController = TextEditingController();
+  TextEditingController searchController = TextEditingController();
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
-    nombreController = TextEditingController();
+    docController = TextEditingController(text: widget.cliente.perDocNumero);
+    nombreController = TextEditingController(text: widget.cliente.perNombre);
+    dirController = TextEditingController(text: widget.cliente.perDireccion);
   }
 
   @override
   void dispose() {
+    docController.dispose();
     nombreController.dispose();
+    dirController.dispose();
     super.dispose();
   }
 
@@ -124,6 +131,36 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
         ref.read(clienteFormProvider(widget.cliente).notifier).updateState;
     final clienteFormCopyWith = clienteFState.clienteForm.copyWith;
 
+    void buscarCliente(String search) async {
+      setState(() {
+        isLoading = true;
+      });
+      final res = clienteFState.clienteForm.perDocTipo == 'PLACA'
+          ? await ref
+              .read(clientesRepositoryProvider)
+              .getNewClienteByPlaca(search)
+          : await ref
+              .read(clientesRepositoryProvider)
+              .getNewClienteByDoc(search);
+      if (res.error.isNotEmpty) {
+        if (context.mounted) {
+          NotificationsService.show(context, res.error, SnackbarCategory.error);
+        }
+      }
+
+      if (res.resultado != null) {
+        searchController.text = '';
+
+        updateForm(clienteForm: ClienteForm.fromCliente(res.resultado!));
+        docController.text = res.resultado!.perDocNumero;
+        nombreController.text = res.resultado!.perNombre;
+        dirController.text = res.resultado!.perDireccion;
+      }
+      setState(() {
+        isLoading = false;
+      });
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
@@ -134,7 +171,7 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
                 Text(
                   'Cliente: ',
                   style: TextStyle(
-                    fontSize: size.iScreen(1.8),
+                    fontSize: size.iScreen(1.5),
                     fontWeight: FontWeight.normal,
                     color: Theme.of(context)
                         .textTheme
@@ -147,7 +184,7 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
                       ? 'NUEVO'
                       : widget.cliente.perNombre,
                   style: TextStyle(
-                    fontSize: size.iScreen(1.8),
+                    fontSize: size.iScreen(1.5),
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context)
                         .textTheme
@@ -164,7 +201,11 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
               label: 'Tipo Documento',
               value: clienteFState.clienteForm.perDocTipo,
               onChanged: (String? value) {
-                updateForm(clienteForm: clienteFormCopyWith(perDocTipo: value));
+                searchController.text = '';
+                updateForm(
+                    clienteForm: clienteFormCopyWith(
+                        perDocTipo: value,
+                        perDocNumero: clienteFState.clienteForm.perDocNumero));
               },
               options: [
                 Option(label: 'RUC', value: 'RUC'),
@@ -173,49 +214,43 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
                 Option(label: "PLACA", value: "PLACA"),
               ],
             ),
-            if (clienteFState.clienteForm.perDocTipo == 'RUC' ||
-                clienteFState.clienteForm.perDocTipo == 'CEDULA')
-              CustomInputField(
-                autofocus: true,
-                label: 'Buscar por RUC O CEDULA.',
-                initialValue: clienteFState.searchDoc,
-                onChanged: (p0) {
-                  updateForm(searchDoc: p0);
-                },
-                onFieldSubmitted: (p0) async {
-                  //error del endpoint se valida aca
-                  final res = await ref
-                      .read(clientesRepositoryProvider)
-                      .getNewClienteByDoc(p0);
-                  if (res.error.isNotEmpty) {
-                    if (context.mounted) {
-                      NotificationsService.show(
-                          context, res.error, SnackbarCategory.error);
-                    }
-                  }
-
-                  if (res.resultado != null) {
-                    updateForm(
-                        clienteForm: ClienteForm.fromCliente(res.resultado!));
-                    nombreController.text = res.resultado!.perDocNumero;
-                  }
-                },
-              ),
             CustomInputField(
-              controller: nombreController,
+              autofocus: true,
+              label: clienteFState.clienteForm.perDocTipo == 'PLACA'
+                  ? 'Buscar por Placa'
+                  : 'Buscar por RUC O CEDULA.',
+              controller: searchController,
+              onChanged: (p0) {
+                searchController.text = p0;
+              },
+              isLoading: isLoading,
+              suffixIcon: IconButton(
+                  onPressed: () async {
+                    buscarCliente(searchController.text);
+                  },
+                  icon: const Icon(Icons.search)),
+              onFieldSubmitted: (p0) async {
+                buscarCliente(searchController.text);
+              },
+            ),
+            if (isLoading) const Text('cargando'),
+            CustomInputField(
+              controller: docController,
               label: 'Número Doc.',
               initialValue: clienteFState.clienteForm.perDocNumeroInput.value,
               onChanged: (p0) {
-                nombreController.text = p0;
+                docController.text = p0;
                 updateForm(clienteForm: clienteFormCopyWith(perDocNumero: p0));
               },
               errorMessage:
                   clienteFState.clienteForm.perDocNumeroInput.errorMessage,
             ),
             CustomInputField(
+              controller: nombreController,
               label: 'Nombres',
               initialValue: clienteFState.clienteForm.perNombre,
               onChanged: (p0) {
+                nombreController.text = p0;
                 updateForm(clienteForm: clienteFormCopyWith(perNombre: p0));
               },
               errorMessage:
@@ -223,8 +258,10 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
             ),
             CustomInputField(
               label: 'Dirección',
+              controller: dirController,
               initialValue: clienteFState.clienteForm.perDireccionInput.value,
               onChanged: (p0) {
+                dirController.text = p0;
                 updateForm(clienteForm: clienteFormCopyWith(perDireccion: p0));
               },
               errorMessage:

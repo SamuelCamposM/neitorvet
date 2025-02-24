@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
+import 'package:neitorvet/features/auth/domain/domain.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
@@ -12,20 +13,24 @@ final clienteFormProvider = StateNotifierProvider.family
   final createUpdateCliente =
       ref.watch(clientesProvider.notifier).createUpdateCliente;
   final dataDefaultMap = ref.watch(authProvider.notifier).dataDefaultMap;
+  final user = ref.watch(authProvider).user;
   return ClienteFormNotifier(
       cliente: cliente,
       createUpdateCliente: createUpdateCliente,
+      user: user!,
       dataDefaultMap: dataDefaultMap);
 });
 
 class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
   final Future<void> Function(Map<String, dynamic> clienteMap, bool editando)
       createUpdateCliente;
+  final User user;
   final Map<String, dynamic> Function(
       {String userProperty, String empresaPropery}) dataDefaultMap;
   ClienteFormNotifier(
       {required Cliente cliente,
       required this.createUpdateCliente,
+      required this.user,
       required this.dataDefaultMap})
       : super(ClienteFormState(
           clienteForm: ClienteForm.fromCliente(cliente),
@@ -40,6 +45,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
   }
 
   Future<bool> onFormSubmit() async {
+    state.clienteForm;
     // Marcar todos los campos como tocados
     _touchedEverything(true);
 
@@ -56,8 +62,14 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
     state = state.copyWith(isPosting: true);
     final clienteMap = {
       ...state.clienteForm.toCliente().toJson(),
-      'perEmpresa': ['TE2021'],
       ...dataDefaultMap(empresaPropery: 'perEmpresa', userProperty: 'perUser'),
+      //ELIMINA LOS DUPLICADOS
+      'perPerfil': [
+        ...{...state.clienteForm.perPerfil, 'CLIENTE'}
+      ],
+      'perEmpresa': [
+        ...{...state.clienteForm.perEmpresa, user.rucempresa}
+      ],
       "tabla": "proveedor",
     };
 
@@ -85,8 +97,8 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
             perDocNumero: state.clienteForm.perDocNumero,
             perNombre: state.clienteForm.perNombre,
             perDireccion: state.clienteForm.perDireccion,
-            perCelular: state.clienteForm.perEmail,
-            perEmail: state.clienteForm.perCelular,
+            perCelular: state.clienteForm.perCelular,
+            perEmail: state.clienteForm.perEmail,
             perOtros: state.clienteForm.perOtros,
           ),
           isFormValid: Formz.validate([

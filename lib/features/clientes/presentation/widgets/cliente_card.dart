@@ -103,21 +103,17 @@ class ClienteCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        child: Text(
-                          nombreUsuario,
-                          style: TextStyle(
-                            fontSize: size.iScreen(1.5),
-                            fontWeight: FontWeight.bold,
-                          ),
+                      Text(
+                        nombreUsuario,
+                        style: TextStyle(
+                          fontSize: size.iScreen(1.5),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(
-                        child: Text(
-                          cedula,
-                          style: TextStyle(
-                            fontSize: size.iScreen(1.5),
-                          ),
+                      Text(
+                        cedula,
+                        style: TextStyle(
+                          fontSize: size.iScreen(1.5),
                         ),
                       ),
                       Text(

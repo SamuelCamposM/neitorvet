@@ -20,6 +20,7 @@ class CustomInputField extends StatelessWidget {
   final IconButton? suffixIcon;
   final bool autofocus;
   final bool toUpperCase; // Nuevo parámetro para convertir a mayúsculas
+  final bool isLoading; // Nuevo parámetro para mostrar el indicador de progreso
 
   const CustomInputField({
     super.key,
@@ -41,56 +42,61 @@ class CustomInputField extends StatelessWidget {
     this.autofocus = false,
     this.suffixIcon,
     this.toUpperCase = false, // Inicializando el nuevo parámetro
+    this.isLoading = false, // Inicializando el nuevo parámetro
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return TextFormField(
-      autofocus: autofocus,
-      readOnly: readOnly,
-      controller: controller,
-      onChanged: onChanged,
-      inputFormatters: toUpperCase ? [_UpperCaseTextFormatter()] : [],
-      onFieldSubmitted: onFieldSubmitted,
-      validator: validator,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      style: const TextStyle(
-        fontSize: 15,
-      ),
-      maxLines: maxLines,
-      initialValue: controller == null ? initialValue : null,
-      decoration: InputDecoration(
-        floatingLabelBehavior: maxLines > 1
-            ? FloatingLabelBehavior.always
-            : FloatingLabelBehavior.auto,
-        floatingLabelStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 15,
+    return Column(
+      children: [
+        TextFormField(
+          autofocus: autofocus,
+          readOnly: readOnly,
+          controller: controller,
+          onChanged: onChanged,
+          inputFormatters: toUpperCase ? [_UpperCaseTextFormatter()] : [],
+          onFieldSubmitted: onFieldSubmitted,
+          validator: validator,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          style: const TextStyle(
+            fontSize: 15,
+          ),
+          maxLines: maxLines,
+          initialValue: controller == null ? initialValue : null,
+          decoration: InputDecoration(
+            floatingLabelBehavior: maxLines > 1
+                ? FloatingLabelBehavior.always
+                : FloatingLabelBehavior.auto,
+            floatingLabelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: colors.onSurface), // Borde inferior
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: colors.primary), // Borde inferior activo
+            ),
+            errorBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.red), // Borde inferior error
+            ),
+            focusedErrorBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.red), // Borde inferior error activo
+            ),
+            isDense: true,
+            label: label != null ? Text(label!) : null,
+            hintText: hint,
+            errorText: errorMessage,
+            suffixIcon: suffixIcon,
+          ),
+          textAlign: textAlign!,
         ),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: colors.onSurface), // Borde inferior
-        ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide:
-              BorderSide(color: colors.primary), // Borde inferior activo
-        ),
-        errorBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.red), // Borde inferior error
-        ),
-        focusedErrorBorder: const UnderlineInputBorder(
-          borderSide:
-              BorderSide(color: Colors.red), // Borde inferior error activo
-        ),
-        isDense: true,
-        label: label != null ? Text(label!) : null,
-        hintText: hint,
-        errorText: errorMessage,
-        suffixIcon: suffixIcon,
-      ),
-      textAlign: textAlign!,
+        if (isLoading)
+          const LinearProgressIndicator(), // Mostrar indicador de progreso si isLoading es true
+      ],
     );
   }
 }
