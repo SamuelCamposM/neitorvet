@@ -77,9 +77,13 @@ class ClienteNotifier extends StateNotifier<ClienteState> {
         return;
       }
 
+//
+      // *GENERA OTRO ESPACIO EN MEMORIA      cliente: Cliente.fromJson(clienteResponse.cliente!.toJson()),
+      //* no LO GENERA cliente: clienteResponse.cliente,
+
       state = state.copyWith(
         isLoading: false,
-        cliente: clienteResponse.cliente,
+        cliente: Cliente.fromJson(clienteResponse.cliente!.toJson()),
       );
     } catch (e) {
       state = state.copyWith(error: 'Hubo un error');

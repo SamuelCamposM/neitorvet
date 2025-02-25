@@ -25,7 +25,7 @@ class NumDoc extends FormzInput<String, NumDocError> {
         case 'PASAPORTE':
           return 'El Pasaporte debe tener más de 3 caracteres';
         case 'PLACA':
-          return 'El tipo PLACA no es válido';
+          return 'El tipo PLACA es válido unicamente para buscar';
         default:
           return 'Valor inválido';
       }

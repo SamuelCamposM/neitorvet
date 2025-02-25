@@ -194,18 +194,23 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
                 ),
               ],
             ),
+            Text(clienteFState.clienteForm.perDocTipo),
             CustomSelectField(
               errorMessage:
                   clienteFState.clienteForm.perDocTipoInput.errorMessage,
               size: size,
               label: 'Tipo Documento',
               value: clienteFState.clienteForm.perDocTipo,
-              onChanged: (String? value) {
+              onChanged: (String? value) async {
                 searchController.text = '';
-                updateForm(
-                    clienteForm: clienteFormCopyWith(
-                        perDocTipo: value,
-                        perDocNumero: clienteFState.clienteForm.perDocNumero));
+                final clienteForm = ClienteForm.fromCliente(widget.cliente);
+                final clienteFormUpdated =
+                    clienteForm.copyWith(perDocTipo: value);
+
+                updateForm(clienteForm: clienteFormUpdated);
+                docController.text = clienteFormUpdated.perDocNumero;
+                nombreController.text = clienteFormUpdated.perNombre;
+                dirController.text = clienteFormUpdated.perDireccion;
               },
               options: [
                 Option(label: 'RUC', value: 'RUC'),
