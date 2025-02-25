@@ -4,26 +4,32 @@ class MenuItem {
   final String title;
   final String subTitle;
   final String link;
-  final IconData icon;
+  final String icon;
+  final Color color;
 
   const MenuItem(
       {required this.title,
       required this.subTitle,
       required this.link,
+      required this.color,
       required this.icon});
 }
 
 const appMenuItems = <MenuItem>[
   MenuItem(
-      title: 'Clientes',
-      subTitle: "Nuestros Clientes",
-      link: "/clientes",
-      icon: Icons.person),
+    title: 'Clientes',
+    subTitle: "Nuestros Clientes",
+    link: "/clientes",
+    icon: 'assets/images/personas.png',
+    color: Colors.blue,
+  ),
   MenuItem(
-      title: 'Facturas',
-      subTitle: "Nuestros factura",
-      link: "/ventas",
-      icon: Icons.list_alt_outlined),
+    title: 'Facturas',
+    subTitle: "Nuestros factura",
+    link: "/ventas",
+    icon: 'assets/images/factura.png',
+    color: Colors.green,
+  ),
   // MenuItem(
   //     title: 'Botones',
   //     subTitle: "Varios botones en Flutter",

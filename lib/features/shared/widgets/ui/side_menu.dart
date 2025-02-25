@@ -62,7 +62,10 @@ class SideMenuState extends ConsumerState<SideMenu> {
                 (e) => Column(
                   children: [
                     ListTile(
-                      leading: Icon(e.icon),
+                      leading: Image.asset(
+                        e.icon,
+                        height: size.iScreen(4),
+                      ), //Icon(e.icon),
                       title: Text(
                         e.title,
                         style: const TextStyle(fontWeight: FontWeight.bold),
