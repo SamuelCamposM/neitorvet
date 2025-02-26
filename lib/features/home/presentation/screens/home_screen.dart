@@ -102,7 +102,8 @@ class ItemMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colorSecundario = Theme.of(context).colorScheme;
+    final colorPrimario = Theme.of(context).appBarTheme.backgroundColor;
     return SizedBox(
       width: size.iScreen(14.0), // Ajustar el ancho de los elementos
       height: size.iScreen(14.0), // Ajustar el ancho de los elementos
@@ -113,7 +114,7 @@ class ItemMenu extends StatelessWidget {
           borderRadius:
               BorderRadius.circular(10.0), // Reducir el radio de los bordes
           child: Material(
-            color: Colors.grey.shade50, // Color de fondo transparente
+            color: Colors.transparent, // Color de fondo transparente
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(
                   10.0), // Radio de los bordes redondeados
@@ -123,12 +124,13 @@ class ItemMenu extends StatelessWidget {
                 // Acción al presionar el botón
                 context.push(menuItem.link);
               },
-              splashColor: menuItem.color, // Color del splash
+              splashColor: colorPrimario!.withOpacity(0.7), // Color del splash
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
                   border: Border.all(
-                      color: theme.primaryColor, width: 2.0), // Borde gris
+                      color: colorSecundario.secondary,
+                      width: 2.0), // Borde gris
                 ),
                 child: Center(
                   // Centrar el contenido
@@ -139,7 +141,8 @@ class ItemMenu extends StatelessWidget {
                       Image.asset(
                         menuItem.icon,
                         height: size.iScreen(7.0),
-                        color: Colors.black, // Reducir el tamaño de la imagen
+                        color: colorSecundario
+                            .secondary, // Reducir el tamaño de la imagen
                       ),
                       const SizedBox(height: 4), // Reducir el espacio
                       Text(
@@ -148,6 +151,7 @@ class ItemMenu extends StatelessWidget {
                           fontSize:
                               size.iScreen(1.8), // Reducir el tamaño del texto
                           fontWeight: FontWeight.bold,
+                          color: colorSecundario.secondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
