@@ -90,6 +90,10 @@ final goRouterProvider = Provider((ref) {
               idRegistro: idRegistro);
         },
       ),
+      GoRoute(
+        path: '/menuDespacho',
+        builder: (context, state) => const MenuDespacho(),
+      ),
 
       // GoRoute(
       //   path: '/product/:id',

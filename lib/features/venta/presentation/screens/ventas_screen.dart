@@ -223,6 +223,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           context.push('/venta/0');
+          // context.push('/menuDespacho');
         },
         child: const Icon(Icons.add),
       ),
