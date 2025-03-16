@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:neitorvet/config/config.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -14,6 +15,12 @@ import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delega
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
+
+import 'package:image/image.dart' as img;
+import 'package:flutter/services.dart' show NetworkAssetBundle, Uint8List;
+import 'package:sunmi_printer_plus/enums.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
+import 'package:sunmi_printer_plus/column_maker.dart';
 
 class VentaScreen extends ConsumerWidget {
   final int ventaId;
@@ -570,8 +577,6 @@ class _VentaForm extends ConsumerWidget {
 }
 
 class ImprimirFacturaCard extends ConsumerWidget {
-  const ImprimirFacturaCard({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final size = Responsive.of(context);
@@ -604,6 +609,40 @@ class ImprimirFacturaCard extends ConsumerWidget {
                     ),
                     onPressed: () {
                       print('Imprime factura...');
+
+                      Map<String, dynamic>? _info = {
+                        'venEmpRuc': '1234567890',
+                        'venEmpDireccion': 'Calle Principal 123',
+                        'venEmpTelefono': '0987654321',
+                        'venEmpEmail': 'info@ejemplo.com',
+                        'venNomCliente': 'Cliente Ejemplo',
+                        'venRucCliente': '0987654321',
+                        'venFecReg': DateTime.now().toIso8601String(),
+                        'venNumFactura': '001-001-0000001',
+                        'venConductor': 'Juan Perez',
+                        'venOtrosDetalles': 'ABC-1234',
+                        'venProductos': [
+                          {
+                            'descripcion': 'Producto 1',
+                            'cantidad': 2,
+                            'valorUnitario': 10.0,
+                            'precioSubTotalProducto': 20.0,
+                          },
+                          {
+                            'descripcion': 'Producto 2',
+                            'cantidad': 1,
+                            'valorUnitario': 15.0,
+                            'precioSubTotalProducto': 15.0,
+                          },
+                        ],
+                        'venSubTotal': 35.0,
+                        'venTotalIva': 0.0,
+                        'venTotal': 35.0,
+                      };
+                      String? user =
+                          'https://static.vecteezy.com/system/resources/previews/007/651/682/non_2x/wooden-boat-with-sail-color-illustration-in-cartoon-style-on-a-white-background-vector.jpg';
+                      _printTicket(_info, user, '2025-03-15');
+
                       Navigator.pop(context);
                     },
                     child: Text('Sí',
@@ -635,6 +674,135 @@ class ImprimirFacturaCard extends ConsumerWidget {
       ),
     );
   }
+
+//================================================IMPRESORA =================================================//
+
+  String? _fechaLocal;
+
+  String convertirFechaLocal(String fechaIso) {
+    DateTime fecha = DateTime.parse(fechaIso);
+    return DateFormat('dd/MM/yyyy HH:mm:ss').format(fecha);
+  }
+
+  Future<void> _printTicket(
+      Map<String, dynamic>? info, String? user, String fechaLocal) async {
+    if (info == null) return;
+
+    await SunmiPrinter.initPrinter();
+    await SunmiPrinter.startTransactionPrint(true);
+
+    if (user != null && user.isNotEmpty) {
+      try {
+        Uint8List byte = (await NetworkAssetBundle(Uri.parse(user)).load(user))
+            .buffer
+            .asUint8List();
+
+        img.Image? originalImage = img.decodeImage(byte);
+
+        if (originalImage != null) {
+          img.Image resizedImage =
+              img.copyResize(originalImage, width: 150, height: 150);
+          Uint8List resizedByte =
+              Uint8List.fromList(img.encodePng(resizedImage));
+
+          await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+          await SunmiPrinter.printImage(resizedByte);
+          await SunmiPrinter.lineWrap(2);
+        }
+      } catch (e) {
+        print('Error al cargar la imagen: $e');
+        await SunmiPrinter.printText('Error al cargar la imagen');
+        await SunmiPrinter.lineWrap(1);
+      }
+    } else {
+      await SunmiPrinter.printText('NO LOGO');
+      await SunmiPrinter.lineWrap(1);
+    }
+
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
+    await SunmiPrinter.printText('Ruc: ${info['venEmpRuc']}');
+    await SunmiPrinter.printText('Dir: ${info['venEmpDireccion']}');
+    await SunmiPrinter.printText('Tel: ${info['venEmpTelefono']}');
+    await SunmiPrinter.printText('Email: ${info['venEmpEmail']}');
+
+    await SunmiPrinter.line();
+    await SunmiPrinter.printText('Cliente: ${info['venNomCliente']}');
+    await SunmiPrinter.printText('Ruc: ${info['venRucCliente']}');
+    await SunmiPrinter.line();
+    await SunmiPrinter.printText('Fecha: $fechaLocal');
+    await SunmiPrinter.line();
+    await SunmiPrinter.printText('Ticket: ${info['venNumFactura']}');
+    await SunmiPrinter.line();
+    await SunmiPrinter.printText('Conductor: ${info['venConductor']}');
+    await SunmiPrinter.printText('Placa: ${info['venOtrosDetalles']}');
+
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
+    await SunmiPrinter.line();
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(text: 'Descripción', width: 12, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(text: 'Cant', width: 6, align: SunmiPrintAlign.CENTER),
+      ColumnMaker(text: 'vU', width: 6, align: SunmiPrintAlign.RIGHT),
+      ColumnMaker(text: 'TOT', width: 6, align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    final productos = info['venProductos'] as List<dynamic>?;
+
+    if (productos != null) {
+      for (var item in productos) {
+        await SunmiPrinter.printRow(cols: [
+          ColumnMaker(
+              text: item['descripcion']?.toString() ?? 'N/A',
+              width: 12,
+              align: SunmiPrintAlign.LEFT),
+          ColumnMaker(
+              text: item['cantidad']?.toString() ?? '0',
+              width: 6,
+              align: SunmiPrintAlign.CENTER),
+          ColumnMaker(
+              text: item['valorUnitario']?.toString() ?? '0',
+              width: 6,
+              align: SunmiPrintAlign.RIGHT),
+          ColumnMaker(
+              text: item['precioSubTotalProducto']?.toString() ?? '0',
+              width: 6,
+              align: SunmiPrintAlign.RIGHT),
+        ]);
+      }
+    } else {
+      await SunmiPrinter.printText('No hay productos para mostrar.');
+    }
+
+    await SunmiPrinter.line();
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(text: 'SubTotal', width: 20, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(
+          text: info['venSubTotal']?.toString() ?? '0',
+          width: 10,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(text: 'Iva', width: 20, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(
+          text: info['venTotalIva']?.toString() ?? '0',
+          width: 10,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(text: 'TOTAL', width: 20, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(
+          text: info['venTotal']?.toString() ?? '0',
+          width: 10,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.line();
+    await SunmiPrinter.lineWrap(2);
+    await SunmiPrinter.exitTransactionPrint(true);
+  }
+
+//=================================================================================================//
 }
 
 class _ProductsList extends ConsumerWidget {
