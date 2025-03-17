@@ -49,6 +49,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
         if (next.error.isEmpty) return;
         NotificationsService.show(
             context, next.error, SnackbarCategory.success);
+        ref.read(ventasProvider.notifier).resetError();
       },
     );
 

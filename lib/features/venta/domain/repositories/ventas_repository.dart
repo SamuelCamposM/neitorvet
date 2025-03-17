@@ -13,7 +13,13 @@ abstract class VentasRepository {
       required BusquedaVenta busquedaVenta});
 
   Future<ResponseFormasPago> getFormasPago();
+  Future<ResponseSurtidores> getSurtidores();
   Future<ResponseSecuencia> getSecuencia(String tipo);
   Future<ResponseInventario> getInventarioByQuery(String search);
+  Future<ResponseInventarioIndividual> getInventarioByPistola({
+    required String pistola,
+    required String codigoCombustible,
+    required String numeroTanque,
+  });
   Future<ResponseCorreoVenta> sendCorreo(BodyCorreo bodyCorreo);
 }

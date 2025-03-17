@@ -45,4 +45,20 @@ class VentasRepositoryImpl extends VentasRepository {
   Future<ResponseCorreoVenta> sendCorreo(BodyCorreo bodyCorreo) {
     return datasource.sendCorreo(bodyCorreo);
   }
+
+  @override
+  Future<ResponseSurtidores> getSurtidores() {
+    return datasource.getSurtidores();
+  }
+
+  @override
+  Future<ResponseInventarioIndividual> getInventarioByPistola(
+      {required String pistola,
+      required String codigoCombustible,
+      required String numeroTanque}) {
+    return datasource.getInventarioByPistola(
+        pistola: pistola,
+        codigoCombustible: codigoCombustible,
+        numeroTanque: numeroTanque);
+  }
 }

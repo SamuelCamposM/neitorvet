@@ -4,6 +4,7 @@ import 'package:neitorvet/config/config.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
+import 'package:neitorvet/features/venta/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/domain/repositories/ventas_repository.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
@@ -44,6 +45,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     _initializeSocketListeners();
     loadNextPage();
     _setFormasPago();
+    // _setSurtidores();
   }
   void _initializeSocketListeners() {
     socket.on('disconnect', (_) {});
@@ -104,6 +106,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     }
 
     state = state.copyWith(
+        error: '',
         isLoading: false,
         page: state.page + 1,
         total: ventas.total,
@@ -254,7 +257,25 @@ class VentasNotifier extends StateNotifier<VentasState> {
           isLoading: false);
       return;
     }
-    state = state.copyWith(formasPago: formasPago.resultado, isLoading: false);
+    state = state.copyWith(
+      formasPago: formasPago.resultado,
+      isLoading: false,
+    );
+  }
+
+  Future<void> _setSurtidores() async {
+    state = state.copyWith(
+      isLoading: true,
+    );
+    final surtidoresResponse = await ventasRepository.getSurtidores();
+    if (surtidoresResponse.error.isNotEmpty) {
+      state = state.copyWith(
+          error: 'Hubo un error al obtener los surtidores', isLoading: false);
+
+      return;
+    }
+    state = state.copyWith(
+        surtidoresData: surtidoresResponse.resultado, isLoading: false);
   }
 
   Future<ResponseSecuencia> getSecuencia() async {
@@ -270,6 +291,29 @@ class VentasNotifier extends StateNotifier<VentasState> {
     final response = await ventasRepository.getSecuencia(estado);
 
     return response;
+  }
+
+  List<Surtidor> getUniqueSurtidores() {
+    final Set<String> uniqueNames = {};
+    final List<Surtidor> uniqueSurtidores = [];
+
+    for (var surtidor in state.surtidoresData) {
+      if (uniqueNames.add(surtidor.nombreSurtidor)) {
+        uniqueSurtidores.add(surtidor);
+      }
+    }
+
+    return uniqueSurtidores;
+  }
+
+  List<Surtidor> getLados(String nombreSurtidor) {
+    return state.surtidoresData
+        .where((surtidor) => surtidor.nombreSurtidor == nombreSurtidor)
+        .toList();
+  }
+
+  void resetError() {
+    state = state.copyWith(error: '');
   }
 
   @override
@@ -296,6 +340,7 @@ class VentasState {
   final List<FormaPago> formasPago;
   final BusquedaVenta busquedaVenta;
   final bool isSearching;
+  final List<Surtidor> surtidoresData;
 
   VentasState(
       {this.isLastPage = false,
@@ -313,7 +358,8 @@ class VentasState {
       this.totalSearched = 0,
       this.formasPago = const [],
       this.busquedaVenta = const BusquedaVenta(),
-      this.isSearching = false});
+      this.isSearching = false,
+      this.surtidoresData = const []});
 
   VentasState copyWith(
       {bool? isLastPage,
@@ -331,7 +377,8 @@ class VentasState {
       int? totalSearched,
       List<FormaPago>? formasPago,
       BusquedaVenta? busquedaVenta,
-      bool? isSearching}) {
+      bool? isSearching,
+      List<Surtidor>? surtidoresData}) {
     return VentasState(
       isLastPage: isLastPage ?? this.isLastPage,
       isLoading: isLoading ?? this.isLoading,
@@ -349,6 +396,7 @@ class VentasState {
       formasPago: formasPago ?? this.formasPago,
       busquedaVenta: busquedaVenta ?? this.busquedaVenta,
       isSearching: isSearching ?? this.isSearching,
+      surtidoresData: surtidoresData ?? this.surtidoresData,
     );
   }
 }
