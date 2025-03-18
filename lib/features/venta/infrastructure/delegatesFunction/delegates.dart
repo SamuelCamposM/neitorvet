@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
 import 'package:neitorvet/features/shared/delegate/item_generic_search.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -111,13 +112,15 @@ Future<SearchGenericResult<Venta>?> searchVentas(
     required WidgetRef ref,
     required VentasState ventasState,
     required Responsive size}) async {
+  final user = ref.watch(authProvider).user;
+
   return showSearch(
       query: ventasState.search,
       context: context,
       delegate: GenericDelegate(
         onlySelect: false,
         itemWidgetBuilder: (item, onItemSelected) {
-          return VentaCard(venta: item, size: size);
+          return VentaCard(venta: item, size: size, user: user);
         },
         setSearch: ref.read(ventasProvider.notifier).setSearch,
         initialItems: ventasState.searchedVentas,

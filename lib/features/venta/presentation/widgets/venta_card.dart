@@ -3,20 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:neitorvet/config/config.dart';
+import 'package:neitorvet/features/auth/domain/domain.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 
 class VentaCard extends ConsumerWidget {
   final Venta venta;
   final Responsive size;
   final bool redirect;
+  final User? user;
 
   const VentaCard({
     Key? key,
     required this.venta,
     required this.size,
+    required this.user,
     this.redirect = true,
   }) : super(key: key);
 
@@ -32,6 +36,16 @@ class VentaCard extends ConsumerWidget {
           motion:
               const DrawerMotion(), // Puedes cambiar ScrollMotion por otro tipo de Motion
           children: [
+            SlidableAction(
+              onPressed: (context) {
+                printTicket(
+                  venta,
+                  user,
+                );
+              },
+              icon: Icons.print,
+              label: 'Print',
+            ),
             SlidableAction(
               onPressed: (context) {
                 final pdfUrl =

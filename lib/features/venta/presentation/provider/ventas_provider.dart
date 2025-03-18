@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/config/config.dart';
+import 'package:neitorvet/features/auth/domain/domain.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
@@ -9,6 +11,7 @@ import 'package:neitorvet/features/venta/domain/repositories/ventas_repository.d
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
 
 import 'package:neitorvet/features/shared/provider/socket.dart';
+import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class GetVentaResponse {
@@ -21,24 +24,29 @@ class GetVentaResponse {
 final ventasProvider =
     StateNotifierProvider.autoDispose<VentasNotifier, VentasState>(
   (ref) {
+    final user = ref.watch(authProvider).user;
+
     final ventasRepository = ref.watch(ventasRepositoryProvider);
     final socket = ref.watch(socketProvider);
     final downloadPDF = ref.watch(downloadPdfProvider.notifier).downloadPDF;
     return VentasNotifier(
         socket: socket,
         ventasRepository: ventasRepository,
-        downloadPDF: downloadPDF);
+        downloadPDF: downloadPDF,
+        user: user!);
   },
 );
 
 class VentasNotifier extends StateNotifier<VentasState> {
   final VentasRepository ventasRepository;
   final io.Socket socket;
+  final User user;
   final Future<void> Function(BuildContext? context, String infoPdf)
       downloadPDF;
   VentasNotifier(
       {required this.ventasRepository,
       required this.socket,
+      required this.user,
       required this.downloadPDF})
       : super(VentasState()) {
     _initializeSocketListeners();
@@ -67,9 +75,14 @@ class VentasNotifier extends StateNotifier<VentasState> {
 
         final newVenta = Venta.fromJson(data);
         if (newVenta.venUser == 'admin') {
-          final pdfUrl =
-              '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${newVenta.venId}&empresa=${newVenta.venEmpresa}';
-          downloadPDF(null, pdfUrl);
+          printTicket(
+            newVenta,
+            user,
+          );
+
+          // final pdfUrl =
+          //     '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${newVenta.venId}&empresa=${newVenta.venEmpresa}';
+          // downloadPDF(null, pdfUrl);
         }
         state = state.copyWith(ventas: [
           newVenta,
@@ -77,6 +90,12 @@ class VentasNotifier extends StateNotifier<VentasState> {
         ]);
       }
     });
+  }
+
+  void resetImprimirFactura() {
+    state = state.copyWith(
+      mostrarImprimirFactura: false,
+    );
   }
 
   Future loadNextPage() async {
@@ -296,42 +315,47 @@ class VentasState {
   final List<FormaPago> formasPago;
   final BusquedaVenta busquedaVenta;
   final bool isSearching;
+  final bool mostrarImprimirFactura;
 
-  VentasState(
-      {this.isLastPage = false,
-      this.isLoading = false,
-      this.cantidad = 10,
-      this.page = 0,
-      this.ventas = const [],
-      this.error = '',
-      this.total = 0,
-      this.search = '',
-      this.estado = 'FACTURAS',
-      this.input = 'venId',
-      this.orden = false,
-      this.searchedVentas = const [],
-      this.totalSearched = 0,
-      this.formasPago = const [],
-      this.busquedaVenta = const BusquedaVenta(),
-      this.isSearching = false});
+  VentasState({
+    this.isLastPage = false,
+    this.isLoading = false,
+    this.cantidad = 10,
+    this.page = 0,
+    this.ventas = const [],
+    this.error = '',
+    this.total = 0,
+    this.search = '',
+    this.estado = 'FACTURAS',
+    this.input = 'venId',
+    this.orden = false,
+    this.searchedVentas = const [],
+    this.totalSearched = 0,
+    this.formasPago = const [],
+    this.busquedaVenta = const BusquedaVenta(),
+    this.isSearching = false,
+    this.mostrarImprimirFactura = false,
+  });
 
-  VentasState copyWith(
-      {bool? isLastPage,
-      bool? isLoading,
-      int? cantidad,
-      int? page,
-      List<Venta>? ventas,
-      String? error,
-      int? total,
-      String? search,
-      String? estado,
-      String? input,
-      bool? orden,
-      List<Venta>? searchedVentas,
-      int? totalSearched,
-      List<FormaPago>? formasPago,
-      BusquedaVenta? busquedaVenta,
-      bool? isSearching}) {
+  VentasState copyWith({
+    bool? isLastPage,
+    bool? isLoading,
+    int? cantidad,
+    int? page,
+    List<Venta>? ventas,
+    String? error,
+    int? total,
+    String? search,
+    String? estado,
+    String? input,
+    bool? orden,
+    List<Venta>? searchedVentas,
+    int? totalSearched,
+    List<FormaPago>? formasPago,
+    BusquedaVenta? busquedaVenta,
+    bool? isSearching,
+    bool? mostrarImprimirFactura,
+  }) {
     return VentasState(
       isLastPage: isLastPage ?? this.isLastPage,
       isLoading: isLoading ?? this.isLoading,
@@ -349,6 +373,8 @@ class VentasState {
       formasPago: formasPago ?? this.formasPago,
       busquedaVenta: busquedaVenta ?? this.busquedaVenta,
       isSearching: isSearching ?? this.isSearching,
+      mostrarImprimirFactura:
+          mostrarImprimirFactura ?? this.mostrarImprimirFactura,
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
@@ -9,6 +10,7 @@ import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.d
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/venta_card.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 class VentasScreen extends ConsumerStatefulWidget {
   const VentasScreen({super.key});
@@ -20,9 +22,49 @@ class VentasScreen extends ConsumerStatefulWidget {
 class VentasViewState extends ConsumerState<VentasScreen> {
   final ScrollController scrollController = ScrollController();
 
+  //************  PARTE PARA CONFIGURAR LA IMPRESORA*******************//
+
+  bool printBinded = false;
+  int paperSize = 0;
+  String serialNumber = "";
+  String printerVersion = "";
+
+  /// must binding ur printer at first init in app
+  Future<bool?> _bindingPrinter() async {
+    final bool? result = await SunmiPrinter.bindingPrinter();
+    return result;
+  }
+
+//***********************************************/
+
   @override
   void initState() {
     super.initState();
+
+    _bindingPrinter().then((bool? isBind) async {
+      SunmiPrinter.paperSize().then((int size) {
+        setState(() {
+          paperSize = size;
+        });
+      });
+
+      SunmiPrinter.printerVersion().then((String version) {
+        setState(() {
+          printerVersion = version;
+        });
+      });
+
+      SunmiPrinter.serialNumber().then((String serial) {
+        setState(() {
+          serialNumber = serial;
+        });
+      });
+
+      setState(() {
+        printBinded = isBind!;
+      });
+    });
+
     scrollController.addListener(
       () {
         if (scrollController.position.pixels + 400 >=
@@ -43,6 +85,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
   Widget build(BuildContext context) {
     final size = Responsive.of(context);
     final ventasState = ref.watch(ventasProvider);
+    final user = ref.watch(authProvider).user;
     ref.listen(
       ventasProvider,
       (_, next) {
@@ -198,6 +241,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
                       return VentaCard(
                         venta: venta,
                         size: size,
+                        user: user,
                         redirect: true,
                       );
                     },
