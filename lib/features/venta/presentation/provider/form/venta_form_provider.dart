@@ -144,7 +144,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
   }
 
-  void agregarProducto(TextEditingController controller) {
+  void agregarProducto(TextEditingController? controller) {
     if (state.nuevoProducto.isNotValid) {
       state = state.copyWith(
           nuevoProducto: ProductoInput.dirty(const ProductoInput.pure().value));
@@ -159,7 +159,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       monto: 0,
       nuevoProducto: const ProductoInput.pure(),
     );
-    controller.text = '';
+    controller?.text = '';
   }
 
   void eliminarProducto(String codigo) {

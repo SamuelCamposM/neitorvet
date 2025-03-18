@@ -59,8 +59,7 @@ class MenuDespacho extends ConsumerWidget {
                         child: Column(
                           children: [
                             Image(
-                              image: const AssetImage(
-                                  'assets/images/gas-pump.png'),
+                              image: const AssetImage('assets/images/gas2.png'),
                               width: size.iScreen(7.0),
                             ),
                             SizedBox(
@@ -131,31 +130,39 @@ class MenuDespacho extends ConsumerWidget {
                                                     ventaState.venta!)
                                                 .notifier)
                                             .updateState(
+                                                monto: res.total,
                                                 nuevoProducto: Producto(
-                                              cantidad: 0,
-                                              codigo: res.resultado!.invSerie,
-                                              descripcion:
-                                                  res.resultado!.invNombre,
-                                              valUnitarioInterno:
-                                                  Parse.parseDynamicToDouble(res
-                                                      .resultado!
-                                                      .invprecios[0]),
-                                              valorUnitario:
-                                                  Parse.parseDynamicToDouble(res
-                                                      .resultado!
-                                                      .invprecios[0]),
-                                              llevaIva: res.resultado!.invIva,
-                                              incluyeIva:
-                                                  res.resultado!.invIncluyeIva,
-                                              recargoPorcentaje: 0,
-                                              recargo: 0,
-                                              descPorcentaje:
-                                                  venta.venDescPorcentaje,
-                                              descuento: 0,
-                                              precioSubTotalProducto: 0,
-                                              valorIva: 0,
-                                              costoProduccion: 0,
-                                            ));
+                                                  cantidad: 0,
+                                                  codigo:
+                                                      res.resultado!.invSerie,
+                                                  descripcion:
+                                                      res.resultado!.invNombre,
+                                                  valUnitarioInterno: Parse
+                                                      .parseDynamicToDouble(res
+                                                          .resultado!
+                                                          .invprecios[0]),
+                                                  valorUnitario: Parse
+                                                      .parseDynamicToDouble(res
+                                                          .resultado!
+                                                          .invprecios[0]),
+                                                  llevaIva:
+                                                      res.resultado!.invIva,
+                                                  incluyeIva: res
+                                                      .resultado!.invIncluyeIva,
+                                                  recargoPorcentaje: 0,
+                                                  recargo: 0,
+                                                  descPorcentaje:
+                                                      venta.venDescPorcentaje,
+                                                  descuento: 0,
+                                                  precioSubTotalProducto: 0,
+                                                  valorIva: 0,
+                                                  costoProduccion: 0,
+                                                ));
+                                        ref
+                                            .read(ventaFormProvider(
+                                                    ventaState.venta!)
+                                                .notifier)
+                                            .agregarProducto(null);
 
                                         if (context.mounted) {
                                           context.pop(context);

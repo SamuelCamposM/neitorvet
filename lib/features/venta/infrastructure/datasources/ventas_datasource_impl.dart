@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
 import 'package:neitorvet/features/venta/domain/entities/body_correo.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
@@ -117,22 +118,19 @@ class VentasDatasourceImpl extends VentasDatasource {
   @override
   Future<ResponseSurtidores> getSurtidores() async {
     try {
-      final queryParameters = {
-        'cantidad': 20,
-        'page': 0,
-        'search': '',
-        'input': 'id_surtidor',
-        'orden': false,
-        'datos': {},
-        'rucempresa': rucempresa,
-      };
-      final response =
-          await dio.get('/surtidores/', queryParameters: queryParameters);
+      // final queryParameters = {
+      //   'cantidad': 20,
+      //   'page': 0,
+      //   'search': '',
+      //   'input': 'id_surtidor',
+      //   'orden': false,
+      //   'datos': {},
+      //   'rucempresa': rucempresa,
+      // };
+      final response = await dio.get('/surtidores/todo');
 
       final List<Surtidor> surtidoresData =
-          (response.data['data']['results'] as List)
-              .map((e) => Surtidor.fromJson(e))
-              .toList();
+          (response.data as List).map((e) => Surtidor.fromJson(e)).toList();
       return ResponseSurtidores(resultado: surtidoresData, error: '');
     } on DioException catch (e) {
       return ResponseSurtidores(
@@ -147,23 +145,27 @@ class VentasDatasourceImpl extends VentasDatasource {
       required String numeroTanque}) async {
     try {
       final data = {
-        // "pistola": 5,
-        // "codigoCombustible": "0101",
-        // "numeroTanque": 2
+        "pistola": 5,
+        "codigoCombustible": "0101",
+        "numeroTanque": 2
 
-        "pistola": pistola,
-        "codigoCombustible": codigoCombustible,
-        "numeroTanque": numeroTanque
+        // "pistola": pistola,
+        // "codigoCombustible": codigoCombustible,
+        // "numeroTanque": numeroTanque
       };
       final response =
           await dio.post('/abastecimientos/obtener_item', data: data);
 
       final Inventario inventario =
           Inventario.fromJson(response.data['producto']);
-      return ResponseInventarioIndividual(resultado: inventario, error: '');
+      return ResponseInventarioIndividual(
+          resultado: inventario,
+          error: '',
+          total: Parse.parseDynamicToString(
+              response.data['abastecimiento']['valorTotal']));
     } on DioException catch (e) {
       return ResponseInventarioIndividual(
-          resultado: null, error: ErrorApi.getErrorMessage(e));
+          resultado: null, error: ErrorApi.getErrorMessage(e), total: '0');
     }
   }
 }

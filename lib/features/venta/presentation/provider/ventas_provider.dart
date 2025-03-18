@@ -45,7 +45,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     _initializeSocketListeners();
     loadNextPage();
     _setFormasPago();
-    // _setSurtidores();
+    _setSurtidores();
   }
   void _initializeSocketListeners() {
     socket.on('disconnect', (_) {});
