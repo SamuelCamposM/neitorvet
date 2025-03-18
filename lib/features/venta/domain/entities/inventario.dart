@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final inventario = inventarioFromJson(jsonString);
-
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/venta/domain/entities/bodega.dart';
 
@@ -16,7 +12,7 @@ class Inventario {
   final String invIva;
   final String invIncluyeIva;
   final String invEstado;
-  final List<Bodega> invBodegas;
+  final List<Bodega>? invBodegas;
   final List<double> invprecios;
   final String invProveedor;
   final String invCategoria;
@@ -30,8 +26,8 @@ class Inventario {
   final int invId;
   final String invSerie;
   final int invNumVentas;
-  final DateTime invFecReg;
-  final DateTime invFecUpd;
+  final String invFecReg;
+  final String invFecUpd;
   final List<dynamic> invFotos;
 
   Inventario({
@@ -45,7 +41,7 @@ class Inventario {
     required this.invIva,
     required this.invIncluyeIva,
     required this.invEstado,
-    required this.invBodegas,
+    this.invBodegas,
     required this.invprecios,
     required this.invProveedor,
     required this.invCategoria,
@@ -67,7 +63,7 @@ class Inventario {
   factory Inventario.fromJson(Map<String, dynamic> json) => Inventario(
         invTipo: json["invTipo"],
         invNombre: json["invNombre"],
-        invDescripcion: json["invDescripcion"],
+        invDescripcion: json["invDescripcion"] ?? "",
         invCosto1: json["invCosto1"],
         invCosto2: json["invCosto2"],
         invCosto3: json["invCosto3"],
@@ -75,8 +71,10 @@ class Inventario {
         invIva: json["invIva"],
         invIncluyeIva: json["invIncluyeIva"],
         invEstado: json["invEstado"],
-        invBodegas: List<Bodega>.from(
-            json["invBodegas"].map((x) => Bodega.fromJson(x))),
+        invBodegas: json["invBodegas"] != null
+            ? List<Bodega>.from(
+                json["invBodegas"].map((x) => Bodega.fromJson(x)))
+            : null,
         invprecios: List<double>.from(
             Parse.parseDynamicToListDouble(json["invprecios"]).map((x) => x)),
         invProveedor: json["invProveedor"],
@@ -91,9 +89,11 @@ class Inventario {
         invId: json["invId"],
         invSerie: json["invSerie"],
         invNumVentas: json["inv_num_ventas"],
-        invFecReg: DateTime.parse(json["invFecReg"]),
-        invFecUpd: DateTime.parse(json["invFecUpd"]),
-        invFotos: List<dynamic>.from(json["invFotos"].map((x) => x)),
+        invFecReg: json["invFecReg"] ?? '',
+        invFecUpd: json["invFecUpd"] ?? '',
+        invFotos: json["invFotos"] != null
+            ? List<dynamic>.from(json["invFotos"].map((x) => x))
+            : [],
       );
 
   Map<String, dynamic> toJson() => {
@@ -107,7 +107,9 @@ class Inventario {
         "invIva": invIva,
         "invIncluyeIva": invIncluyeIva,
         "invEstado": invEstado,
-        "invBodegas": List<dynamic>.from(invBodegas.map((x) => x.toJson())),
+        "invBodegas": invBodegas != null
+            ? List<dynamic>.from(invBodegas!.map((x) => x.toJson()))
+            : null,
         "invprecios": List<dynamic>.from(invprecios.map((x) => x)),
         "invProveedor": invProveedor,
         "invCategoria": invCategoria,
@@ -121,8 +123,8 @@ class Inventario {
         "invId": invId,
         "invSerie": invSerie,
         "inv_num_ventas": invNumVentas,
-        "invFecReg": invFecReg.toIso8601String(),
-        "invFecUpd": invFecUpd.toIso8601String(),
+        "invFecReg": invFecReg,
+        "invFecUpd": invFecUpd,
         "invFotos": List<dynamic>.from(invFotos.map((x) => x)),
       };
 }

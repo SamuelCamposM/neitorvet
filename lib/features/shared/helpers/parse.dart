@@ -1,4 +1,16 @@
 class Parse {
+  static String parseDynamicToString(dynamic value) {
+    if (value is String) {
+      return value;
+    } else if (value is num) {
+      return value.toString();
+    } else if (value is bool) {
+      return value ? 'true' : 'false';
+    } else {
+      return '';
+    }
+  }
+
   static double parseDynamicToDouble(dynamic value) {
     if (value is String) {
       return double.tryParse(value) ?? 0.0;

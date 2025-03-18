@@ -1,6 +1,7 @@
 import 'package:neitorvet/features/venta/domain/entities/body_correo.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
+import 'package:neitorvet/features/venta/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 
 class ResponseVentas {
@@ -17,6 +18,16 @@ class ResponseFormasPago {
   final String error;
 
   ResponseFormasPago({
+    required this.resultado,
+    required this.error,
+  });
+}
+
+class ResponseSurtidores {
+  final List<Surtidor> resultado;
+  final String error;
+
+  ResponseSurtidores({
     required this.resultado,
     required this.error,
   });
@@ -42,6 +53,17 @@ class ResponseInventario {
   });
 }
 
+class ResponseInventarioIndividual {
+  final Inventario? resultado;
+  final String error;
+  final String total;
+  ResponseInventarioIndividual({
+    required this.resultado,
+    required this.total,
+    required this.error,
+  });
+}
+
 class ResponseCorreoVenta {
   final String msg;
   final String error;
@@ -63,7 +85,13 @@ abstract class VentasDatasource {
       required BusquedaVenta busquedaVenta});
 
   Future<ResponseFormasPago> getFormasPago();
+  Future<ResponseSurtidores> getSurtidores();
   Future<ResponseSecuencia> getSecuencia(String tipo);
   Future<ResponseInventario> getInventarioByQuery(String search);
+  Future<ResponseInventarioIndividual> getInventarioByPistola({
+    required String pistola,
+    required String codigoCombustible,
+    required String numeroTanque,
+  });
   Future<ResponseCorreoVenta> sendCorreo(BodyCorreo bodyCorreo);
 }

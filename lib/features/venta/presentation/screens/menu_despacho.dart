@@ -1,17 +1,42 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/shared/helpers/parse.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
-import 'package:neitorvet/features/venta/domain/entities/surtidores.dart';
+import 'package:neitorvet/features/venta/domain/entities/producto.dart';
+import 'package:neitorvet/features/venta/domain/entities/surtidor.dart';
+import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
 
-class MenuDespacho extends StatelessWidget {
-  const MenuDespacho({Key? key}) : super(key: key);
+class ResponseModal {
+  Estacion estacion;
+  Surtidor surtidor;
+
+  ResponseModal({
+    required this.estacion,
+    required this.surtidor,
+  });
+}
+
+class MenuDespacho extends ConsumerWidget {
+  final int ventaId;
+  const MenuDespacho({super.key, required this.ventaId});
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ventaState = ref.watch(ventaProvider(ventaId));
+
     final size = Responsive.of(context);
+    final uniqueSurtidores =
+        ref.read(ventasProvider.notifier).getUniqueSurtidores();
+    final getLados = ref.read(ventasProvider.notifier).getLados;
     return Scaffold(
         backgroundColor: Colors.grey.shade200,
         appBar: AppBar(
-          title: Text('Despacho'),
+          title: const Text('Despacho'),
         ),
         body: Container(
           width: size.wScreen(100.0),
@@ -19,12 +44,12 @@ class MenuDespacho extends StatelessWidget {
           padding: EdgeInsets.only(top: size.iScreen(1.0)),
           child: Wrap(
             alignment: WrapAlignment.center,
-            children: _surtidor
+            children: uniqueSurtidores
                 .map((e) => Card(
                     color: Colors.white,
                     elevation: 5.0, // Agrega una elevación para la sombra
-                    shadowColor: Colors.grey
-                        .withOpacity(0.5), // Color de la sombra (opcional)
+                    shadowColor: Colors.grey.withAlpha(
+                        (0.5 * 255).toInt()), // Color de la sombra (opcional)
                     child: Container(
                         margin: EdgeInsets.symmetric(
                             horizontal: size.iScreen(1.0),
@@ -34,66 +59,145 @@ class MenuDespacho extends StatelessWidget {
                         child: Column(
                           children: [
                             Image(
-                              image: AssetImage('assets/images/gas-pump.png'),
+                              image: const AssetImage('assets/images/gas2.png'),
                               width: size.iScreen(7.0),
                             ),
                             SizedBox(
                               height: size.iScreen(1.0),
                             ),
                             Text(
-                              e.nombre!,
+                              e.nombreSurtidor,
                               style: TextStyle(
                                   fontSize: size.iScreen(2.0),
                                   fontWeight: FontWeight.bold),
                             ),
                             Wrap(
-                              children: e.lado!
-                                  .map((lado) => Container(
-                                        // Agregando Padding para mejor apariencia
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: size.iScreen(
-                                                0.5)), // Ajusta el padding según necesites
-                                        padding: const EdgeInsets.all(
-                                            2.0), // Ajusta el padding según necesites
-                                        child: TextButton(
-                                          onPressed: () {
-                                            final Map<String, dynamic> data = {
-                                              'name': e.nombre,
-                                              'lado': lado,
-                                            };
+                              children: getLados(e.nombreSurtidor).map((lado) {
+                                return Container(
+                                  // Agregando Padding para mejor apariencia
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: size.iScreen(
+                                          0.5)), // Ajusta el padding según necesites
+                                  padding: const EdgeInsets.all(
+                                      2.0), // Ajusta el padding según necesites
+                                  child: TextButton(
+                                    onPressed: () async {
+                                      final List<Estacion> estaciones = [
+                                        lado.estacion1,
+                                        lado.estacion2,
+                                        lado.estacion3,
+                                      ]
+                                          .where((element) =>
+                                              element.nombreProducto != null)
+                                          .toList();
+                                      if (estaciones.isEmpty) {
+                                        return NotificationsService.show(
+                                            context,
+                                            'Este lado no tiene productos',
+                                            SnackbarCategory.error);
+                                      }
+                                      ResponseModal? responseModal =
+                                          await _surtidorModal(
+                                              context, size, lado, estaciones);
 
-                                            _surtidorModal(context, size, data);
-                                          },
-                                          child: Text(
-                                            lado,
-                                            style: TextStyle(
-                                                fontSize: size.iScreen(3.0),
-                                                fontWeight: FontWeight.normal),
-                                          ), // Ajusta el tamaño del texto
-                                          style: TextButton.styleFrom(
-                                            foregroundColor: Colors.white,
-                                            backgroundColor: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.color,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                            ),
+                                      if (responseModal != null) {
+                                        final res = await ref
+                                            .read(ventasRepositoryProvider)
+                                            .getInventarioByPistola(
+                                                pistola: responseModal
+                                                    .estacion.numeroPistola
+                                                    .toString(),
+                                                codigoCombustible: responseModal
+                                                    .estacion.codigoProducto
+                                                    .toString(),
+                                                numeroTanque: responseModal
+                                                    .surtidor.idSurtidor
+                                                    .toString());
+                                        if (res.error.isNotEmpty &&
+                                            context.mounted) {
+                                          NotificationsService.show(
+                                              context,
+                                              res.error,
+                                              SnackbarCategory.error);
+                                          return;
+                                        }
+                                        final venta = ref
+                                            .read(ventaFormProvider(
+                                                ventaState.venta!))
+                                            .ventaForm;
+                                        ref
+                                            .read(ventaFormProvider(
+                                                    ventaState.venta!)
+                                                .notifier)
+                                            .updateState(
+                                                monto: res.total,
+                                                nuevoProducto: Producto(
+                                                  cantidad: 0,
+                                                  codigo:
+                                                      res.resultado!.invSerie,
+                                                  descripcion:
+                                                      res.resultado!.invNombre,
+                                                  valUnitarioInterno: Parse
+                                                      .parseDynamicToDouble(res
+                                                          .resultado!
+                                                          .invprecios[0]),
+                                                  valorUnitario: Parse
+                                                      .parseDynamicToDouble(res
+                                                          .resultado!
+                                                          .invprecios[0]),
+                                                  llevaIva:
+                                                      res.resultado!.invIva,
+                                                  incluyeIva: res
+                                                      .resultado!.invIncluyeIva,
+                                                  recargoPorcentaje: 0,
+                                                  recargo: 0,
+                                                  descPorcentaje:
+                                                      venta.venDescPorcentaje,
+                                                  descuento: 0,
+                                                  precioSubTotalProducto: 0,
+                                                  valorIva: 0,
+                                                  costoProduccion: 0,
+                                                ));
+                                        ref
+                                            .read(ventaFormProvider(
+                                                    ventaState.venta!)
+                                                .notifier)
+                                            .agregarProducto(null);
 
-                                            // Ajusta el padding
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: size.iScreen(2.0),
-                                                vertical:
-                                                    1.0), // Ajusta el padding
-                                            minimumSize: Size
-                                                .zero, // Elimina el tamaño mínimo predeterminado
-                                            tapTargetSize: MaterialTapTargetSize
-                                                .shrinkWrap, // Ajusta el tamaño del área de toque
-                                          ),
-                                        ),
-                                      ))
-                                  .toList(),
+                                        if (context.mounted) {
+                                          context.pop(context);
+                                        }
+                                      }
+                                    },
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.color,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
+
+                                      // Ajusta el padding
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: size.iScreen(2.0),
+                                          vertical: 1.0), // Ajusta el padding
+                                      minimumSize: Size
+                                          .zero, // Elimina el tamaño mínimo predeterminado
+                                      tapTargetSize: MaterialTapTargetSize
+                                          .shrinkWrap, // Ajusta el tamaño del área de toque
+                                    ),
+                                    child: Text(
+                                      lado.lado,
+                                      style: TextStyle(
+                                          fontSize: size.iScreen(3.0),
+                                          fontWeight: FontWeight.normal),
+                                    ), // Ajusta el tamaño del texto
+                                  ),
+                                );
+                              }).toList(),
                             )
                           ],
                         ))))
@@ -102,96 +206,38 @@ class MenuDespacho extends StatelessWidget {
         ));
   }
 
-  void _surtidorModal(
-      BuildContext context, Responsive size, Map<String, dynamic> data) {
-    showCupertinoModalPopup(
+  Future<ResponseModal?> _surtidorModal(BuildContext context, Responsive size,
+      Surtidor data, List<Estacion> estaciones) async {
+    return await showCupertinoModalPopup<ResponseModal>(
       context: context,
       builder: (BuildContext builder) {
         return CupertinoActionSheet(
           title: Text(
-            '${data['name'].toString().toUpperCase()}   Lado ${data['lado'].toString().toUpperCase()} ',
+            '${data.nombreSurtidor.toUpperCase()}   Lado ${data.lado.toUpperCase()} ',
             style: TextStyle(
-                fontSize: size.iScreen(2.0),
-                fontWeight: FontWeight.bold,
-                color: Colors.black),
+              fontSize: size.iScreen(2.0),
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
-          actions: <Widget>[
-            CupertinoActionSheetAction(
-              child: Text('Super'),
+          actions: estaciones.map<CupertinoActionSheetAction>((Estacion e) {
+            return CupertinoActionSheetAction(
+              child: Text(e.nombreProducto ?? ""),
               onPressed: () {
-                Navigator.pop(context, 'Super');
+                Navigator.pop(
+                    context, ResponseModal(estacion: e, surtidor: data));
               },
-            ),
-            CupertinoActionSheetAction(
-              child: Text('Extra'),
-              onPressed: () {
-                Navigator.pop(context, 'Extra');
-              },
-            ),
-            CupertinoActionSheetAction(
-              child: Text('Diesel'),
-              onPressed: () {
-                Navigator.pop(context, 'Diesel');
-              },
-            ),
-          ],
+            );
+          }).toList(),
           cancelButton: CupertinoActionSheetAction(
-            child: Text('Cancelar'),
             isDefaultAction: true,
+            child: const Text('Cancelar'),
             onPressed: () {
               Navigator.pop(context);
             },
           ),
         );
       },
-    ).then((value) {
-      if (value != null) {
-        data['tipo'] = value;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Seleccionaste: ${data}')),
-        );
-      }
-    });
+    );
   }
 }
-
-List<Map<String, dynamic>> _datosSurtidor = [
-  {
-    'id': 1,
-    'nombre': 'Surtidor 1',
-    'imagen': 'assets/images/producto_a.png',
-    'lado': ['A', 'B'],
-  },
-  {
-    'id': 2,
-    'nombre': 'Surtidor 2',
-    'imagen': 'assets/images/producto_b.png',
-    'lado': ['A', 'B'],
-  },
-  {
-    'id': 3,
-    'nombre': 'Surtidor 3',
-    'imagen': 'assets/images/producto_c.png',
-    'lado': ['A', 'B'],
-  },
-  {
-    'id': 4,
-    'nombre': 'Surtidor 4',
-    'imagen': 'assets/images/producto_d.png',
-    'lado': ['A', 'B'],
-  },
-  {
-    'id': 5,
-    'nombre': 'Surtidor 5',
-    'imagen': 'assets/images/producto_e.png',
-    'lado': ['A', 'B'],
-  },
-  {
-    'id': 6,
-    'nombre': 'Surtidor 6',
-    'imagen': 'assets/images/gas-punp.png',
-    'lado': ['A', 'B'],
-  },
-];
-List<Surtidores> _surtidor =
-    _datosSurtidor.map((map) => Surtidores.fromJson(map)).toList();

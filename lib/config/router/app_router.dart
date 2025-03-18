@@ -7,6 +7,7 @@ import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/shared/screen/send_email.dart';
 import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
+import 'package:neitorvet/features/venta/presentation/screens/menu_despacho.dart';
 
 import 'package:neitorvet/features/venta/presentation/screens/screens.dart';
 
@@ -59,6 +60,12 @@ final goRouterProvider = Provider((ref) {
           ventaId: int.tryParse(state.params['id'].toString()) ?? 0,
         ),
       ),
+      GoRoute(
+        path: '/seleccionSurtidor/:id',
+        builder: (context, state) => MenuDespacho(
+          ventaId: int.tryParse(state.params['id'].toString()) ?? 0,
+        ),
+      ),
 
       GoRoute(
         path: '/PDF/:label/:url',
@@ -91,8 +98,10 @@ final goRouterProvider = Provider((ref) {
         },
       ),
       GoRoute(
-        path: '/menuDespacho',
-        builder: (context, state) => const MenuDespacho(),
+        path: '/seleccionSurtidor/:id',
+        builder: (context, state) => MenuDespacho(
+          ventaId: int.tryParse(state.params['id'].toString()) ?? 0,
+        ),
       ),
 
       // GoRoute(
