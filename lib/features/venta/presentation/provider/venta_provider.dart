@@ -119,6 +119,7 @@ class VentaNotifier extends StateNotifier<VentaState> {
 
   @override
   void dispose() {
+    print('DISPOSE VENTA');
     // Log para verificar que se está destruyendo
     super.dispose();
   }

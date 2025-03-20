@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
+import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
-
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/producto_input.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/productos.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
-
 import 'package:neitorvet/features/shared/shared.dart';
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 final ventaFormProvider = StateNotifierProvider.family
     .autoDispose<VentaFormNotifier, VentaFormState, Venta>((ref, venta) {
@@ -21,7 +22,10 @@ final ventaFormProvider = StateNotifierProvider.family
   final rol = ref.watch(authProvider).user!.rol;
   final rucempresa = ref.watch(authProvider).user!.rucempresa;
   final usuario = ref.watch(authProvider).user!.usuario;
+
+  final socket = ref.watch(socketProvider);
   return VentaFormNotifier(
+    socket: socket,
     venta: venta,
     createUpdateVenta: createUpdateVenta,
     iva: iva,
@@ -39,10 +43,12 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   final List<String> rol;
   final String rucempresa;
   final String usuario;
+  final io.Socket socket;
   VentaFormNotifier({
     required Venta venta,
     required this.createUpdateVenta,
     required this.formasPago,
+    required this.socket,
     required this.iva,
     required this.rol,
     required this.rucempresa,
@@ -51,7 +57,74 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
           ventaForm: VentaForm.fromVenta(venta),
           placasData: [venta.venOtrosDetalles],
         )) {
+    _initializeSocketListeners();
     setPorcentajeFormaPago(venta.venFormaPago);
+  }
+
+  void _initializeSocketListeners() {
+    socket.on('connect', (a) {});
+
+    socket.on('disconnect', (_) {});
+
+    socket.on("server:actualizadoExitoso", (data) {
+      if (mounted) {
+        try {
+          if (data['tabla'] == 'proveedor') {
+            // Edita de la lista de clientes
+            final updatedCliente = Cliente.fromJson(data);
+            if (updatedCliente.perUser == usuario) {
+              updateState(
+                  placasData: updatedCliente.perOtros,
+                  ventaForm: state.ventaForm.copyWith(
+                    venRucCliente: updatedCliente.perDocNumero,
+                    venNomCliente: updatedCliente.perNombre,
+                    venIdCliente: updatedCliente.perId,
+                    venTipoDocuCliente: updatedCliente.perDocTipo,
+                    venEmailCliente: updatedCliente.perEmail,
+                    venTelfCliente: updatedCliente.perTelefono,
+                    venCeluCliente: updatedCliente.perCelular,
+                    venDirCliente: updatedCliente.perDireccion,
+                    venOtrosDetalles: updatedCliente.perOtros.isEmpty
+                        ? ""
+                        : updatedCliente.perOtros[0],
+                  ));
+            }
+          }
+        } catch (e) {
+          // print('Error handling server:actualizadoExitoso: $e');
+        }
+      }
+    });
+
+    socket.on("server:guardadoExitoso", (data) {
+      if (mounted) {
+        try {
+          if (data['tabla'] == 'proveedor') {
+            // Agrega a la lista de clientes
+            final newCliente = Cliente.fromJson(data);
+            if (newCliente.perUser == usuario) {
+              updateState(
+                  placasData: newCliente.perOtros,
+                  ventaForm: state.ventaForm.copyWith(
+                    venRucCliente: newCliente.perDocNumero,
+                    venNomCliente: newCliente.perNombre,
+                    venIdCliente: newCliente.perId,
+                    venTipoDocuCliente: newCliente.perDocTipo,
+                    venEmailCliente: newCliente.perEmail,
+                    venTelfCliente: newCliente.perTelefono,
+                    venCeluCliente: newCliente.perCelular,
+                    venDirCliente: newCliente.perDireccion,
+                    venOtrosDetalles: newCliente.perOtros.isEmpty
+                        ? ""
+                        : newCliente.perOtros[0],
+                  ));
+            }
+          }
+        } catch (e) {
+          // print('Error handling server:actualizadoExitoso: $e');
+        }
+      }
+    });
   }
 
   void updateState(
@@ -202,7 +275,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     };
 
     try {
-      // socket.emit('editar-registro', ventaMap);
       const result = true;
       await createUpdateVenta(ventaMap);
 
@@ -236,6 +308,13 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
         Productos.dirty(state.ventaForm.venProductosInput.value)
       ]));
     }
+  }
+
+  @override
+  void dispose() {
+    print('DISPOSE VENTA FORM');
+    // Log para verificar que se está destruyendo
+    super.dispose();
   }
 }
 

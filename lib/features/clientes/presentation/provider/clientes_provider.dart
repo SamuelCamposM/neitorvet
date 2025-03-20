@@ -33,34 +33,37 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     _initializeSocketListeners();
     loadNextPage();
   }
+
   void _initializeSocketListeners() {
     socket.on('connect', (a) {});
 
     socket.on('disconnect', (_) {});
 
     socket.on("server:actualizadoExitoso", (data) {
-      if (data['tabla'] == 'proveedor') {
-        // Edita de la lista de clientes
-        final updatedCliente = Cliente.fromJson(data);
-        final updatedClientesList = state.clientes.map((cliente) {
-          return cliente.perId == updatedCliente.perId
-              ? updatedCliente
-              : cliente;
-        }).toList();
-        state = state.copyWith(clientes: updatedClientesList);
+      if (mounted) {
+        if (data['tabla'] == 'proveedor') {
+          // Edita de la lista de clientes
+          final updatedCliente = Cliente.fromJson(data);
+          final updatedClientesList = state.clientes.map((cliente) {
+            return cliente.perId == updatedCliente.perId
+                ? updatedCliente
+                : cliente;
+          }).toList();
+          state = state.copyWith(clientes: updatedClientesList);
+        }
       }
     });
 
-    socket.on("server:guardadoExitoso", (data) { 
-      if (data['tabla'] == 'proveedor') {
-        // Agrega a la lista de clientes
-
-        final newCliente = Cliente.fromJson(data);
-
-        state = state.copyWith(clientes: [
-          newCliente,
-          ...state.clientes,
-        ]);
+    socket.on("server:guardadoExitoso", (data) {
+      if (mounted) {
+        if (data['tabla'] == 'proveedor') {
+          // Agrega a la lista de clientes
+          final newCliente = Cliente.fromJson(data);
+          state = state.copyWith(clientes: [
+            newCliente,
+            ...state.clientes,
+          ]);
+        }
       }
     });
   }
@@ -158,7 +161,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
           error: '');
     } catch (e) {
       return GetClienteResponse(
-          cliente: null, error: 'Hubo un error al consultar el clinete');
+          cliente: null, error: 'Hubo un error al consultar el cliente');
     }
   }
 
@@ -222,7 +225,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
 
   @override
   void dispose() {
-    // Log para verificar que se está destruyendo
+    socket.dispose();
     super.dispose();
   }
 }

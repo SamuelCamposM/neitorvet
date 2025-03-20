@@ -74,7 +74,7 @@ class _FloatingButton extends ConsumerWidget {
             await ref.read(ventaFormProvider(venta).notifier).onFormSubmit();
 
         if (exitoso && context.mounted) {
-          context.pop('/ventas');
+          context.pop();
           NotificationsService.show(context, '${ventasState.estado} Creada',
               SnackbarCategory.success);
         }
@@ -161,6 +161,7 @@ class _VentaForm extends ConsumerWidget {
                   SizedBox(width: size.wScreen(4)),
                 ],
               ),
+              // Text('HOLA ${ventaFState.ventaForm.venRucClienteInput.value}'),
               Row(
                 children: [
                   Expanded(

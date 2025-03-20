@@ -75,7 +75,7 @@ class _FloatingButton extends ConsumerWidget {
             .onFormSubmit();
 
         if (exitoso && context.mounted) {
-          context.pop('/cliente');
+          context.pop();
           NotificationsService.show(context, ventaState.clienteForm.perNombre,
               SnackbarCategory.success);
         }
@@ -194,7 +194,7 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
                 ),
               ],
             ),
-            Text(clienteFState.clienteForm.perDocTipo),
+            // Text(clienteFState.clienteForm.perDocTipo),
             CustomSelectField(
               errorMessage:
                   clienteFState.clienteForm.perDocTipoInput.errorMessage,

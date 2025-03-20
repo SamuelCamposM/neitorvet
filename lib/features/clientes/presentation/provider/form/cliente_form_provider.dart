@@ -137,6 +137,13 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
       ]));
     }
   }
+
+  @override
+  void dispose() {
+    print('DISPOSE CLIENTE FORM');
+    // Log para verificar que se está destruyendo
+    super.dispose();
+  }
 }
 
 class ClienteFormState {

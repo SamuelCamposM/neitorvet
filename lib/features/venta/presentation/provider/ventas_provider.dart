@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/domain/domain.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
@@ -54,41 +54,46 @@ class VentasNotifier extends StateNotifier<VentasState> {
     _setFormasPago();
     _setSurtidores();
   }
+
   void _initializeSocketListeners() {
     socket.on('disconnect', (_) {});
 
     socket.on('connect', (_) {});
 
     socket.on("server:actualizadoExitoso", (data) {
-      if (data['tabla'] == 'venta') {
-        // Edita de la lista de ventas
-        final updatedVenta = Venta.fromJson(data);
-        final updatedVentasList = state.ventas.map((venta) {
-          return venta.venId == updatedVenta.venId ? updatedVenta : venta;
-        }).toList();
-        state = state.copyWith(ventas: updatedVentasList);
+      if (mounted) {
+        if (data['tabla'] == 'venta') {
+          // Edita de la lista de ventas
+          final updatedVenta = Venta.fromJson(data);
+          final updatedVentasList = state.ventas.map((venta) {
+            return venta.venId == updatedVenta.venId ? updatedVenta : venta;
+          }).toList();
+          state = state.copyWith(ventas: updatedVentasList);
+        }
       }
     });
 
     socket.on("server:guardadoExitoso", (data) {
-      if (data['tabla'] == 'venta') {
-        // Agrega a la lista de ventas
+      if (mounted) {
+        if (data['tabla'] == 'venta') {
+          // Agrega a la lista de ventas
 
-        final newVenta = Venta.fromJson(data);
-        if (newVenta.venUser == 'admin') {
-          printTicket(
+          final newVenta = Venta.fromJson(data);
+          if (newVenta.venUser == 'admin') {
+            printTicket(
+              newVenta,
+              user,
+            );
+
+            // final pdfUrl =
+            //     '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${newVenta.venId}&empresa=${newVenta.venEmpresa}';
+            // downloadPDF(null, pdfUrl);
+          }
+          state = state.copyWith(ventas: [
             newVenta,
-            user,
-          );
-
-          // final pdfUrl =
-          //     '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${newVenta.venId}&empresa=${newVenta.venEmpresa}';
-          // downloadPDF(null, pdfUrl);
+            ...state.ventas,
+          ]);
         }
-        state = state.copyWith(ventas: [
-          newVenta,
-          ...state.ventas,
-        ]);
       }
     });
   }
@@ -336,7 +341,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
 
   @override
   void dispose() {
-    // Log para verificar que se está destruyendo
+    socket.dispose();
     super.dispose();
   }
 }
