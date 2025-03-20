@@ -225,7 +225,6 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
 
   @override
   void dispose() {
-    socket.dispose();
     super.dispose();
   }
 }

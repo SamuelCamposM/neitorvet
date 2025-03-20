@@ -67,6 +67,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     socket.on('disconnect', (_) {});
 
     socket.on("server:actualizadoExitoso", (data) {
+      print('hola');
       if (mounted) {
         try {
           if (data['tabla'] == 'proveedor') {
@@ -91,12 +92,14 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
             }
           }
         } catch (e) {
+          print('hola');
           // print('Error handling server:actualizadoExitoso: $e');
         }
       }
     });
 
     socket.on("server:guardadoExitoso", (data) {
+      print('hola');
       if (mounted) {
         try {
           if (data['tabla'] == 'proveedor') {
@@ -121,6 +124,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
             }
           }
         } catch (e) {
+          print('hola');
           // print('Error handling server:actualizadoExitoso: $e');
         }
       }

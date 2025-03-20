@@ -14,6 +14,17 @@ import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
+enum VentaEstado {
+  facturas("FACTURAS"),
+  sinAutorizar("SIN AUTORIZAR");
+  // notaVentas("NOTA VENTAS"),
+  // proformas("PROFORMAS"),
+  // notaCreditos("NOTA CREDITOS");
+
+  final String value;
+  const VentaEstado(this.value);
+}
+
 class GetVentaResponse {
   final Venta? venta;
   final String error;
@@ -114,7 +125,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
         cantidad: state.cantidad,
         page: state.page,
         search: state.search,
-        estado: state.estado,
+        estado: state.estado.value,
         input: state.input,
         orden: state.orden,
         busquedaVenta: state.busquedaVenta);
@@ -144,7 +155,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
         input: state.input,
         orden: state.orden,
         page: 0,
-        estado: state.estado,
+        estado: state.estado.value,
         busquedaVenta: state.busquedaVenta);
     // ref.read(searchQueryProvider.notifier).update((state) => search);
     if (ventas.error.isNotEmpty) {
@@ -171,7 +182,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
       input: state.input,
       orden: state.orden,
       page: 0,
-      estado: state.estado,
+      estado: state.estado.value,
       busquedaVenta: state.busquedaVenta,
     );
     // ref.read(searchQueryProvider.notifier).update((state) => search);
@@ -213,7 +224,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
 
   Future<void> resetQuery({
     String? search,
-    String? estado,
+    VentaEstado? estado,
     String? input,
     bool? orden,
     BusquedaVenta? busquedaVenta,
@@ -227,7 +238,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
       cantidad: state.cantidad,
       page: 0,
       search: search ?? state.search,
-      estado: estado ?? state.estado,
+      estado: estado?.value ?? state.estado.value,
       input: input ?? state.input,
       orden: orden ?? state.orden,
       busquedaVenta: busquedaVenta ?? state.busquedaVenta,
@@ -302,15 +313,16 @@ class VentasNotifier extends StateNotifier<VentasState> {
   }
 
   Future<ResponseSecuencia> getSecuencia() async {
-    final estado = state.estado == "FACTURAS"
+    final estado = state.estado == VentaEstado.facturas ||
+            state.estado == VentaEstado.sinAutorizar
         ? "FACTURA"
-        : state.estado == "NOTA VENTAS"
-            ? "NOTA DE VENTA"
-            : state.estado == "PROFORMAS"
-                ? "PROFORMA"
-                : state.estado == "NOTA CREDITOS"
-                    ? "NOTA DE CREDITO"
-                    : '';
+        // : state.estado == VentaEstado.notaVentas
+        //     ? "NOTA DE VENTA"
+        //     : state.estado == VentaEstado.proformas
+        //         ? "PROFORMA"
+        //         : state.estado == VentaEstado.notaCreditos
+        //             ? "NOTA DE CREDITO"
+        : '';
     final response = await ventasRepository.getSecuencia(estado);
 
     return response;
@@ -341,7 +353,6 @@ class VentasNotifier extends StateNotifier<VentasState> {
 
   @override
   void dispose() {
-    socket.dispose();
     super.dispose();
   }
 }
@@ -355,7 +366,7 @@ class VentasState {
   final String error;
   final int total;
   final String search;
-  final String estado;
+  final VentaEstado estado;
   final String input;
   final bool orden;
   final List<Venta> searchedVentas;
@@ -374,7 +385,7 @@ class VentasState {
       this.error = '',
       this.total = 0,
       this.search = '',
-      this.estado = 'FACTURAS',
+      this.estado = VentaEstado.facturas,
       this.input = 'venId',
       this.orden = false,
       this.searchedVentas = const [],
@@ -394,7 +405,7 @@ class VentasState {
       String? error,
       int? total,
       String? search,
-      String? estado,
+      VentaEstado? estado,
       String? input,
       bool? orden,
       List<Venta>? searchedVentas,

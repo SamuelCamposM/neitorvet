@@ -230,6 +230,22 @@ class VentasViewState extends ConsumerState<VentasScreen> {
                         ),
                       ],
                     ),
+                    CustomSelectField(
+                      size: size,
+                      label: 'Tipo',
+                      value: ventasState.estado.value,
+                      onChanged: (String? value) {
+                        final estado = VentaEstado.values
+                            .firstWhere((e) => e.value == value);
+                        ref.read(ventasProvider.notifier).resetQuery(
+                              estado: estado,
+                            );
+                      },
+                      options: VentaEstado.values
+                          .map((estado) =>
+                              Option(label: estado.value, value: estado.value))
+                          .toList(),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
