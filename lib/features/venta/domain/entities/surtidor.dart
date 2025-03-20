@@ -4,11 +4,13 @@ class Estacion {
   int? numeroPistola;
   String? codigoProducto;
   String? nombreProducto;
+  String? numeroTanque;
 
   Estacion({
     this.numeroPistola,
     this.codigoProducto,
     this.nombreProducto,
+    this.numeroTanque,
   });
 
   factory Estacion.fromJson(Map<String, dynamic> json) {
@@ -16,6 +18,7 @@ class Estacion {
       numeroPistola: Parse.parseDynamicToInt(json['numero_pistola']),
       codigoProducto: json['codigo_producto'],
       nombreProducto: json['nombre_producto'],
+      numeroTanque: json['numero_tanque'],
     );
   }
 
@@ -24,6 +27,7 @@ class Estacion {
       'numero_pistola': numeroPistola,
       'codigo_producto': codigoProducto,
       'nombre_producto': nombreProducto,
+      'numero_tanque': numeroTanque,
     };
   }
 }
@@ -34,9 +38,9 @@ class Surtidor {
   String lado;
   String user;
   String fecreg;
-  Estacion estacion1;
-  Estacion estacion2;
-  Estacion estacion3;
+  Estacion? estacion1;
+  Estacion? estacion2;
+  Estacion? estacion3;
 
   Surtidor({
     required this.idSurtidor,
@@ -56,9 +60,15 @@ class Surtidor {
       lado: json['lado'],
       user: json['user'],
       fecreg: json['fecreg'],
-      estacion1: Estacion.fromJson(json['estacion1']),
-      estacion2: Estacion.fromJson(json['estacion2']),
-      estacion3: Estacion.fromJson(json['estacion3']),
+      estacion1: json['estacion1'] != null
+          ? Estacion.fromJson(json['estacion1'])
+          : null,
+      estacion2: json['estacion2'] != null
+          ? Estacion.fromJson(json['estacion2'])
+          : null,
+      estacion3: json['estacion3'] != null
+          ? Estacion.fromJson(json['estacion3'])
+          : null,
     );
   }
 
@@ -69,9 +79,9 @@ class Surtidor {
       'lado': lado,
       'user': user,
       'fecreg': fecreg,
-      'estacion1': estacion1.toJson(),
-      'estacion2': estacion2.toJson(),
-      'estacion3': estacion3.toJson(),
+      'estacion1': estacion1?.toJson(),
+      'estacion2': estacion2?.toJson(),
+      'estacion3': estacion3?.toJson(),
     };
   }
 }

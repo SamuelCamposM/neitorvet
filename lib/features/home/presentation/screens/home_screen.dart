@@ -33,7 +33,7 @@ class _HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = Responsive.of(context);
-    return Container(
+    return SizedBox(
       width: size.wScreen(100),
       height: size.hScreen(100),
       // color: Colors.red,
@@ -124,7 +124,7 @@ class ItemMenu extends StatelessWidget {
                 // Acción al presionar el botón
                 context.push(menuItem.link);
               },
-              splashColor: colorPrimario!.withOpacity(0.7), // Color del splash
+              splashColor: colorPrimario!.withAlpha((0.7 * 255).toInt()), // Color del splash
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),

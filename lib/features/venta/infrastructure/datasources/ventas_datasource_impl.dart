@@ -30,6 +30,7 @@ class VentasDatasourceImpl extends VentasDatasource {
         'input': input,
         'orden': orden,
         'estado': estado,
+        'mis_facturas_emitidas': 'SI',
         'datos': busquedaVenta.toJsonString(), // Con
       };
       final response =
@@ -144,14 +145,19 @@ class VentasDatasourceImpl extends VentasDatasource {
       required String codigoCombustible,
       required String numeroTanque}) async {
     try {
+      print({
+        "pistola": pistola,
+        "codigoCombustible": codigoCombustible,
+        "numeroTanque": numeroTanque
+      });
       final data = {
-        "pistola": 5,
-        "codigoCombustible": "0101",
-        "numeroTanque": 2
+        // "pistola": 5,
+        // "codigoCombustible": "0101",
+        // "numeroTanque": 2
 
-        // "pistola": pistola,
-        // "codigoCombustible": codigoCombustible,
-        // "numeroTanque": numeroTanque
+        "pistola": pistola,
+        "codigoCombustible": codigoCombustible,
+        "numeroTanque": numeroTanque
       };
       final response =
           await dio.post('/abastecimientos/obtener_item', data: data);

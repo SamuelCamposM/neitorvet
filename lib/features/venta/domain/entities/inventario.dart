@@ -88,7 +88,7 @@ class Inventario {
         invUser: json["invUser"],
         invId: json["invId"],
         invSerie: json["invSerie"],
-        invNumVentas: json["inv_num_ventas"],
+        invNumVentas: json["inv_num_ventas"] ?? 0,
         invFecReg: json["invFecReg"] ?? '',
         invFecUpd: json["invFecUpd"] ?? '',
         invFotos: json["invFotos"] != null

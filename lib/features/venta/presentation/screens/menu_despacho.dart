@@ -88,7 +88,8 @@ class MenuDespacho extends ConsumerWidget {
                                         lado.estacion3,
                                       ]
                                           .where((element) =>
-                                              element.nombreProducto != null)
+                                              element?.nombreProducto != null)
+                                          .cast<Estacion>()
                                           .toList();
                                       if (estaciones.isEmpty) {
                                         return NotificationsService.show(
@@ -111,7 +112,7 @@ class MenuDespacho extends ConsumerWidget {
                                                     .estacion.codigoProducto
                                                     .toString(),
                                                 numeroTanque: responseModal
-                                                    .surtidor.idSurtidor
+                                                    .estacion.numeroTanque
                                                     .toString());
                                         if (res.error.isNotEmpty &&
                                             context.mounted) {

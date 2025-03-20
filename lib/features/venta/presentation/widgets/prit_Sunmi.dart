@@ -22,8 +22,6 @@ Future<void> printTicket(
   Venta info,
   User? user,
 ) async {
-  if (info == null) return;
-
   await SunmiPrinter.initPrinter();
   await SunmiPrinter.startTransactionPrint(true);
 
@@ -85,19 +83,19 @@ Future<void> printTicket(
     for (var item in productos) {
       await SunmiPrinter.printRow(cols: [
         ColumnMaker(
-            text: item.descripcion.toString() ?? 'N/A',
+            text: item.descripcion.toString(),
             width: 12,
             align: SunmiPrintAlign.LEFT),
         ColumnMaker(
-            text: item.cantidad.toString() ?? '0',
+            text: item.cantidad.toString(),
             width: 6,
             align: SunmiPrintAlign.CENTER),
         ColumnMaker(
-            text: item.valorUnitario.toString() ?? '0',
+            text: item.valorUnitario.toString(),
             width: 6,
             align: SunmiPrintAlign.RIGHT),
         ColumnMaker(
-            text: item.precioSubTotalProducto.toString() ?? '0',
+            text: item.precioSubTotalProducto.toString(),
             width: 6,
             align: SunmiPrintAlign.RIGHT),
       ]);
@@ -110,7 +108,7 @@ Future<void> printTicket(
   await SunmiPrinter.printRow(cols: [
     ColumnMaker(text: 'SubTotal', width: 20, align: SunmiPrintAlign.LEFT),
     ColumnMaker(
-        text: info.venSubTotal.toString() ?? '0',
+        text: info.venSubTotal.toString(),
         width: 10,
         align: SunmiPrintAlign.RIGHT),
   ]);
@@ -118,7 +116,7 @@ Future<void> printTicket(
   await SunmiPrinter.printRow(cols: [
     ColumnMaker(text: 'Iva', width: 20, align: SunmiPrintAlign.LEFT),
     ColumnMaker(
-        text: info.venTotalIva.toString() ?? '0',
+        text: info.venTotalIva.toString(),
         width: 10,
         align: SunmiPrintAlign.RIGHT),
   ]);
@@ -126,7 +124,7 @@ Future<void> printTicket(
   await SunmiPrinter.printRow(cols: [
     ColumnMaker(text: 'TOTAL', width: 20, align: SunmiPrintAlign.LEFT),
     ColumnMaker(
-        text: info.venTotal.toString() ?? '0',
+        text: info.venTotal.toString(),
         width: 10,
         align: SunmiPrintAlign.RIGHT),
   ]);
