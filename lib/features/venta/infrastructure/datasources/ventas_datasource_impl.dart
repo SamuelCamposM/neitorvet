@@ -167,11 +167,26 @@ class VentasDatasourceImpl extends VentasDatasource {
       return ResponseInventarioIndividual(
           resultado: inventario,
           error: '',
+          idAbastecimiento: Parse.parseDynamicToInt(
+            response.data['abastecimiento']['idAbastecimiento'],
+          ),
+          totInicio: Parse.parseDynamicToDouble(
+            response.data['abastecimiento']['totInicio'],
+          ),
+          totFinal: Parse.parseDynamicToDouble(
+            response.data['abastecimiento']['totFinal'],
+          ),
           total: Parse.parseDynamicToString(
-              response.data['abastecimiento']['valorTotal']));
+            response.data['abastecimiento']['valorTotal'],
+          ));
     } on DioException catch (e) {
       return ResponseInventarioIndividual(
-          resultado: null, error: ErrorApi.getErrorMessage(e), total: '0');
+          resultado: null,
+          error: ErrorApi.getErrorMessage(e),
+          total: '0',
+          idAbastecimiento: 0,
+          totFinal: 0,
+          totInicio: 0);
     }
   }
 }

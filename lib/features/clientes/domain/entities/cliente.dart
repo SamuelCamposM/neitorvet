@@ -214,7 +214,7 @@ class ClienteForm extends Cliente {
   final NumDoc perDocNumeroInput;
   final GenericRequiredInput perNombreInput;
   final GenericRequiredInput perDireccionInput;
-  final GenericRequiredListStr perCelularInput;
+  // final GenericRequiredListStr perCelularInput;
   final GenericRequiredListStr perEmailInput;
   final GenericRequiredListStr perOtrosInput;
   ClienteForm({
@@ -222,7 +222,7 @@ class ClienteForm extends Cliente {
     required this.perDocNumeroInput,
     required this.perNombreInput,
     required this.perDireccionInput,
-    required this.perCelularInput,
+    // required this.perCelularInput,
     required this.perEmailInput,
     required this.perOtrosInput,
 
@@ -336,9 +336,9 @@ class ClienteForm extends Cliente {
       perDireccionInput: perDireccion != null
           ? GenericRequiredInput.dirty(perDireccion)
           : perDireccionInput,
-      perCelularInput: perCelular != null
-          ? GenericRequiredListStr.dirty(perCelular)
-          : perCelularInput,
+      // perCelularInput: perCelular != null
+      //     ? GenericRequiredListStr.dirty(perCelular)
+      //     : perCelularInput,
       perEmailInput: perEmail != null
           ? GenericRequiredListStr.dirty(perEmail)
           : perEmailInput,
@@ -447,7 +447,7 @@ class ClienteForm extends Cliente {
             perDocNumeroInput: NumDoc.pure(cliente.perDocTipo),
             perNombreInput: const GenericRequiredInput.pure(),
             perDireccionInput: const GenericRequiredInput.pure(),
-            perCelularInput: const GenericRequiredListStr.pure(),
+            // perCelularInput: const GenericRequiredListStr.pure(),
             perEmailInput: const GenericRequiredListStr.pure(),
             perOtrosInput: const GenericRequiredListStr.pure(),
             perNombreComercial: cliente.perNombreComercial,
@@ -496,7 +496,7 @@ class ClienteForm extends Cliente {
                 NumDoc.dirty(cliente.perDocNumero, cliente.perDocTipo),
             perNombreInput: GenericRequiredInput.dirty(cliente.perNombre),
             perDireccionInput: GenericRequiredInput.dirty(cliente.perDireccion),
-            perCelularInput: GenericRequiredListStr.dirty(cliente.perCelular),
+            // perCelularInput: GenericRequiredListStr.dirty(cliente.perCelular),
             perEmailInput: GenericRequiredListStr.dirty(cliente.perEmail),
             perOtrosInput: GenericRequiredListStr.dirty(cliente.perOtros),
             perNombreComercial: cliente.perNombreComercial,

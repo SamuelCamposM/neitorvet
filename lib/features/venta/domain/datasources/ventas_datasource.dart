@@ -57,10 +57,16 @@ class ResponseInventarioIndividual {
   final Inventario? resultado;
   final String error;
   final String total;
+  final int idAbastecimiento;
+  final double totInicio;
+  final double totFinal;
   ResponseInventarioIndividual({
     required this.resultado,
     required this.total,
     required this.error,
+    required this.idAbastecimiento,
+    required this.totInicio,
+    required this.totFinal,
   });
 }
 

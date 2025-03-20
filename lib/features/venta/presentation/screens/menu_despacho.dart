@@ -132,6 +132,12 @@ class MenuDespacho extends ConsumerWidget {
                                                 .notifier)
                                             .updateState(
                                                 monto: res.total,
+                                                ventaForm: venta.copyWith(
+                                                  idAbastecimiento:
+                                                      res.idAbastecimiento,
+                                                  totInicio: res.totInicio,
+                                                  totFinal: res.totFinal,
+                                                ),
                                                 nuevoProducto: Producto(
                                                   cantidad: 0,
                                                   codigo:

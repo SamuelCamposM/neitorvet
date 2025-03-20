@@ -304,8 +304,8 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
               margin: EdgeInsets.symmetric(vertical: size.iScreen(0.3)),
               color: Colors.grey.shade100,
               child: CustomExpandablePhoneList(
-                errorMessage:
-                    clienteFState.clienteForm.perCelularInput.errorMessage,
+                // errorMessage:
+                //     clienteFState.clienteForm.perCelularInput.errorMessage,
                 label: 'Celulares',
                 onAddValue: (p0) {
                   updateForm(

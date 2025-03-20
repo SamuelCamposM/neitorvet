@@ -61,7 +61,12 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
     // Actualizar el estado para indicar que se está posteando
     state = state.copyWith(isPosting: true);
     final clienteMap = {
-      ...state.clienteForm.toCliente().toJson(),
+      ...state.clienteForm
+          .copyWith(
+              perCelular:
+                  state.clienteForm.perCelular.isEmpty ? ['0900000000'] : null)
+          .toCliente()
+          .toJson(),
       ...dataDefaultMap(empresaPropery: 'perEmpresa', userProperty: 'perUser'),
       //ELIMINA LOS DUPLICADOS
       'perPerfil': [
@@ -97,7 +102,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
             perDocNumero: state.clienteForm.perDocNumero,
             perNombre: state.clienteForm.perNombre,
             perDireccion: state.clienteForm.perDireccion,
-            perCelular: state.clienteForm.perCelular,
+            // perCelular: state.clienteForm.perCelular,
             perEmail: state.clienteForm.perEmail,
             perOtros: state.clienteForm.perOtros,
           ),
@@ -114,7 +119,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
             GenericRequiredInput.dirty(state.clienteForm.perNombre),
             GenericRequiredInput.dirty(state.clienteForm.perDireccion),
             GenericRequiredListStr.dirty(state.clienteForm.perEmail),
-            GenericRequiredListStr.dirty(state.clienteForm.perCelular),
+            // GenericRequiredListStr.dirty(state.clienteForm.perCelular),
             GenericRequiredListStr.dirty(state.clienteForm.perOtros),
           ]));
     } else {
@@ -132,7 +137,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
         GenericRequiredInput.dirty(state.clienteForm.perNombre),
         GenericRequiredInput.dirty(state.clienteForm.perDireccion),
         GenericRequiredListStr.dirty(state.clienteForm.perEmail),
-        GenericRequiredListStr.dirty(state.clienteForm.perCelular),
+        // GenericRequiredListStr.dirty(state.clienteForm.perCelular),
         GenericRequiredListStr.dirty(state.clienteForm.perOtros),
       ]));
     }

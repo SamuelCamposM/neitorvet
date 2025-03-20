@@ -63,7 +63,9 @@ class Venta {
   final String venTipoDocumento;
   final String venTotalRetencion;
   final String venUser;
-
+  final int? idAbastecimiento;
+  final double? totInicio;
+  final double? totFinal;
   Venta({
     this.venOtros,
     required this.venId,
@@ -118,6 +120,9 @@ class Venta {
     required this.venEmpContribuyenteEspecial,
     required this.venEmpLeyenda,
     required this.venEmpIva,
+    this.idAbastecimiento,
+    this.totInicio,
+    this.totFinal,
   });
 
   factory Venta.fromJson(Map<String, dynamic> json) => Venta(
@@ -180,6 +185,9 @@ class Venta {
         venEmpContribuyenteEspecial: json["venEmpContribuyenteEspecial"],
         venEmpLeyenda: json["venEmpLeyenda"],
         venEmpIva: json["venEmpIva"],
+        idAbastecimiento: Parse.parseDynamicToInt(json['idAbastecimiento']),
+        totInicio: Parse.parseDynamicToDouble(json['totInicio']),
+        totFinal: Parse.parseDynamicToDouble(json['totFinal']),
       );
 
   Map<String, dynamic> toJson() => {
@@ -236,6 +244,9 @@ class Venta {
         "venEmpContribuyenteEspecial": venEmpContribuyenteEspecial,
         "venEmpLeyenda": venEmpLeyenda,
         "venEmpIva": venEmpIva,
+        "idAbastecimiento": idAbastecimiento,
+        "totInicio": totInicio,
+        "totFinal": totFinal,
       };
   static double dosDecimales(double numero) {
     return double.parse(numero.toStringAsFixed(2));
@@ -315,7 +326,6 @@ class VentaForm extends Venta {
   final Productos venProductosInput;
 
   VentaForm({
-
     //*VALIDACIONES
     this.venRucClienteInput = const GenericRequiredInput.dirty(''),
     this.venProductosInput = const Productos.dirty([]),
@@ -373,6 +383,9 @@ class VentaForm extends Venta {
     required super.venTotalRetencion,
     required super.venUser,
     super.venOtros,
+    super.idAbastecimiento,
+    super.totInicio,
+    super.totFinal,
   });
 
   VentaForm copyWith({
@@ -427,7 +440,6 @@ class VentaForm extends Venta {
     String? venNumFacturaAnterior,
     String? venObservacion,
     String? venOption,
-    String? venOtros,
     String? venOtrosDetalles,
     // String? venRucCliente,
     String? venTelfCliente,
@@ -435,130 +447,143 @@ class VentaForm extends Venta {
     String? venTipoDocumento,
     String? venTotalRetencion,
     String? venUser,
+    String? venOtros,
+    int? idAbastecimiento,
+    double? totInicio,
+    double? totFinal,
   }) =>
       VentaForm(
-          //*REQUERIDOS
-          venRucClienteInput: venRucCliente != null
-              ? GenericRequiredInput.dirty(venRucCliente)
-              : venRucClienteInput,
-          venProductosInput: venProductos != null
-              ? Productos.dirty(venProductos)
-              : venProductosInput,
+        //*REQUERIDOS
+        venRucClienteInput: venRucCliente != null
+            ? GenericRequiredInput.dirty(venRucCliente)
+            : venRucClienteInput,
+        venProductosInput: venProductos != null
+            ? Productos.dirty(venProductos)
+            : venProductosInput,
 
-          //*SUS EQUIVALENTES
-          venRucCliente: venRucCliente ?? this.venRucCliente,
-          venProductos: venProductos ?? this.venProductos,
-          //* LO DEMAS
-          venId: venId ?? this.venId,
-          venNomCliente: venNomCliente ?? this.venNomCliente,
-          venFecReg: venFecReg ?? this.venFecReg,
-          venOption: venOption ?? this.venOption,
-          venTipoDocumento: venTipoDocumento ?? this.venTipoDocumento,
-          venIdCliente: venIdCliente ?? this.venIdCliente,
-          venTipoDocuCliente: venTipoDocuCliente ?? this.venTipoDocuCliente,
-          venEmailCliente: venEmailCliente ?? this.venEmailCliente,
-          venTelfCliente: venTelfCliente ?? this.venTelfCliente,
-          venCeluCliente: venCeluCliente ?? this.venCeluCliente,
-          venDirCliente: venDirCliente ?? this.venDirCliente,
-          venEmpRuc: venEmpRuc ?? this.venEmpRuc,
-          venEmpNombre: venEmpNombre ?? this.venEmpNombre,
-          venEmpComercial: venEmpComercial ?? this.venEmpComercial,
-          venEmpDireccion: venEmpDireccion ?? this.venEmpDireccion,
-          venEmpTelefono: venEmpTelefono ?? this.venEmpTelefono,
-          venEmpEmail: venEmpEmail ?? this.venEmpEmail,
-          venEmpObligado: venEmpObligado ?? this.venEmpObligado,
-          venEmpRegimen: venEmpRegimen ?? this.venEmpRegimen,
-          venFormaPago: venFormaPago ?? this.venFormaPago,
-          venNumero: venNumero ?? this.venNumero,
-          venFacturaCredito: venFacturaCredito ?? this.venFacturaCredito,
-          venDias: venDias ?? this.venDias,
-          venAbono: venAbono ?? this.venAbono,
-          venDescPorcentaje: venDescPorcentaje ?? this.venDescPorcentaje,
-          venOtrosDetalles: venOtrosDetalles ?? this.venOtrosDetalles,
-          venObservacion: venObservacion ?? this.venObservacion,
-          venSubTotal12: venSubTotal12 ?? this.venSubTotal12,
-          venSubtotal0: venSubtotal0 ?? this.venSubtotal0,
-          venDescuento: venDescuento ?? this.venDescuento,
-          venSubTotal: venSubTotal ?? this.venSubTotal,
-          venTotalIva: venTotalIva ?? this.venTotalIva,
-          venTotal: venTotal ?? this.venTotal,
-          venCostoProduccion: venCostoProduccion ?? this.venCostoProduccion,
-          venUser: venUser ?? this.venUser,
-          venFechaFactura: venFechaFactura ?? this.venFechaFactura,
-          venNumFactura: venNumFactura ?? this.venNumFactura,
-          venNumFacturaAnterior:
-              venNumFacturaAnterior ?? this.venNumFacturaAnterior,
-          venAutorizacion: venAutorizacion ?? this.venAutorizacion,
-          venFechaAutorizacion:
-              venFechaAutorizacion ?? this.venFechaAutorizacion,
-          venErrorAutorizacion:
-              venErrorAutorizacion ?? this.venErrorAutorizacion,
-          venEstado: venEstado ?? this.venEstado,
-          venEnvio: venEnvio ?? this.venEnvio,
-          fechaSustentoFactura:
-              fechaSustentoFactura ?? this.fechaSustentoFactura,
-          venTotalRetencion: venTotalRetencion ?? this.venTotalRetencion,
-          venEmpresa: venEmpresa ?? this.venEmpresa,
-          venEmpAgenteRetencion:
-              venEmpAgenteRetencion ?? this.venEmpAgenteRetencion,
-          venEmpContribuyenteEspecial:
-              venEmpContribuyenteEspecial ?? this.venEmpContribuyenteEspecial,
-          venEmpLeyenda: venEmpLeyenda ?? this.venEmpLeyenda,
-          venEmpIva: venEmpIva ?? this.venEmpIva);
+        //*SUS EQUIVALENTES
+        venRucCliente: venRucCliente ?? this.venRucCliente,
+        venProductos: venProductos ?? this.venProductos,
+        //* LO DEMAS
+        venId: venId ?? this.venId,
+        venNomCliente: venNomCliente ?? this.venNomCliente,
+        venFecReg: venFecReg ?? this.venFecReg,
+        venOption: venOption ?? this.venOption,
+        venTipoDocumento: venTipoDocumento ?? this.venTipoDocumento,
+        venIdCliente: venIdCliente ?? this.venIdCliente,
+        venTipoDocuCliente: venTipoDocuCliente ?? this.venTipoDocuCliente,
+        venEmailCliente: venEmailCliente ?? this.venEmailCliente,
+        venTelfCliente: venTelfCliente ?? this.venTelfCliente,
+        venCeluCliente: venCeluCliente ?? this.venCeluCliente,
+        venDirCliente: venDirCliente ?? this.venDirCliente,
+        venEmpRuc: venEmpRuc ?? this.venEmpRuc,
+        venEmpNombre: venEmpNombre ?? this.venEmpNombre,
+        venEmpComercial: venEmpComercial ?? this.venEmpComercial,
+        venEmpDireccion: venEmpDireccion ?? this.venEmpDireccion,
+        venEmpTelefono: venEmpTelefono ?? this.venEmpTelefono,
+        venEmpEmail: venEmpEmail ?? this.venEmpEmail,
+        venEmpObligado: venEmpObligado ?? this.venEmpObligado,
+        venEmpRegimen: venEmpRegimen ?? this.venEmpRegimen,
+        venFormaPago: venFormaPago ?? this.venFormaPago,
+        venNumero: venNumero ?? this.venNumero,
+        venFacturaCredito: venFacturaCredito ?? this.venFacturaCredito,
+        venDias: venDias ?? this.venDias,
+        venAbono: venAbono ?? this.venAbono,
+        venDescPorcentaje: venDescPorcentaje ?? this.venDescPorcentaje,
+        venOtrosDetalles: venOtrosDetalles ?? this.venOtrosDetalles,
+        venObservacion: venObservacion ?? this.venObservacion,
+        venSubTotal12: venSubTotal12 ?? this.venSubTotal12,
+        venSubtotal0: venSubtotal0 ?? this.venSubtotal0,
+        venDescuento: venDescuento ?? this.venDescuento,
+        venSubTotal: venSubTotal ?? this.venSubTotal,
+        venTotalIva: venTotalIva ?? this.venTotalIva,
+        venTotal: venTotal ?? this.venTotal,
+        venCostoProduccion: venCostoProduccion ?? this.venCostoProduccion,
+        venUser: venUser ?? this.venUser,
+        venFechaFactura: venFechaFactura ?? this.venFechaFactura,
+        venNumFactura: venNumFactura ?? this.venNumFactura,
+        venNumFacturaAnterior:
+            venNumFacturaAnterior ?? this.venNumFacturaAnterior,
+        venAutorizacion: venAutorizacion ?? this.venAutorizacion,
+        venFechaAutorizacion: venFechaAutorizacion ?? this.venFechaAutorizacion,
+        venErrorAutorizacion: venErrorAutorizacion ?? this.venErrorAutorizacion,
+        venEstado: venEstado ?? this.venEstado,
+        venEnvio: venEnvio ?? this.venEnvio,
+        fechaSustentoFactura: fechaSustentoFactura ?? this.fechaSustentoFactura,
+        venTotalRetencion: venTotalRetencion ?? this.venTotalRetencion,
+        venEmpresa: venEmpresa ?? this.venEmpresa,
+        venEmpAgenteRetencion:
+            venEmpAgenteRetencion ?? this.venEmpAgenteRetencion,
+        venEmpContribuyenteEspecial:
+            venEmpContribuyenteEspecial ?? this.venEmpContribuyenteEspecial,
+        venEmpLeyenda: venEmpLeyenda ?? this.venEmpLeyenda,
+        venEmpIva: venEmpIva ?? this.venEmpIva,
+
+        //*POSIBLES NULOS
+        venOtros: venOtros ?? this.venOtros,
+        idAbastecimiento: idAbastecimiento ?? this.idAbastecimiento,
+        totInicio: totInicio ?? this.totInicio,
+        totFinal: totFinal ?? this.totFinal,
+      );
   //CONVIERTE A VENTA
   Venta toVenta() => Venta(
-      venId: venId,
-      venFecReg: venFecReg,
-      venOption: venOption,
-      venTipoDocumento: venTipoDocumento,
-      venIdCliente: venIdCliente,
-      venRucCliente: venRucClienteInput.value,
-      venProductos: venProductosInput.value,
-      venTipoDocuCliente: venTipoDocuCliente,
-      venNomCliente: venNomCliente,
-      venEmailCliente: venEmailCliente,
-      venTelfCliente: venTelfCliente,
-      venCeluCliente: venCeluCliente,
-      venDirCliente: venDirCliente,
-      venEmpRuc: venEmpRuc,
-      venEmpNombre: venEmpNombre,
-      venEmpComercial: venEmpComercial,
-      venEmpDireccion: venEmpDireccion,
-      venEmpTelefono: venEmpTelefono,
-      venEmpEmail: venEmpEmail,
-      venEmpObligado: venEmpObligado,
-      venEmpRegimen: venEmpRegimen,
-      venFormaPago: venFormaPago,
-      venNumero: venNumero,
-      venFacturaCredito: venFacturaCredito,
-      venDias: venDias,
-      venAbono: venAbono,
-      venDescPorcentaje: venDescPorcentaje,
-      venOtrosDetalles: venOtrosDetalles,
-      venObservacion: venObservacion,
-      venSubTotal12: venSubTotal12,
-      venSubtotal0: venSubtotal0,
-      venDescuento: venDescuento,
-      venSubTotal: venSubTotal,
-      venTotalIva: venTotalIva,
-      venTotal: venTotal,
-      venCostoProduccion: venCostoProduccion,
-      venUser: venUser,
-      venFechaFactura: venFechaFactura,
-      venNumFactura: venNumFactura,
-      venNumFacturaAnterior: venNumFacturaAnterior,
-      venAutorizacion: venAutorizacion,
-      venFechaAutorizacion: venFechaAutorizacion,
-      venErrorAutorizacion: venErrorAutorizacion,
-      venEstado: venEstado,
-      venEnvio: venEnvio,
-      fechaSustentoFactura: fechaSustentoFactura,
-      venTotalRetencion: venTotalRetencion,
-      venEmpresa: venEmpresa,
-      venEmpAgenteRetencion: venEmpAgenteRetencion,
-      venEmpContribuyenteEspecial: venEmpContribuyenteEspecial,
-      venEmpLeyenda: venEmpLeyenda,
-      venEmpIva: venEmpIva);
+        venId: venId,
+        venFecReg: venFecReg,
+        venOption: venOption,
+        venTipoDocumento: venTipoDocumento,
+        venIdCliente: venIdCliente,
+        venRucCliente: venRucClienteInput.value,
+        venProductos: venProductosInput.value,
+        venTipoDocuCliente: venTipoDocuCliente,
+        venNomCliente: venNomCliente,
+        venEmailCliente: venEmailCliente,
+        venTelfCliente: venTelfCliente,
+        venCeluCliente: venCeluCliente,
+        venDirCliente: venDirCliente,
+        venEmpRuc: venEmpRuc,
+        venEmpNombre: venEmpNombre,
+        venEmpComercial: venEmpComercial,
+        venEmpDireccion: venEmpDireccion,
+        venEmpTelefono: venEmpTelefono,
+        venEmpEmail: venEmpEmail,
+        venEmpObligado: venEmpObligado,
+        venEmpRegimen: venEmpRegimen,
+        venFormaPago: venFormaPago,
+        venNumero: venNumero,
+        venFacturaCredito: venFacturaCredito,
+        venDias: venDias,
+        venAbono: venAbono,
+        venDescPorcentaje: venDescPorcentaje,
+        venOtrosDetalles: venOtrosDetalles,
+        venObservacion: venObservacion,
+        venSubTotal12: venSubTotal12,
+        venSubtotal0: venSubtotal0,
+        venDescuento: venDescuento,
+        venSubTotal: venSubTotal,
+        venTotalIva: venTotalIva,
+        venTotal: venTotal,
+        venCostoProduccion: venCostoProduccion,
+        venUser: venUser,
+        venFechaFactura: venFechaFactura,
+        venNumFactura: venNumFactura,
+        venNumFacturaAnterior: venNumFacturaAnterior,
+        venAutorizacion: venAutorizacion,
+        venFechaAutorizacion: venFechaAutorizacion,
+        venErrorAutorizacion: venErrorAutorizacion,
+        venEstado: venEstado,
+        venEnvio: venEnvio,
+        fechaSustentoFactura: fechaSustentoFactura,
+        venTotalRetencion: venTotalRetencion,
+        venEmpresa: venEmpresa,
+        venEmpAgenteRetencion: venEmpAgenteRetencion,
+        venEmpContribuyenteEspecial: venEmpContribuyenteEspecial,
+        venEmpLeyenda: venEmpLeyenda,
+        venEmpIva: venEmpIva,
+        venOtros: venOtros,
+        idAbastecimiento: idAbastecimiento,
+        totInicio: totInicio,
+        totFinal: totFinal,
+      );
 
   factory VentaForm.fromVenta(Venta venta) {
     return VentaForm(
@@ -616,6 +641,10 @@ class VentaForm extends Venta {
       venEmpContribuyenteEspecial: venta.venEmpContribuyenteEspecial,
       venEmpLeyenda: venta.venEmpLeyenda,
       venEmpIva: venta.venEmpIva,
+      venOtros: venta.venOtros,
+      idAbastecimiento: venta.idAbastecimiento,
+      totInicio: venta.totInicio,
+      totFinal: venta.totFinal,
     );
   }
 }
@@ -651,13 +680,6 @@ class Totales {
     );
   }
 }
-
-
-
-
-
-
-
 
 class BusquedaVenta {
   final String venFechaFactura1;

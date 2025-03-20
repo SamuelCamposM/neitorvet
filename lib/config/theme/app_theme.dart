@@ -79,7 +79,7 @@ class AppTheme {
 
       ///* AppBar
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryColor,
+        backgroundColor: colorScheme.primary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
         titleTextStyle: TextStyle(
           fontFamily: 'Roboto',
