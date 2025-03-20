@@ -171,6 +171,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
                             ? 'AUTORIZADO'
                             : "SIN AUTORIZAR",
                         style: TextStyle(
+                          fontWeight: FontWeight.bold,
                           color: isSelected
                               ? colors.onSecondary
                               : colors.onSecondary,
