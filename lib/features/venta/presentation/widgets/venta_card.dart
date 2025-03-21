@@ -38,13 +38,14 @@ class VentaCard extends ConsumerWidget {
           children: [
             SlidableAction(
               onPressed: (context) {
-                printTicket(
-                  venta,
-                  user,
-                );
+                final pdfUrl =
+                    '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
+                ref
+                    .read(downloadPdfProvider.notifier)
+                    .downloadPDF(context, pdfUrl);
               },
-              icon: Icons.print,
-              label: 'Print',
+              icon: Icons.receipt_long,
+              label: 'Tick',
             ),
             SlidableAction(
               onPressed: (context) {
@@ -195,12 +196,10 @@ class VentaCard extends ConsumerWidget {
                       ),
                       IconButton(
                         onPressed: () {
-                          final pdfUrl =
-                              '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
-                          ref
-                              .read(downloadPdfProvider.notifier)
-                              .downloadPDF(context, pdfUrl);
-                          // context.push('/PDF/Factura/$pdfUrl');
+                          printTicket(
+                            venta,
+                            user,
+                          );
                         },
                         icon: Icon(Icons.receipt, color: colors.secondary),
                       ),
