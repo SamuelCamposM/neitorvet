@@ -14,13 +14,13 @@ class EmailList extends StatelessWidget {
       alignment: WrapAlignment.center,
       children: emails.map((e) {
         return Container(
-          decoration: BoxDecoration( 
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
           ),
-          margin: EdgeInsets.all(size.iScreen(0.4)),
+          margin: EdgeInsets.all(size.iScreen(0.2)),
           padding: EdgeInsets.symmetric(
-            vertical: size.iScreen(0.2),
-            horizontal: size.iScreen(1.0),
+            vertical: size.iScreen(0.1),
+            horizontal: size.iScreen(0.5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -28,7 +28,7 @@ class EmailList extends StatelessWidget {
               Text(
                 e,
                 style: TextStyle(
-                  fontSize: size.iScreen(1.8),
+                  fontSize: size.iScreen(1.4),
                   fontWeight: FontWeight.normal,
                 ),
               ),
@@ -40,6 +40,7 @@ class EmailList extends StatelessWidget {
                   Icons.close_rounded,
                 ),
                 color: Colors.red,
+                iconSize: size.iScreen(1.5),
               ),
             ],
           ),

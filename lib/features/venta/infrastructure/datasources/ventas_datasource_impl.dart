@@ -82,7 +82,8 @@ class VentasDatasourceImpl extends VentasDatasource {
   }
 
   @override
-  Future<ResponseInventario> getInventarioByQuery(String search) async {
+  Future<ResponseInventario> getInventarioByQuery(
+      {required String search, bool filterByCategory = false}) async {
     try {
       final response = await dio.get(
         '/inventario/filtro/0?empresa=$rucempresa&search=$search',
@@ -93,7 +94,11 @@ class VentasDatasourceImpl extends VentasDatasource {
           .toList();
 
       return ResponseInventario(
-        resultado: inventarioData,
+        resultado: filterByCategory
+            ? inventarioData
+                .where((element) => element.invCategoria == 'PRODUCTO')
+                .toList()
+            : inventarioData,
         error: '',
       );
     } on DioException catch (e) {

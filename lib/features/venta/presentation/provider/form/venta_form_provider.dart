@@ -75,6 +75,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
             final updatedCliente = Cliente.fromJson(data);
             if (updatedCliente.perUser == usuario) {
               updateState(
+                  permitirCredito: updatedCliente.perCredito == 'SI',
                   placasData: updatedCliente.perOtros,
                   ventaForm: state.ventaForm.copyWith(
                     venRucCliente: updatedCliente.perDocNumero,
@@ -107,6 +108,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
             final newCliente = Cliente.fromJson(data);
             if (newCliente.perUser == usuario) {
               updateState(
+                  permitirCredito: newCliente.perCredito == 'SI',
                   placasData: newCliente.perOtros,
                   ventaForm: state.ventaForm.copyWith(
                     venRucCliente: newCliente.perDocNumero,
@@ -136,6 +138,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       String? productoSearch,
       Producto? nuevoProducto,
       String? monto,
+      bool? permitirCredito,
       List<String>? placasData,
       VentaForm? ventaForm}) {
     state = state.copyWith(
@@ -146,6 +149,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
           : state.nuevoProducto,
       monto: monto == '' ? 0 : double.tryParse(monto ?? "") ?? state.monto,
       productoSearch: productoSearch ?? state.productoSearch,
+      permitirCredito: permitirCredito ?? state.permitirCredito,
       placasData: placasData ?? state.placasData,
       ventaForm: ventaForm ?? state.ventaForm,
     );
@@ -334,6 +338,7 @@ class VentaFormState {
   final ProductoInput nuevoProducto;
   final String productoSearch;
   final VentaForm ventaForm;
+  final bool permitirCredito;
 
   VentaFormState({
     this.nuevoEmail = const Email.pure(),
@@ -346,7 +351,9 @@ class VentaFormState {
     this.placasData = const [],
     this.ocultarEmail = true,
     this.productoSearch = '',
-    required this.ventaForm, // Make this parameter optional
+    this.permitirCredito = false,
+    required this.ventaForm,
+    // Make this parameter optional
   }); // Provide default value here
 
   VentaFormState copyWith(
@@ -360,18 +367,21 @@ class VentaFormState {
       bool? ocultarEmail,
       String? productoSearch,
       ProductoInput? nuevoProducto,
-      VentaForm? ventaForm}) {
+      VentaForm? ventaForm,
+      bool? permitirCredito}) {
     return VentaFormState(
-        isFormValid: isFormValid ?? this.isFormValid,
-        isPosted: isPosted ?? this.isPosted,
-        isPosting: isPosting ?? this.isPosting,
-        monto: monto ?? this.monto,
-        nuevoEmail: nuevoEmail ?? this.nuevoEmail,
-        nuevoProducto: nuevoProducto ?? this.nuevoProducto,
-        ocultarEmail: ocultarEmail ?? this.ocultarEmail,
-        placasData: placasData ?? this.placasData,
-        porcentajeFormaPago: porcentajeFormaPago ?? this.porcentajeFormaPago,
-        productoSearch: productoSearch ?? this.productoSearch,
-        ventaForm: ventaForm ?? this.ventaForm);
+      isFormValid: isFormValid ?? this.isFormValid,
+      isPosted: isPosted ?? this.isPosted,
+      isPosting: isPosting ?? this.isPosting,
+      monto: monto ?? this.monto,
+      nuevoEmail: nuevoEmail ?? this.nuevoEmail,
+      nuevoProducto: nuevoProducto ?? this.nuevoProducto,
+      ocultarEmail: ocultarEmail ?? this.ocultarEmail,
+      placasData: placasData ?? this.placasData,
+      porcentajeFormaPago: porcentajeFormaPago ?? this.porcentajeFormaPago,
+      productoSearch: productoSearch ?? this.productoSearch,
+      ventaForm: ventaForm ?? this.ventaForm,
+      permitirCredito: permitirCredito ?? this.permitirCredito,
+    );
   }
 }

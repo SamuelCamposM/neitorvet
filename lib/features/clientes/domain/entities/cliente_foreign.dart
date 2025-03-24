@@ -8,10 +8,11 @@ class ClienteForeign {
   final List<String> perEmail;
   final List<String> perCelular;
   final List<String> perOtros;
-
+  final String perCredito;
   ClienteForeign({
     required this.perId,
     required this.perNombre,
+    required this.perCredito,
     required this.perDocNumero,
     required this.perDocTipo,
     required this.perTelefono,
@@ -24,6 +25,7 @@ class ClienteForeign {
   factory ClienteForeign.fromJson(Map<String, dynamic> json) => ClienteForeign(
         perId: json["perId"] == "" ? 0 : json["perId"],
         perNombre: json["perNombre"],
+        perCredito: json["perCredito"] ?? "NO",
         perDocNumero: json["perDocNumero"],
         perDocTipo: json["perDocTipo"],
         perTelefono: json["perTelefono"],
@@ -36,6 +38,7 @@ class ClienteForeign {
   Map<String, dynamic> toJson() => {
         "perId": perId,
         "perNombre": perNombre,
+        "perCredito": perCredito,
         "perDocNumero": perDocNumero,
         "perDocTipo": perDocTipo,
         "perTelefono": perTelefono,

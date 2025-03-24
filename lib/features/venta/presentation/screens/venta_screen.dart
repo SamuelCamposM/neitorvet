@@ -148,16 +148,17 @@ class _VentaForm extends ConsumerWidget {
                           fontWeight: FontWeight.bold),
                     ),
                   ),
-                  CustomRadioBotton(
-                    size: size,
-                    selectedValue: ventaFState.ventaForm.venFacturaCredito,
-                    onChanged: (String? value) {
-                      updateForm(
-                          ventaForm: ventaFState.ventaForm
-                              .copyWith(venFacturaCredito: value));
-                    },
-                    questionText: 'Crédito',
-                  ),
+                  if (ventaFState.permitirCredito)
+                    CustomRadioBotton(
+                      size: size,
+                      selectedValue: ventaFState.ventaForm.venFacturaCredito,
+                      onChanged: (String? value) {
+                        updateForm(
+                            ventaForm: ventaFState.ventaForm
+                                .copyWith(venFacturaCredito: value));
+                      },
+                      questionText: 'Crédito',
+                    ),
                   SizedBox(width: size.wScreen(4)),
                 ],
               ),
@@ -182,6 +183,7 @@ class _VentaForm extends ConsumerWidget {
                         await searchClienteResult(context: context, ref: ref);
                     if (cliente != null) {
                       updateForm(
+                          permitirCredito: cliente.perCredito == 'SI',
                           placasData: cliente.perOtros,
                           ventaForm: ventaFState.ventaForm.copyWith(
                             venRucCliente: cliente.perDocNumero,

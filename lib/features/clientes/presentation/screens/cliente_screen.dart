@@ -220,6 +220,10 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
               ],
             ),
             CustomInputField(
+              keyboardType: clienteFState.clienteForm.perDocTipo == 'PLACA'
+                  ? TextInputType.text
+                  : TextInputType.number,
+              toUpperCase: clienteFState.clienteForm.perDocTipo == 'PLACA',
               autofocus: true,
               label: clienteFState.clienteForm.perDocTipo == 'PLACA'
                   ? 'Buscar por Placa'

@@ -37,8 +37,10 @@ class VentasRepositoryImpl extends VentasRepository {
   }
 
   @override
-  Future<ResponseInventario> getInventarioByQuery(String search) {
-    return datasource.getInventarioByQuery(search);
+  Future<ResponseInventario> getInventarioByQuery(
+      {required String search, bool filterByCategory = false}) async {
+    return datasource.getInventarioByQuery(
+        search: search, filterByCategory: filterByCategory);
   }
 
   @override

@@ -75,10 +75,10 @@ Future<String?> searchPlacas({
   return res?.item;
 }
 
-Future<Inventario?> searchInventario({
-  required BuildContext context,
-  required WidgetRef ref,
-}) async {
+Future<Inventario?> searchInventario(
+    {required BuildContext context,
+    required WidgetRef ref,
+    required bool filterByCategory}) async {
   final res = await showSearch(
     context: context,
     delegate: GenericDelegate(
@@ -90,7 +90,8 @@ Future<Inventario?> searchInventario({
       searchItems: ({search = ''}) async {
         final res = await ref
             .read(ventasRepositoryProvider)
-            .getInventarioByQuery(search);
+            .getInventarioByQuery(
+                search: search, filterByCategory: filterByCategory);
         if (res.error.isNotEmpty) {
           if (context.mounted) {
             NotificationsService.show(

@@ -15,7 +15,8 @@ abstract class VentasRepository {
   Future<ResponseFormasPago> getFormasPago();
   Future<ResponseSurtidores> getSurtidores();
   Future<ResponseSecuencia> getSecuencia(String tipo);
-  Future<ResponseInventario> getInventarioByQuery(String search);
+  Future<ResponseInventario> getInventarioByQuery(
+      {required String search, bool filterByCategory = false});
   Future<ResponseInventarioIndividual> getInventarioByPistola({
     required String pistola,
     required String codigoCombustible,
