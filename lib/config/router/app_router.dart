@@ -60,6 +60,13 @@ final goRouterProvider = Provider((ref) {
         ),
       ),
       GoRoute(
+        path: '/surtidores',
+        builder: (context, state) => const BodyMenuDespacho(
+          ventaFState: null,
+          ventaState: null,
+        ),
+      ),
+      GoRoute(
         path: '/seleccionSurtidor/:id',
         builder: (context, state) => MenuDespacho(
           ventaId: int.tryParse(state.params['id'].toString()) ?? 0,

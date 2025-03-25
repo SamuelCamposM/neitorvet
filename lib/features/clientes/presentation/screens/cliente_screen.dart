@@ -220,12 +220,15 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
               ],
             ),
             CustomInputField(
-              keyboardType: clienteFState.clienteForm.perDocTipo == 'PLACA'
+              keyboardType: clienteFState.clienteForm.perDocTipo == 'PLACA' ||
+                      clienteFState.clienteForm.perDocTipo == 'PASAPORTE'
                   ? TextInputType.text
                   : TextInputType.number,
-              toUpperCase: clienteFState.clienteForm.perDocTipo == 'PLACA',
+              toUpperCase: clienteFState.clienteForm.perDocTipo == 'PLACA' ||
+                  clienteFState.clienteForm.perDocTipo == 'PASAPORTE',
               autofocus: true,
-              label: clienteFState.clienteForm.perDocTipo == 'PLACA'
+              label: clienteFState.clienteForm.perDocTipo == 'PLACA' ||
+                      clienteFState.clienteForm.perDocTipo == 'PASAPORTE'
                   ? 'Buscar por Placa'
                   : 'Buscar por RUC O CEDULA.',
               controller: searchController,

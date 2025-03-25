@@ -25,8 +25,15 @@ const appMenuItems = <MenuItem>[
   ),
   MenuItem(
     title: 'Facturas',
-    subTitle: "Nuestros factura",
+    subTitle: "Nuestras factura",
     link: "/ventas",
+    icon: 'assets/images/factura.png',
+    color: Colors.green,
+  ),
+  MenuItem(
+    title: 'Cierre Caja',
+    subTitle: "",
+    link: "/surtidores",
     icon: 'assets/images/factura.png',
     color: Colors.green,
   ),
