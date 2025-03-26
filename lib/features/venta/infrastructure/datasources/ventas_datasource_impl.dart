@@ -4,7 +4,7 @@ import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.da
 import 'package:neitorvet/features/venta/domain/entities/body_correo.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
-import 'package:neitorvet/features/venta/domain/entities/surtidor.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/shared/errors/error_api.dart';
 
@@ -120,29 +120,7 @@ class VentasDatasourceImpl extends VentasDatasource {
           msg: '', error: 'Hubo un error al enviar correo');
     }
   }
-
-  @override
-  Future<ResponseSurtidores> getSurtidores() async {
-    try {
-      // final queryParameters = {
-      //   'cantidad': 20,
-      //   'page': 0,
-      //   'search': '',
-      //   'input': 'id_surtidor',
-      //   'orden': false,
-      //   'datos': {},
-      //   'rucempresa': rucempresa,
-      // };
-      final response = await dio.get('/surtidores/todo');
-
-      final List<Surtidor> surtidoresData =
-          (response.data as List).map((e) => Surtidor.fromJson(e)).toList();
-      return ResponseSurtidores(resultado: surtidoresData, error: '');
-    } on DioException catch (e) {
-      return ResponseSurtidores(
-          resultado: [], error: ErrorApi.getErrorMessage(e));
-    }
-  }
+ 
 
   @override
   Future<ResponseInventarioIndividual> getInventarioByPistola(

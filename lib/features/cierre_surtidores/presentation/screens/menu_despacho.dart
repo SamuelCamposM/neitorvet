@@ -6,13 +6,12 @@ import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
-import 'package:neitorvet/features/venta/domain/entities/surtidor.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
-import 'package:neitorvet/features/venta/presentation/widgets/get_venta.dart';
 
 class ResponseModal {
   Estacion estacion;
@@ -29,28 +28,24 @@ class MenuDespacho extends ConsumerWidget {
   const MenuDespacho({super.key, required this.ventaId});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return GetVenta(
-      ventaId: ventaId,
-      child: (ventaState, ventaFState) {
-        return BodyMenuDespacho(
-            ventaState: ventaState, ventaFState: ventaFState);
-      },
-    );
+    final ventaState = ref.watch(ventaProvider(ventaId));
+    return BodyMenuDespacho(ventaState: ventaState);
   }
 }
 
 class BodyMenuDespacho extends ConsumerWidget {
   final VentaState? ventaState;
-  final VentaFormState? ventaFState;
 
   const BodyMenuDespacho({
     Key? key,
     required this.ventaState,
-    required this.ventaFState,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, ref) {
+    final VentaFormState? ventaFState = ventaState?.venta != null
+        ? ref.watch(ventaFormProvider(ventaState!.venta!))
+        : null;
     final size = Responsive.of(context);
     ref.watch(ventasProvider);
     final uniqueSurtidores =
@@ -73,7 +68,7 @@ class BodyMenuDespacho extends ConsumerWidget {
                   final inventario = await searchInventario(
                       context: context, ref: ref, filterByCategory: true);
                   if (inventario != null) {
-                    final exist = ventaFState!.ventaForm.venProductosInput.value
+                    final exist = ventaFState.ventaForm.venProductosInput.value
                         .any((e) => e.codigo == inventario.invSerie);
                     if (exist) {
                       if (context.mounted) {
@@ -112,7 +107,7 @@ class BodyMenuDespacho extends ConsumerWidget {
                 },
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
-                      color: ventaFState!.nuevoProducto.errorMessage != null
+                      color: ventaFState.nuevoProducto.errorMessage != null
                           ? Colors.red
                           : Colors.grey),
                   shape: RoundedRectangleBorder(
@@ -121,11 +116,11 @@ class BodyMenuDespacho extends ConsumerWidget {
                 ),
                 icon: const Icon(Icons.create),
                 label: Text(
-                  ventaFState!.nuevoProducto.errorMessage != null
-                      ? ventaFState!.nuevoProducto.errorMessage!
-                      : ventaFState!.nuevoProducto.value.descripcion == ''
+                  ventaFState.nuevoProducto.errorMessage != null
+                      ? ventaFState.nuevoProducto.errorMessage!
+                      : ventaFState.nuevoProducto.value.descripcion == ''
                           ? "Otros Productos*"
-                          : '${ventaFState!.nuevoProducto.value.descripcion} \$${ventaFState!.nuevoProducto.value.valorUnitario}',
+                          : '${ventaFState.nuevoProducto.value.descripcion} \$${ventaFState.nuevoProducto.value.valorUnitario}',
                 ),
               ),
             Wrap(
@@ -158,7 +153,8 @@ class _CardSurtidor extends ConsumerWidget {
     return GestureDetector(
       onTap: () async {
         if (ventaState == null) {
-          // String? responseModal = await _cierreModal(context, size, surtidor);
+          String? responseModal = await _cierreModal(context, size, surtidor);
+          responseModal;
         }
       },
       child: Card(
@@ -187,7 +183,8 @@ class _CardSurtidor extends ConsumerWidget {
                   ),
                   if (ventaState != null)
                     Wrap(
-                      children: getLados(surtidor.nombreSurtidor).map((surtidor) {
+                      children:
+                          getLados(surtidor.nombreSurtidor).map((surtidor) {
                         return Container(
                           margin: EdgeInsets.symmetric(
                               horizontal: size.iScreen(0.5)),

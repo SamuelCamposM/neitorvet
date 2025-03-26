@@ -63,11 +63,11 @@ class _FloatingButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final ventaState = ref.watch(ventaFormProvider(venta));
+    final ventaFState = ref.watch(ventaFormProvider(venta));
     final ventasState = ref.watch(ventasProvider);
     return FloatingActionButton(
       onPressed: () async {
-        if (ventaState.isPosting) {
+        if (ventaFState.isPosting) {
           return;
         }
         final exitoso =
@@ -79,7 +79,7 @@ class _FloatingButton extends ConsumerWidget {
               SnackbarCategory.success);
         }
       },
-      child: ventaState.isPosting
+      child: ventaFState.isPosting
           ? SpinPerfect(
               duration: const Duration(seconds: 1),
               spins: 10,

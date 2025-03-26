@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/domain/domain.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/repositories/cierre_surtidores_repository.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_repository_provider.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
-import 'package:neitorvet/features/venta/domain/entities/surtidor.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/domain/repositories/ventas_repository.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
@@ -38,28 +40,33 @@ final ventasProvider =
     final user = ref.watch(authProvider).user;
 
     final ventasRepository = ref.watch(ventasRepositoryProvider);
+    final cierreSurtidoresRepository =
+        ref.watch(cierreSurtidoresRepositoryProvider);
     final socket = ref.watch(socketProvider);
     final downloadPDF = ref.watch(downloadPdfProvider.notifier).downloadPDF;
     return VentasNotifier(
         socket: socket,
         ventasRepository: ventasRepository,
         downloadPDF: downloadPDF,
-        user: user!);
+        user: user!,
+        cierreSurtidoresRepository: cierreSurtidoresRepository);
   },
 );
 
 class VentasNotifier extends StateNotifier<VentasState> {
   final VentasRepository ventasRepository;
+  final CierreSurtidoresRepository cierreSurtidoresRepository;
   final io.Socket socket;
   final User user;
   final Future<void> Function(BuildContext? context, String infoPdf)
       downloadPDF;
-  VentasNotifier(
-      {required this.ventasRepository,
-      required this.socket,
-      required this.user,
-      required this.downloadPDF})
-      : super(VentasState()) {
+  VentasNotifier({
+    required this.ventasRepository,
+    required this.socket,
+    required this.user,
+    required this.downloadPDF,
+    required this.cierreSurtidoresRepository,
+  }) : super(VentasState()) {
     _initializeSocketListeners();
     loadNextPage();
     _setFormasPago();
@@ -301,7 +308,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     state = state.copyWith(
       isLoading: true,
     );
-    final surtidoresResponse = await ventasRepository.getSurtidores();
+    final surtidoresResponse = await cierreSurtidoresRepository.getSurtidores();
     if (surtidoresResponse.error.isNotEmpty) {
       state = state.copyWith(
           error: 'Hubo un error al obtener los surtidores', isLoading: false);

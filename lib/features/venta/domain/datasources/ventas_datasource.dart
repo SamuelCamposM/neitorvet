@@ -1,7 +1,7 @@
 import 'package:neitorvet/features/venta/domain/entities/body_correo.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
-import 'package:neitorvet/features/venta/domain/entities/surtidor.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 
 class ResponseVentas {
@@ -90,8 +90,7 @@ abstract class VentasDatasource {
       required String search,
       required BusquedaVenta busquedaVenta});
 
-  Future<ResponseFormasPago> getFormasPago();
-  Future<ResponseSurtidores> getSurtidores();
+  Future<ResponseFormasPago> getFormasPago(); 
   Future<ResponseSecuencia> getSecuencia(String tipo);
   Future<ResponseInventario> getInventarioByQuery(
       {required String search, bool filterByCategory = false});

@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/router/app_router.notifier.dart';
 import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/screens/cierre_surtidor_screen.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/screens/cierre_surtidores_screen.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/screens/menu_despacho.dart';
 import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/shared/screen/send_email.dart';
@@ -60,9 +63,18 @@ final goRouterProvider = Provider((ref) {
         ),
       ),
       GoRoute(
+        path: '/cierre_surtidores',
+        builder: (context, state) => const CierreSurtidoresScreen(),
+      ),
+      GoRoute(
+        path: '/cierre_surtidores/:id',
+        builder: (context, state) => CierreSurtidorScreen(
+          cierreSurtidorUuid: state.params['id'].toString(),
+        ),
+      ),
+      GoRoute(
         path: '/surtidores',
         builder: (context, state) => const BodyMenuDespacho(
-          ventaFState: null,
           ventaState: null,
         ),
       ),

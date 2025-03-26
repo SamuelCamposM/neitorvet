@@ -12,8 +12,7 @@ abstract class VentasRepository {
       required String search,
       required BusquedaVenta busquedaVenta});
 
-  Future<ResponseFormasPago> getFormasPago();
-  Future<ResponseSurtidores> getSurtidores();
+  Future<ResponseFormasPago> getFormasPago(); 
   Future<ResponseSecuencia> getSecuencia(String tipo);
   Future<ResponseInventario> getInventarioByQuery(
       {required String search, bool filterByCategory = false});

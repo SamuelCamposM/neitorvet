@@ -6,7 +6,6 @@ import 'package:neitorvet/features/cierre_surtidores/presentation/widgets/cierre
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
-import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 
 class CierreSurtidorScreen extends ConsumerWidget {
   final String cierreSurtidorUuid;
@@ -29,7 +28,8 @@ class CierreSurtidorScreen extends ConsumerWidget {
         child: Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            title: const Text('Cierre Surtidor'),
+            title: Text(
+                'Cierre Surtidor: ${cierreSurtidorState.cierreSurtidores.length}'),
           ),
           body: cierreSurtidorState.isLoading
               ? const FullScreenLoader()
@@ -39,21 +39,21 @@ class CierreSurtidorScreen extends ConsumerWidget {
                   : _CierreSurtidoresBodyScreen(
                       cierreSurtidores: cierreSurtidorState.cierreSurtidores,
                     ),
-          floatingActionButton:
-              cierreSurtidorState.isLoading ? null : _FloatingButton(),
+          // floatingActionButton:
+          //     cierreSurtidorState.isLoading ? null : _FloatingButton(),
         ));
   }
 }
 
-class _FloatingButton extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, ref) {
-    return FloatingActionButton(
-      onPressed: () async {},
-      child: const Icon(Icons.save_as),
-    );
-  }
-}
+// class _FloatingButton extends ConsumerWidget {
+//   @override
+//   Widget build(BuildContext context, ref) {
+//     return FloatingActionButton(
+//       onPressed: () async {},
+//       child: const Icon(Icons.back_hand),
+//     );
+//   }
+// }
 
 class _CierreSurtidoresBodyScreen extends ConsumerWidget {
   final List<CierreSurtidor> cierreSurtidores;
@@ -67,50 +67,49 @@ class _CierreSurtidoresBodyScreen extends ConsumerWidget {
     // final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0),
-      child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
+      child: Column(
+        children: [
+          const Row(
             children: [
-              Row(
-                children: [
-                  Text(
-                    'Factura #: ',
-                    style: TextStyle(
-                      fontSize: size.iScreen(1.8),
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.color, // Asegurando el color correcto
-                    ),
-                  ),
-                  Text(
-                    'TEST',
-                    style: TextStyle(
-                      fontSize: size.iScreen(1.8),
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.color, // Asegurando el color correcto
-                    ),
-                  ),
-                ],
-              ),
-              Text('${cierreSurtidores.length} A'),
-              ListView.builder( 
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: cierreSurtidores.length,
-                itemBuilder: (context, index) {
-                  final cierreSurtidor = cierreSurtidores[index];
-                  return CierreSurtidorCard(
-                    cierreSurtidor: cierreSurtidor,
-                    size: size,
-                  );
-                },
-              ),
+              // Text(
+              //   'Cantidad: ',
+              //   style: TextStyle(
+              //     fontSize: size.iScreen(1.8),
+              //     fontWeight: FontWeight.normal,
+              //     color: Theme.of(context)
+              //         .textTheme
+              //         .bodyLarge
+              //         ?.color, // Asegurando el color correcto
+              //   ),
+              // ),
+              // Text(
+              //   '${cierreSurtidores.length}',
+              //   style: TextStyle(
+              //     fontSize: size.iScreen(1.8),
+              //     fontWeight: FontWeight.bold,
+              //     color: Theme.of(context)
+              //         .textTheme
+              //         .bodyLarge
+              //         ?.color, // Asegurando el color correcto
+              //   ),
+              // ),
             ],
-          )),
+          ),
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: cierreSurtidores.length,
+              itemBuilder: (context, index) {
+                final cierreSurtidor = cierreSurtidores[index];
+                return CierreSurtidorCard(
+                  cierreSurtidor: cierreSurtidor,
+                  size: size,redirect: false,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

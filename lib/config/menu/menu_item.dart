@@ -33,7 +33,7 @@ const appMenuItems = <MenuItem>[
   MenuItem(
     title: 'Cierre Caja',
     subTitle: "",
-    link: "/surtidores",
+    link: "/cierre_surtidores",
     icon: 'assets/images/factura.png',
     color: Colors.green,
   ),
