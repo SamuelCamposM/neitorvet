@@ -3,26 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/config/menu/menu_item.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/home/presentation/widgets/item_menu.dart';
-// import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
-import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/ui/custom_app_bar.dart';
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+class CierreTurnoScreen extends ConsumerWidget {
+  const CierreTurnoScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    final scaffoldKey = GlobalKey<ScaffoldState>();
     // final colors = Theme.of(context).colorScheme;
     return Scaffold(
-        drawer: SideMenu(scaffoldKey: scaffoldKey),
         appBar: CustomAppBar(
-          title: 'Home',
+          title: 'Cierre turno',
           userName:
               authState.user!.nombre, // Reemplaza con el nombre del usuario
-          moduleName: 'Home',
+          moduleName: 'Cierre turno',
           logoUrl: authState.user!.logo, // Ruta de la imagen del logo
         ),
         body: _HomeView());
@@ -49,7 +45,7 @@ class _HomeView extends StatelessWidget {
                     size.iScreen(1.0), // Espacio horizontal entre los elementos
                 runSpacing:
                     size.iScreen(1.0), // Espacio vertical entre las filas
-                children: appMenuItems.map((menuItem) {
+                children: cierreTurnoItems.map((menuItem) {
                   return ItemMenu(
                     size: size,
                     menuItem: menuItem,
