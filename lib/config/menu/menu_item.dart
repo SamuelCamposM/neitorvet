@@ -31,7 +31,7 @@ const appMenuItems = <MenuItem>[
     color: Colors.green,
   ),
   MenuItem(
-    title: 'Cierre Caja',
+    title: 'Cierre Turno',
     subTitle: "",
     link: "/cierre_surtidores",
     icon: 'assets/images/factura.png',

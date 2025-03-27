@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/cierre_surtidor.dart';
-import 'package:neitorvet/features/cierre_surtidores/presentation/provider/ventas_provider.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_provider.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/widgets/cierre_surtidor_card.dart';
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';

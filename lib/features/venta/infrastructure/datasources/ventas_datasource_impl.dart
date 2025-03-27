@@ -4,7 +4,6 @@ import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.da
 import 'package:neitorvet/features/venta/domain/entities/body_correo.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
-import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/shared/errors/error_api.dart';
 
@@ -120,7 +119,6 @@ class VentasDatasourceImpl extends VentasDatasource {
           msg: '', error: 'Hubo un error al enviar correo');
     }
   }
- 
 
   @override
   Future<ResponseInventarioIndividual> getInventarioByPistola(

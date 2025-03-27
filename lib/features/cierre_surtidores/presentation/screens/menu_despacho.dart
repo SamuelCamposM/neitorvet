@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_repository_provider.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
@@ -150,11 +153,47 @@ class _CardSurtidor extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final getLados = ref.read(ventasProvider.notifier).getLados;
+    final generarCierre =
+        ref.read(cierreSurtidoresRepositoryProvider).generarCierre;
     return GestureDetector(
       onTap: () async {
         if (ventaState == null) {
           String? responseModal = await _cierreModal(context, size, surtidor);
           responseModal;
+          if (responseModal == 'SI') {
+            final surtidores = getLados(surtidor.nombreSurtidor);
+            List<String> codCombustible = [];
+            List<String> pistolas = [];
+            for (var element in surtidores) {
+              final List<Estacion> estaciones = [
+                element.estacion1,
+                element.estacion2,
+                element.estacion3,
+              ]
+                  .where((estacion) => estacion?.nombreProducto != null)
+                  .cast<Estacion>()
+                  .toList();
+
+              for (var estacion in estaciones) {
+                pistolas.add(estacion.numeroPistola.toString());
+                if (!codCombustible
+                    .contains(estacion.codigoProducto.toString())) {
+                  codCombustible.add(estacion.codigoProducto.toString());
+                }
+              }
+            }
+
+            final response = await generarCierre(
+                codCombustible: codCombustible, pistolas: pistolas);
+            if (response.error.isNotEmpty && context.mounted) {
+              NotificationsService.show(
+                  context, response.error, SnackbarCategory.error);
+            } else {
+              if (context.mounted) {
+                context.push('/cierre_surtidores/${response.uuid}');
+              }
+            }
+          }
         }
       },
       child: Card(
@@ -357,7 +396,9 @@ Future<String?> _cierreModal(
         actions: ['SI', 'NO'].map<CupertinoActionSheetAction>((String e) {
           return CupertinoActionSheetAction(
             child: Text(e),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context, e);
+            },
           );
         }).toList(),
         cancelButton: CupertinoActionSheetAction(

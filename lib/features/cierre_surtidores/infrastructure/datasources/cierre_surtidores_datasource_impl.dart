@@ -94,4 +94,30 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
       );
     }
   }
+
+  @override
+  Future<ResponseGenerarCierre> generarCierre({
+    required List<String> codCombustible,
+    required List<String> pistolas,
+  }) async {
+    try {
+      final queryParameters = {
+        'cod_combustible': codCombustible,
+        'pistolas': pistolas,
+      };
+      final response =
+          await dio.post('/cierre_surtidores/generar/cierre', data: queryParameters);
+
+      return ResponseGenerarCierre(
+        uuid: 'cierreSurtidores',
+        error: '',
+      );
+    } catch (e) {
+      // print(e);
+      return ResponseGenerarCierre(
+        uuid: '',
+        error: ErrorApi.getErrorMessage(e),
+      );
+    }
+  }
 }

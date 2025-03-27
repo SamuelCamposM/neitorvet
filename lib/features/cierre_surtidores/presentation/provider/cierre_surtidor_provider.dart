@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/cierre_surtidor.dart';
-import 'package:neitorvet/features/cierre_surtidores/presentation/provider/ventas_provider.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_provider.dart';
 
 final cierreSurtidorProvider = StateNotifierProvider.family
     .autoDispose<CierreSurtidorNotifier, CierreSurtidorState, String>(

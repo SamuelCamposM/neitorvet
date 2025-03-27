@@ -20,6 +20,16 @@ class ResponseSurtidores {
   });
 }
 
+class ResponseGenerarCierre {
+  final String uuid;
+  final String error;
+
+  ResponseGenerarCierre({
+    required this.uuid,
+    required this.error,
+  });
+}
+
 abstract class CierreSurtidoresDatasource {
   Future<ResponseCierreSurtidores> getCierreSurtidoresByPage(
       {required int cantidad,
@@ -31,6 +41,15 @@ abstract class CierreSurtidoresDatasource {
   Future<ResponseCierreSurtidores> getCierreSurtidoresUuid({
     required String uuid,
   });
+  Future<ResponseGenerarCierre> generarCierre({
+    required List<String> codCombustible,
+    required List<String> pistolas,
+  });
 
+// POST => /api/cierre_surtidores/generar/cierre
+// {
+//     "cod_combustible": "0101,0185,0121",
+//     "pistolas": "3,4,5,6,7,8"
+// }
   Future<ResponseSurtidores> getSurtidores();
 }

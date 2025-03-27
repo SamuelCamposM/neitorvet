@@ -36,4 +36,11 @@ class CierreSurtidoresRepositoryImpl extends CierreSurtidoresRepository {
   Future<ResponseSurtidores> getSurtidores() {
     return datasource.getSurtidores();
   }
+
+  @override
+  Future<ResponseGenerarCierre> generarCierre(
+      {required List<String> codCombustible, required List<String> pistolas}) {
+    return datasource.generarCierre(
+        codCombustible: codCombustible, pistolas: pistolas);
+  }
 }

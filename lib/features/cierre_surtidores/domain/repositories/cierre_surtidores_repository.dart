@@ -12,5 +12,9 @@ abstract class CierreSurtidoresRepository {
   Future<ResponseCierreSurtidores> getCierreSurtidoresUuid({
     required String uuid,
   });
+  Future<ResponseGenerarCierre> generarCierre({
+    required List<String> codCombustible,
+    required List<String> pistolas,
+  });
   Future<ResponseSurtidores> getSurtidores();
 }
