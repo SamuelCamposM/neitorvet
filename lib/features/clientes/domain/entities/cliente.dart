@@ -1,4 +1,4 @@
-import 'package:neitorvet/features/clientes/infrastructure/input/generic_required_input.dart';
+import 'package:neitorvet/features/clientes/infrastructure/input/num_doc.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/infrastructure/inputs/inputs.dart';
 

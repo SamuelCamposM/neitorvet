@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 
-class CardMP extends StatelessWidget {
+class CardMarPad extends StatelessWidget {
   final Widget child;
   final Responsive size;
-  const CardMP({super.key, required this.child, required this.size});
+  const CardMarPad({super.key, required this.child, required this.size});
 
   @override
   Widget build(

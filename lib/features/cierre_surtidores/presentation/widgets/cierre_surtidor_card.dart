@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/cierre_surtidor.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
-import 'package:neitorvet/features/shared/widgets/card/card_M_P.dart';
+import 'package:neitorvet/features/shared/widgets/card/card_mar_pad.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_container.dart';
 
 class CierreSurtidorCard extends ConsumerWidget {
@@ -23,7 +23,7 @@ class CierreSurtidorCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final colors = Theme.of(context).colorScheme;
-    return CardMP(
+    return CardMarPad(
       size: size,
       child: Slidable(
         key: ValueKey(cierreSurtidor.idcierre),

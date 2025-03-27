@@ -105,9 +105,9 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
         'cod_combustible': codCombustible,
         'pistolas': pistolas,
       };
-      final response =
-          await dio.post('/cierre_surtidores/generar/cierre', data: queryParameters);
-
+      final response = await dio.post('/cierre_surtidores/generar/cierre',
+          data: queryParameters);
+      response;
       return ResponseGenerarCierre(
         uuid: 'cierreSurtidores',
         error: '',

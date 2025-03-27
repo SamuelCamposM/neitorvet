@@ -91,8 +91,7 @@ class ClienteNotifier extends StateNotifier<ClienteState> {
   }
 
   @override
-  void dispose() {
-    print('DISPOSE CLIENTE');
+  void dispose() { 
     // Log para verificar que se está destruyendo
     super.dispose();
   }

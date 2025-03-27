@@ -193,7 +193,8 @@ class CierreSurtidoresNotifier extends StateNotifier<CierreSurtidoresState> {
       return GetCierreSurtidorResponse(
           cierreSurtidores: [], error: cierreSurtidoresResponse.error);
     }
-    return GetCierreSurtidorResponse(cierreSurtidores: cierreSurtidoresResponse.resultado, error: '');
+    return GetCierreSurtidorResponse(
+        cierreSurtidores: cierreSurtidoresResponse.resultado, error: '');
   }
 
   Future<void> resetQuery({
@@ -291,11 +292,6 @@ class CierreSurtidoresNotifier extends StateNotifier<CierreSurtidoresState> {
 
   void resetError() {
     state = state.copyWith(error: '');
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
 

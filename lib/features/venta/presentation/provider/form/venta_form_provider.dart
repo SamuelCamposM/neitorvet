@@ -320,7 +320,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
 
   @override
   void dispose() {
-    print('DISPOSE VENTA FORM');
     // Log para verificar que se está destruyendo
     super.dispose();
   }

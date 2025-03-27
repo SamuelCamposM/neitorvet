@@ -88,7 +88,9 @@ abstract class VentasDatasource {
       required String input,
       required bool orden,
       required String search,
-      required BusquedaVenta busquedaVenta});
+      required BusquedaVenta busquedaVenta
+      
+      });
 
   Future<ResponseFormasPago> getFormasPago(); 
   Future<ResponseSecuencia> getSecuencia(String tipo);

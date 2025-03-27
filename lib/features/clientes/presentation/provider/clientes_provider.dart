@@ -222,11 +222,6 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
       socket.emit("client:guardarData", clienteMap);
     }
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 class ClientesState {
