@@ -56,7 +56,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await keyValueStorage.setKeyValue<String>('token', user.token);
     dio.options.headers['x-auth-token'] = user.token;
     state = state.copywith(
-        user: user, authStatus: AuthStatus.authenticated, errorMessage: '');
+      user: user,
+      authStatus: AuthStatus.authenticated,
+      errorMessage: '',
+      isAdmin: user.rol.any((role) =>
+          role == 'ADMIN' || role == 'SUPERADMIN' || role == 'ADMINISTRADOR'),
+    );
   }
 
   Future<void> logout({String? errorMessage}) async {
@@ -83,16 +88,23 @@ class AuthState {
   final AuthStatus authStatus;
   final User? user;
   final String? errorMessage;
+  final bool isAdmin;
 
   AuthState(
       {this.authStatus = AuthStatus.checking,
       this.user,
-      this.errorMessage = ''});
+      this.errorMessage = '',
+      this.isAdmin = false});
 
   AuthState copywith(
-          {AuthStatus? authStatus, User? user, String? errorMessage}) =>
+          {AuthStatus? authStatus,
+          User? user,
+          String? errorMessage,
+          bool? isAdmin}) =>
       AuthState(
-          authStatus: authStatus ?? this.authStatus,
-          user: user ?? this.user,
-          errorMessage: errorMessage ?? this.errorMessage);
+        authStatus: authStatus ?? this.authStatus,
+        user: user ?? this.user,
+        errorMessage: errorMessage ?? this.errorMessage,
+        isAdmin: isAdmin ?? this.isAdmin,
+      );
 }

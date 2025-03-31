@@ -6,6 +6,8 @@ import 'package:neitorvet/config/config.dart';
 import 'package:neitorvet/features/auth/domain/domain.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
+import 'package:neitorvet/features/shared/widgets/card/card_container.dart';
+import 'package:neitorvet/features/shared/widgets/card/card_mar_pad.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
@@ -27,9 +29,8 @@ class VentaCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final colors = Theme.of(context).colorScheme;
-    return Container(
-      margin: EdgeInsets.symmetric(
-          horizontal: size.iScreen(1), vertical: size.iScreen(0.5)),
+    return CardMarPad(
+      size: size,
       child: Slidable(
         key: ValueKey(venta.venId),
         startActionPane: ActionPane(
@@ -101,25 +102,9 @@ class VentaCard extends ConsumerWidget {
                   // context.push('/venta/${venta.venId}');
                 }
               : null,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-                horizontal: size.iScreen(1.0), vertical: size.iScreen(1.0)),
-            width: size.wScreen(100),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
-                BoxShadow(
-                  color: colors.shadow
-                      .withAlpha((0.2 * 255).toInt()), // Reduce la opacidad
-                  spreadRadius: 0,
-                  blurRadius:
-                      4, // Reduce el desenfoque para una sombra más suave
-                  offset: const Offset(0,
-                      2), // Ajusta el desplazamiento para una sombra más sutil
-                ),
-              ],
-            ),
+          child: CardContainer(
+            colors: colors,
+            size: size,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

@@ -62,10 +62,10 @@ class CierreCajaFormNotifier extends StateNotifier<CierreCajaFormState> {
     state = state.copyWith(isPosting: true);
     final cierreCajaMap = {
       ...state.cierreCajaForm.toCierreCaja().toJson(),
-      ...dataDefaultMap(empresaPropery: 'perEmpresa', userProperty: 'perUser'),
+      ...dataDefaultMap(empresaPropery: 'cajaEmpresa', userProperty: 'cajaUser'),
       //ELIMINA LOS DUPLICADOS
 
-      "tabla": "proveedor",
+      "tabla": "caja",
     };
 
     try {
@@ -126,7 +126,7 @@ class CierreCajaFormNotifier extends StateNotifier<CierreCajaFormState> {
   }
 
   @override
-  void dispose() { 
+  void dispose() {
     // Log para verificar que se está destruyendo
     super.dispose();
   }

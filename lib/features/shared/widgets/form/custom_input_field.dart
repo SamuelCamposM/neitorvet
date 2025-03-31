@@ -10,7 +10,7 @@ class CustomInputField extends StatelessWidget {
   final String? errorMessage;
   final bool obscureText;
   final TextInputType? keyboardType;
-  final int maxLines;
+  final int? lines; // Nuevo parámetro opcional para definir las líneas
   final String initialValue;
   final Function(String)? onChanged;
   final Function(String)? onFieldSubmitted;
@@ -31,7 +31,7 @@ class CustomInputField extends StatelessWidget {
     this.errorMessage,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
-    this.maxLines = 1,
+    this.lines, // Inicializando el nuevo parámetro
     this.initialValue = '',
     this.onChanged,
     this.onFieldSubmitted,
@@ -61,31 +61,56 @@ class CustomInputField extends StatelessWidget {
           validator: validator,
           obscureText: obscureText,
           keyboardType: keyboardType,
+
           style: const TextStyle(
             fontSize: 15,
           ),
-          maxLines: maxLines,
+          maxLines: lines ??
+              1, // Usar el valor de lines si se proporciona, de lo contrario 1
           initialValue: controller == null ? initialValue : null,
           decoration: InputDecoration(
-            floatingLabelBehavior: maxLines > 1
+            contentPadding: const EdgeInsets.symmetric(
+                vertical: 4, // Reducir el p padding horizontal
+                horizontal: 4),
+            floatingLabelBehavior: (lines ?? 1) > 1
                 ? FloatingLabelBehavior.always
                 : FloatingLabelBehavior.auto,
             floatingLabelStyle: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 15,
             ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: colors.onSurface), // Borde inferior
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: colors.primary), // Borde inferior activo
-            ),
-            errorBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.red), // Borde inferior error
-            ),
-            focusedErrorBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.red), // Borde inferior error activo
-            ),
+            enabledBorder: lines != null
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: colors.onSurface),
+                  )
+                : UnderlineInputBorder(
+                    borderSide: BorderSide(color: colors.onSurface),
+                  ),
+            focusedBorder: lines != null
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: colors.primary),
+                  )
+                : UnderlineInputBorder(
+                    borderSide: BorderSide(color: colors.primary),
+                  ),
+            errorBorder: lines != null
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(color: Colors.red),
+                  )
+                : const UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
+            focusedErrorBorder: lines != null
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(color: Colors.red),
+                  )
+                : const UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
             isDense: true,
             label: label != null ? Text(label!) : null,
             hintText: hint,

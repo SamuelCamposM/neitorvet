@@ -5,6 +5,7 @@ import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/screens/cierre_caja_screen.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/screens/cierre_cajas_screen.dart';
+import 'package:neitorvet/features/cierre_caja/presentation/screens/get_info_cierre_cajas_screen.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/screens/cierre_surtidor_screen.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/screens/cierre_surtidores_screen.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/screens/menu_despacho.dart';
@@ -68,6 +69,10 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/cierre_turno',
         builder: (context, state) => const CierreTurnoScreen(),
+      ),
+      GoRoute(
+        path: '/get_info_cierre_cajas',
+        builder: (context, state) => const GetInfoCierreCajasScreen(),
       ),
       GoRoute(
         path: '/cierre_cajas',

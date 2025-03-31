@@ -35,8 +35,8 @@ class CierreCajaScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(cierreCajaState.cierreCaja?.cajaId == 0
-              ? 'Nuevo CierreCaja'
-              : 'Editar CierreCaja'),
+              ? 'Nuevo Cierre Caja'
+              : 'Editar Cierre Caja'),
         ),
         body: cierreCajaState.isLoading
             ? const FullScreenLoader()
@@ -128,64 +128,134 @@ class _CierreCajaFormState extends ConsumerState<_CierreCajaForm> {
     final cierreCajaFormCopyWith = cierreCajaFState.cierreCajaForm.copyWith;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: SingleChildScrollView(
         child: Column(
           children: [
-            Row(
-              children: [
-                Text(
-                  'CierreCaja: ',
-                  style: TextStyle(
-                    fontSize: size.iScreen(1.5),
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodyLarge
-                        ?.color, // Asegurando el color correcto
-                  ),
-                ),
-                Text(
-                  cierreCajaFState.cierreCajaForm.cajaId == 0
-                      ? 'NUEVO'
-                      : widget.cierreCaja.cajaDetalle,
-                  style: TextStyle(
-                    fontSize: size.iScreen(1.5),
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodyLarge
-                        ?.color, // Asegurando el color correcto
-                  ),
-                ),
-              ],
-            ),
-            // Text(cierreCajaFState.cierreCajaForm.perDocTipo),
-            // CustomSelectField(
-            //   errorMessage:
-            //       cierreCajaFState.cierreCajaForm.perDocTipoInput.errorMessage,
-            //   size: size,
-            //   label: 'Tipo Documento',
-            //   value: cierreCajaFState.cierreCajaForm.perDocTipo,
-            //   onChanged: (String? value) async {
-            //     searchController.text = '';
-            //     final cierreCajaForm = CierreCajaForm.fromCierreCaja(widget.cierreCaja);
-            //     final cierreCajaFormUpdated =
-            //         cierreCajaForm.copyWith(perDocTipo: value);
-
-            //     updateForm(cierreCajaForm: cierreCajaFormUpdated);
-            //     docController.text = cierreCajaFormUpdated.perDocNumero;
-            //     nombreController.text = cierreCajaFormUpdated.perNombre;
-            //     dirController.text = cierreCajaFormUpdated.perDireccion;
-            //   },
-            //   options: [
-            //     Option(label: 'RUC', value: 'RUC'),
-            //     Option(label: "CEDULA", value: "CEDULA"),
-            //     Option(label: "PASAPORTE", value: "PASAPORTE"),
-            //     Option(label: "PLACA", value: "PLACA"),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   crossAxisAlignment: CrossAxisAlignment.start,
+            //   children: [
+            //     Text(
+            //       'Cierre Caja: ',
+            //       style: TextStyle(
+            //         fontSize: size.iScreen(1.5),
+            //         fontWeight: FontWeight.normal,
+            //         color: Theme.of(context)
+            //             .textTheme
+            //             .bodyLarge
+            //             ?.color, // Asegurando el color correcto
+            //       ),
+            //     ),
+            //     Expanded(
+            //       child: Text(
+            //         cierreCajaFState.cierreCajaForm.cajaId == 0
+            //             ? 'NUEVO'
+            //             : widget.cierreCaja.cajaDetalle,
+            //         style: TextStyle(
+            //           fontSize: size.iScreen(1.5),
+            //           fontWeight: FontWeight.bold,
+            //           color: Theme.of(context)
+            //               .textTheme
+            //               .bodyLarge
+            //               ?.color, // Asegurando el color correcto
+            //         ),
+            //       ),
+            //     )
             //   ],
             // ),
 
+            const SizedBox(height: 20),
+            CustomSelectField(
+              bold: false,
+              errorMessage: cierreCajaFState
+                  .cierreCajaForm.cajaTipoCajaInput.errorMessage,
+              size: size,
+              label: 'Tipo',
+              value: cierreCajaFState.cierreCajaForm.cajaTipoCaja,
+              onChanged: (String? value) async {
+                updateForm(
+                    cierreCajaForm:
+                        cierreCajaFormCopyWith(cajaTipoCaja: value));
+              },
+              options: [
+                Option(label: 'EFECTIVO', value: 'EFECTIVO'),
+                Option(label: "CHEQUE", value: "CHEQUE"),
+                Option(label: "TRANSFERENCIA", value: "TRANSFERENCIA"),
+                Option(label: "DEPOSITO", value: "DEPOSITO"),
+              ],
+            ),
+            CustomSelectField(
+              bold: false,
+              errorMessage: cierreCajaFState
+                  .cierreCajaForm.cajaTipoDocumentoInput.errorMessage,
+              size: size,
+              label: 'Tipo',
+              value: cierreCajaFState.cierreCajaForm.cajaTipoDocumento,
+              onChanged: (String? value) async {
+                updateForm(
+                    cierreCajaForm:
+                        cierreCajaFormCopyWith(cajaTipoDocumento: value));
+              },
+              options: [
+                Option(label: 'APERTURA', value: 'APERTURA'),
+                Option(label: 'INGRESO', value: 'INGRESO'),
+                Option(label: 'EGRESO', value: 'EGRESO'),
+                Option(label: 'DEPOSITO', value: 'DEPOSITO'),
+                Option(label: 'CAJA CHICA', value: 'CAJA CHICA'),
+                Option(label: 'TRANSFERENCIA', value: 'TRANSFERENCIA'),
+              ],
+            ),
+            //  cajaMonto
+// cajaAutorizacion
+// cajaDetalle
+            CustomInputField(
+              label: 'Monto',
+              errorMessage:
+                  cierreCajaFState.cierreCajaForm.cajaMontoInput.errorMessage,
+              keyboardType: TextInputType.number,
+              initialValue:
+                  cierreCajaFState.cierreCajaForm.cajaMonto.toString(),
+              onChanged: (p0) {
+                updateForm(
+                    cierreCajaForm: cierreCajaFormCopyWith(
+                        cajaMonto: double.tryParse(p0) ?? 0));
+              },
+              // errorMessage: clienteForm.perCanton.errorMessage,
+            ),
+            CustomInputField(
+              label: 'Autorizacion',
+              initialValue:
+                  cierreCajaFState.cierreCajaForm.cajaAutorizacion.toString(),
+              onChanged: (p0) {
+                updateForm(
+                    cierreCajaForm:
+                        cierreCajaFormCopyWith(cajaAutorizacion: p0));
+              },
+              // errorMessage: clienteForm.perCanton.errorMessage,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: CustomInputField(
+                label: 'Detalle',
+                lines: 3,
+                errorMessage: cierreCajaFState
+                    .cierreCajaForm.cajaDetalleInput.errorMessage,
+                initialValue:
+                    cierreCajaFState.cierreCajaForm.cajaDetalle.toString(),
+                onChanged: (p0) {
+                  updateForm(
+                      cierreCajaForm: cierreCajaFormCopyWith(cajaDetalle: p0));
+                },
+                // errorMessage: clienteForm.perCanton.errorMessage,
+              ),
+            ),
+
+            // Text('${cierreCajaFState.cierreCajaForm.cajaTipoCaja}'),
+            // Text('${cierreCajaFState.cierreCajaForm.cajaTipoDocumento}'),
+            // Text('${cierreCajaFState.cierreCajaForm.cajaMonto}'),
+            // Text('${cierreCajaFState.cierreCajaForm.cajaAutorizacion}'),
+            // Text('${cierreCajaFState.cierreCajaForm.cajaDetalle}'),
             const SizedBox(height: 100),
           ],
         ),

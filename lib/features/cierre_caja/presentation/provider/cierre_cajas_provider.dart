@@ -7,6 +7,7 @@ import 'package:neitorvet/features/cierre_caja/domain/repositories/cierre_cajas_
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/repositories/cierre_surtidores_repository.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_repository_provider.dart';
+import 'package:neitorvet/features/shared/helpers/get_date.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 
 import 'package:neitorvet/features/shared/provider/socket.dart';
@@ -14,13 +15,25 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 enum CierreCajaEstado {
   diaria("DIARIA"),
-  general("GENERAL");
+  general("GENERAL"),
+  anulada("ANULADA");
   // notaCierreCajas("NOTA VENTAS"),
   // proformas("PROFORMAS"),
   // notaCreditos("NOTA CREDITOS");
 
   final String value;
   const CierreCajaEstado(this.value);
+}
+
+class SumaIEC {
+  final double ingreso;
+  final double egreso;
+  final double credito;
+  const SumaIEC({
+    this.ingreso = 0,
+    this.egreso = 0,
+    this.credito = 0,
+  });
 }
 
 class GetCierreCajaResponse {
@@ -65,6 +78,7 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
   }) : super(CierreCajasState()) {
     _initializeSocketListeners();
     loadNextPage();
+    setSumaIEC(fecha: GetDate.today);
   }
 
   void _initializeSocketListeners() {
@@ -74,7 +88,7 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
 
     socket.on("server:actualizadoExitoso", (data) {
       if (mounted) {
-        if (data['tabla'] == 'cierreCaja') {
+        if (data['tabla'] == 'caja' && data['rucempresa'] == user.rucempresa) {
           // Edita de la lista de cierreCajas
           final updatedCierreCaja = CierreCaja.fromJson(data);
           final updatedCierreCajasList = state.cierreCajas.map((cierreCaja) {
@@ -89,19 +103,15 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
 
     socket.on("server:guardadoExitoso", (data) {
       if (mounted) {
-        if (data['tabla'] == 'cierreCaja') {
-          // Agrega a la lista de cierreCajas
-
+        if (data['tabla'] == 'caja' && data['rucempresa'] == user.rucempresa) {
           final newCierreCaja = CierreCaja.fromJson(data);
-          if (newCierreCaja.cajaUser == 'admin') {
-            state = state.copyWith(cierreCajas: [
-              newCierreCaja,
-              ...state.cierreCajas,
-            ]);
-            // final pdfUrl =
-            //     '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${newCierreCaja.cajaId}&empresa=${newCierreCaja.venEmpresa}';
-            // downloadPDF(null, pdfUrl);
-          }
+          state = state.copyWith(cierreCajas: [
+            newCierreCaja,
+            ...state.cierreCajas,
+          ]);
+          // final pdfUrl =
+          //     '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${newCierreCaja.cajaId}&empresa=${newCierreCaja.venEmpresa}';
+          // downloadPDF(null, pdfUrl);
         }
       }
     });
@@ -244,6 +254,9 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
       state = state.copyWith(isLoading: false, error: cierreCajas.error);
       return;
     }
+    if (state.estado != estado) {
+      setSumaIEC(fecha: estado == CierreCajaEstado.diaria ? GetDate.today : "");
+    }
 
     state = state.copyWith(
         isLoading: false,
@@ -284,6 +297,18 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
   void resetError() {
     state = state.copyWith(error: '');
   }
+
+  void setSumaIEC({required String fecha}) async {
+    final res =
+        await cierreCajasRepository.getSumaIEC(fecha: fecha, search: '');
+    if (res.error.isNotEmpty) {
+      state = state.copyWith(isLoading: false, error: res.error);
+      return;
+    }
+    state = state.copyWith(
+        sumaIEC: SumaIEC(
+            ingreso: res.credito, egreso: res.egreso, credito: res.credito));
+  }
 }
 
 class CierreCajasState {
@@ -302,6 +327,8 @@ class CierreCajasState {
   final int totalSearched;
   final BusquedaCierreCaja busquedaCierreCaja;
   final bool isSearching;
+  final SumaIEC sumaIEC;
+
   CierreCajasState({
     this.isLastPage = false,
     this.isLoading = false,
@@ -318,6 +345,7 @@ class CierreCajasState {
     this.totalSearched = 0,
     this.busquedaCierreCaja = const BusquedaCierreCaja(),
     this.isSearching = false,
+    this.sumaIEC = const SumaIEC(),
   });
 
   CierreCajasState copyWith({
@@ -336,6 +364,7 @@ class CierreCajasState {
     int? totalSearched,
     BusquedaCierreCaja? busquedaCierreCaja,
     bool? isSearching,
+    SumaIEC? sumaIEC,
   }) {
     return CierreCajasState(
       isLastPage: isLastPage ?? this.isLastPage,
@@ -353,6 +382,7 @@ class CierreCajasState {
       totalSearched: totalSearched ?? this.totalSearched,
       busquedaCierreCaja: busquedaCierreCaja ?? this.busquedaCierreCaja,
       isSearching: isSearching ?? this.isSearching,
+      sumaIEC: sumaIEC ?? this.sumaIEC,
     );
   }
 }

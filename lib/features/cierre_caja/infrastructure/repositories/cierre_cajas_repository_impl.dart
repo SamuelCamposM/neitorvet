@@ -25,4 +25,10 @@ class CierreCajasRepositoryImpl extends CierreCajasRepository {
         busquedaCierreCaja: busquedaCierreCaja,
         estado: estado);
   }
+
+  @override
+  Future<ResponseSumaIEC> getSumaIEC(
+      {required String fecha, required String search}) {
+    return datasource.getSumaIEC(fecha: fecha, search: search);
+  }
 }

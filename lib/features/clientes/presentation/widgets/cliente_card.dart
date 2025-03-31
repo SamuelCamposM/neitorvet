@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/shared/widgets/card/card_container.dart';
+import 'package:neitorvet/features/shared/widgets/card/card_mar_pad.dart';
 
 class ClienteCard extends StatelessWidget {
   final String nombreUsuario;
@@ -25,9 +27,8 @@ class ClienteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Container(
-      margin: EdgeInsets.symmetric(
-          horizontal: size.iScreen(1), vertical: size.iScreen(0.5)),
+    return CardMarPad(
+      size: size,
       child: Slidable(
         key: ValueKey(perId),
         startActionPane: ActionPane(
@@ -77,24 +78,9 @@ class ClienteCard extends StatelessWidget {
                   context.push('/cliente/$perId');
                 }
               : null,
-          child: Container(
-            padding: EdgeInsets.all(size.iScreen(1.0)),
-            width: size.wScreen(100),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
-                BoxShadow(
-                  color: colors.shadow
-                      .withAlpha((0.2 * 255).toInt()), // Reduce la opacidad
-                  spreadRadius: 0,
-                  blurRadius:
-                      4, // Reduce el desenfoque para una sombra más suave
-                  offset: const Offset(0,
-                      2), // Ajusta el desplazamiento para una sombra más sutil
-                ),
-              ],
-            ),
+          child: CardContainer(
+            colors: colors,
+            size: size,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

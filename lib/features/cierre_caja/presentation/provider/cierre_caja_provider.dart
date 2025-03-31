@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_provider.dart';
+import 'package:neitorvet/features/shared/helpers/get_date.dart';
 
 final cierreCajaProvider = StateNotifierProvider.family
     .autoDispose<CierreCajaNotifier, CierreCajaState, int>((ref, cajaId) {
@@ -30,15 +31,15 @@ class CierreCajaNotifier extends StateNotifier<CierreCajaState> {
       cajaDetalle: "",
       cajaEgreso: "",
       cajaEmpresa: "",
-      cajaEstado: "",
-      cajaFecha: "",
+      cajaEstado: "ACTIVO",
+      cajaFecha: GetDate.today,
       cajaFecReg: "",
       cajaIdVenta: "",
       cajaIngreso: "",
       cajaNumero: "",
       cajaProcedencia: "",
-      cajaTipoCaja: "",
-      cajaTipoDocumento: "",
+      cajaTipoCaja: "EFECTIVO",
+      cajaTipoDocumento: "INGRESO",
       cajaUser: "",
       todos: "",
     );

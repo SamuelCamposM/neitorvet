@@ -9,6 +9,24 @@ class ResponseCierreCajasPaginacion {
       {required this.resultado, required this.error, this.total = 0});
 }
 
+class ResponseSumaIEC {
+  final double ingreso;
+  final double egreso;
+  final double credito;
+  final double transferencia;
+  final double deposito;
+  final String error;
+
+  ResponseSumaIEC({
+    required this.ingreso,
+    required this.egreso,
+    required this.credito,
+    required this.transferencia,
+    required this.deposito,
+    required this.error,
+  });
+}
+
 abstract class CierreCajasDatasource {
   Future<ResponseCierreCajasPaginacion> getCierreCajasByPage(
       {required int cantidad,
@@ -18,4 +36,9 @@ abstract class CierreCajasDatasource {
       required bool orden,
       required BusquedaCierreCaja busquedaCierreCaja,
       required String estado});
+  // cajas/saldo-total/ingreso-egreso-credito?search=&fecha=2025-03-28
+  Future<ResponseSumaIEC> getSumaIEC({
+    required String fecha,
+    required String search,
+  });
 }

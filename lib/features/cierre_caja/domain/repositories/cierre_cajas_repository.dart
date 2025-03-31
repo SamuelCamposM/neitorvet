@@ -10,4 +10,8 @@ abstract class CierreCajasRepository {
       required bool orden,
       required BusquedaCierreCaja busquedaCierreCaja,
       required String estado});
+  Future<ResponseSumaIEC> getSumaIEC({
+    required String fecha,
+    required String search,
+  });
 }
