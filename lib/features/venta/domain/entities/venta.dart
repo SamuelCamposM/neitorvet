@@ -253,7 +253,7 @@ class Venta {
   }
 
   static double tresDecimales(double numero) {
-    return double.parse(numero.toStringAsFixed(3));
+    return double.parse(numero.toStringAsFixed(4));
   }
 
   static Totales sumarCantidad(Totales acumulador, Producto valorActual) {

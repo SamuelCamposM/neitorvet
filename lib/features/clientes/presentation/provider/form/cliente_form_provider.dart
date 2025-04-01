@@ -64,7 +64,11 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
       ...state.clienteForm
           .copyWith(
               perCelular:
-                  state.clienteForm.perCelular.isEmpty ? ['0900000000'] : null)
+                  state.clienteForm.perCelular.isEmpty ? ['0900000000'] : null,
+              perEmail:
+                  state.clienteForm.perEmail.isEmpty ? ['correo@sincorreo.com'] : null,
+                  
+                  )
           .toCliente()
           .toJson(),
       ...dataDefaultMap(empresaPropery: 'perEmpresa', userProperty: 'perUser'),
@@ -103,7 +107,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
             perNombre: state.clienteForm.perNombre,
             perDireccion: state.clienteForm.perDireccion,
             // perCelular: state.clienteForm.perCelular,
-            perEmail: state.clienteForm.perEmail,
+            // perEmail: state.clienteForm.perEmail,
             perOtros: state.clienteForm.perOtros,
           ),
           isFormValid: Formz.validate([
@@ -118,7 +122,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
             GenericRequiredInput.dirty(state.clienteForm.perDocNumero),
             GenericRequiredInput.dirty(state.clienteForm.perNombre),
             GenericRequiredInput.dirty(state.clienteForm.perDireccion),
-            GenericRequiredListStr.dirty(state.clienteForm.perEmail),
+            // GenericRequiredListStr.dirty(state.clienteForm.perEmail),
             // GenericRequiredListStr.dirty(state.clienteForm.perCelular),
             GenericRequiredListStr.dirty(state.clienteForm.perOtros),
           ]));
@@ -136,7 +140,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
         GenericRequiredInput.dirty(state.clienteForm.perDocNumero),
         GenericRequiredInput.dirty(state.clienteForm.perNombre),
         GenericRequiredInput.dirty(state.clienteForm.perDireccion),
-        GenericRequiredListStr.dirty(state.clienteForm.perEmail),
+        // GenericRequiredListStr.dirty(state.clienteForm.perEmail),
         // GenericRequiredListStr.dirty(state.clienteForm.perCelular),
         GenericRequiredListStr.dirty(state.clienteForm.perOtros),
       ]));

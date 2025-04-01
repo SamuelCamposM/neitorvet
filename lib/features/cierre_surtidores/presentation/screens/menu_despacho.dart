@@ -57,84 +57,85 @@ class BodyMenuDespacho extends ConsumerWidget {
       appBar: AppBar(
         title: Text(ventaState != null ? 'Despacho' : "Cierre de Caja"),
       ),
-      body: Container(
-        width: size.wScreen(100.0),
-        height: size.hScreen(100.0),
-        padding: EdgeInsets.only(top: size.iScreen(1.0)),
-        child: Column(
-          children: [
-            if (ventaFState != null && ventaState != null)
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final inventario = await searchInventario(
-                      context: context, ref: ref, filterByCategory: true);
-                  if (inventario != null) {
-                    final exist = ventaFState.ventaForm.venProductosInput.value
-                        .any((e) => e.codigo == inventario.invSerie);
-                    if (exist) {
-                      if (context.mounted) {
-                        NotificationsService.show(
-                            context,
-                            'Este Producto ya se encuentra en la lista',
-                            SnackbarCategory.error);
+      body: SingleChildScrollView(
+        child: Container(
+          width: size.wScreen(100.0), 
+          padding: EdgeInsets.only(top: size.iScreen(1.0)),
+          child: Column(
+            children: [
+              if (ventaFState != null && ventaState != null)
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final inventario = await searchInventario(
+                        context: context, ref: ref, filterByCategory: true);
+                    if (inventario != null) {
+                      final exist = ventaFState.ventaForm.venProductosInput.value
+                          .any((e) => e.codigo == inventario.invSerie);
+                      if (exist) {
+                        if (context.mounted) {
+                          NotificationsService.show(
+                              context,
+                              'Este Producto ya se encuentra en la lista',
+                              SnackbarCategory.error);
+                        }
+                        return;
                       }
-                      return;
+                      ref
+                          .read(ventaFormProvider(ventaState!.venta!).notifier)
+                          .updateState(
+                              nuevoProducto: Producto(
+                            cantidad: 0,
+                            codigo: inventario.invSerie,
+                            descripcion: inventario.invNombre,
+                            valUnitarioInterno: Parse.parseDynamicToDouble(
+                                inventario.invprecios[0]),
+                            valorUnitario: Parse.parseDynamicToDouble(
+                                inventario.invprecios[0]),
+                            llevaIva: inventario.invIva,
+                            incluyeIva: inventario.invIncluyeIva,
+                            recargoPorcentaje: 0,
+                            recargo: 0,
+                            descPorcentaje: ventaState!.venta!.venDescPorcentaje,
+                            descuento: 0,
+                            precioSubTotalProducto: 0,
+                            valorIva: 0,
+                            costoProduccion: 0,
+                          ));
+                      if (context.mounted) {
+                        context.pop(context);
+                      }
                     }
-                    ref
-                        .read(ventaFormProvider(ventaState!.venta!).notifier)
-                        .updateState(
-                            nuevoProducto: Producto(
-                          cantidad: 0,
-                          codigo: inventario.invSerie,
-                          descripcion: inventario.invNombre,
-                          valUnitarioInterno: Parse.parseDynamicToDouble(
-                              inventario.invprecios[0]),
-                          valorUnitario: Parse.parseDynamicToDouble(
-                              inventario.invprecios[0]),
-                          llevaIva: inventario.invIva,
-                          incluyeIva: inventario.invIncluyeIva,
-                          recargoPorcentaje: 0,
-                          recargo: 0,
-                          descPorcentaje: ventaState!.venta!.venDescPorcentaje,
-                          descuento: 0,
-                          precioSubTotalProducto: 0,
-                          valorIva: 0,
-                          costoProduccion: 0,
-                        ));
-                    if (context.mounted) {
-                      context.pop(context);
-                    }
-                  }
-                },
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                      color: ventaFState.nuevoProducto.errorMessage != null
-                          ? Colors.red
-                          : Colors.grey),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                        color: ventaFState.nuevoProducto.errorMessage != null
+                            ? Colors.red
+                            : Colors.grey),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  icon: const Icon(Icons.create),
+                  label: Text(
+                    ventaFState.nuevoProducto.errorMessage != null
+                        ? ventaFState.nuevoProducto.errorMessage!
+                        : ventaFState.nuevoProducto.value.descripcion == ''
+                            ? "Otros Productos*"
+                            : '${ventaFState.nuevoProducto.value.descripcion} \$${ventaFState.nuevoProducto.value.valorUnitario}',
                   ),
                 ),
-                icon: const Icon(Icons.create),
-                label: Text(
-                  ventaFState.nuevoProducto.errorMessage != null
-                      ? ventaFState.nuevoProducto.errorMessage!
-                      : ventaFState.nuevoProducto.value.descripcion == ''
-                          ? "Otros Productos*"
-                          : '${ventaFState.nuevoProducto.value.descripcion} \$${ventaFState.nuevoProducto.value.valorUnitario}',
-                ),
+              Wrap(
+                alignment: WrapAlignment.center,
+                children: uniqueSurtidores
+                    .map((e) => _CardSurtidor(
+                          size: size,
+                          surtidor: e,
+                          ventaState: ventaState,
+                        ))
+                    .toList(),
               ),
-            Wrap(
-              alignment: WrapAlignment.center,
-              children: uniqueSurtidores
-                  .map((e) => _CardSurtidor(
-                        size: size,
-                        surtidor: e,
-                        ventaState: ventaState,
-                      ))
-                  .toList(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

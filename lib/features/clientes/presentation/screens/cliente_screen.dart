@@ -291,8 +291,8 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
               margin: EdgeInsets.symmetric(vertical: size.iScreen(0.3)),
               color: Colors.grey.shade100,
               child: CustomExpandableEmailList(
-                errorMessage:
-                    clienteFState.clienteForm.perEmailInput.errorMessage,
+                // errorMessage:
+                //     clienteFState.clienteForm.perEmailInput.errorMessage,
                 label: 'Correos',
                 onAddValue: (p0) {
                   updateForm(

@@ -67,9 +67,9 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
       {required String fecha, required String search}) async {
     try {
       final response = await dio.get(
-        '//cajas/saldo-total/ingreso-egreso-credito',
+        '/cajas/saldo-total/ingreso-egreso-credito',
         queryParameters: {
-          // 'search': search,
+          'search': search,
           'fecha': fecha,
         },
       );

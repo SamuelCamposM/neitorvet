@@ -80,7 +80,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
 
     socket.on("server:actualizadoExitoso", (data) {
       if (mounted) {
-        if (data['tabla'] == 'venta') {
+        if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Edita de la lista de ventas
           final updatedVenta = Venta.fromJson(data);
           final updatedVentasList = state.ventas.map((venta) {
@@ -93,11 +93,11 @@ class VentasNotifier extends StateNotifier<VentasState> {
 
     socket.on("server:guardadoExitoso", (data) {
       if (mounted) {
-        if (data['tabla'] == 'venta') {
+        if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Agrega a la lista de ventas
 
           final newVenta = Venta.fromJson(data);
-          if (newVenta.venUser == 'admin') {
+          if (newVenta.venUser == user.usuario) {
             printTicket(
               newVenta,
               user,

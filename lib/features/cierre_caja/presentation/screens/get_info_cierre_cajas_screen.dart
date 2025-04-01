@@ -57,7 +57,7 @@ class _GetInfoCierreCajasScreenState
       }
 
       datos = res;
-      searchController.text = '';
+      // searchController.text = '';
 
       // updateForm(clienteForm: ClienteForm.fromCliente(res.resultado!));
 

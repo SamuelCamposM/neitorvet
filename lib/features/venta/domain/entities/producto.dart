@@ -105,7 +105,7 @@ class Producto {
       };
 
   double tresDecimales(double numero) {
-    return double.parse(numero.toStringAsFixed(4));
+    return double.parse(numero.toStringAsFixed(5));
   }
 
   double dosDecimales(double numero) {

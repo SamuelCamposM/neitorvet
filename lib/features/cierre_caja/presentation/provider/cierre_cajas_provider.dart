@@ -47,6 +47,7 @@ final cierreCajasProvider =
     StateNotifierProvider.autoDispose<CierreCajasNotifier, CierreCajasState>(
   (ref) {
     final user = ref.watch(authProvider).user;
+    final isAdmin = ref.watch(authProvider).isAdmin;
 
     final cierreCajasRepository = ref.watch(cierreCajasRepositoryProvider);
     final cierreSurtidoresRepository =
@@ -58,6 +59,7 @@ final cierreCajasProvider =
         cierreCajasRepository: cierreCajasRepository,
         downloadPDF: downloadPDF,
         user: user!,
+        isAdmin: isAdmin,
         cierreSurtidoresRepository: cierreSurtidoresRepository);
   },
 );
@@ -67,12 +69,14 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
   final CierreSurtidoresRepository cierreSurtidoresRepository;
   final io.Socket socket;
   final User user;
+  final bool isAdmin;
   final Future<void> Function(BuildContext? context, String infoPdf)
       downloadPDF;
   CierreCajasNotifier({
     required this.cierreCajasRepository,
     required this.socket,
     required this.user,
+    required this.isAdmin,
     required this.downloadPDF,
     required this.cierreSurtidoresRepository,
   }) : super(CierreCajasState()) {
@@ -299,8 +303,8 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
   }
 
   void setSumaIEC({required String fecha}) async {
-    final res =
-        await cierreCajasRepository.getSumaIEC(fecha: fecha, search: '');
+    final res = await cierreCajasRepository.getSumaIEC(
+        fecha: fecha, search: isAdmin ? '' : user.usuario);
     if (res.error.isNotEmpty) {
       state = state.copyWith(isLoading: false, error: res.error);
       return;
