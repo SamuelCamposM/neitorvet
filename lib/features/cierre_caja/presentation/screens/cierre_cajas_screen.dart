@@ -298,7 +298,7 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                spacing: 5,
+                // spacing: 5,
                 children: [
                   // Botón para "Ingreso"
                   ElevatedButton(
