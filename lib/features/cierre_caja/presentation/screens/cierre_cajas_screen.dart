@@ -5,6 +5,7 @@ import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart'
 import 'package:neitorvet/features/cierre_caja/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/widgets/cierre_caja_card.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -373,7 +374,7 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
                     child: Column(
                       children: [
                         const Text(
-                          'Crédito',
+                          'Total',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -381,7 +382,7 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
                           ),
                         ),
                         Text(
-                          '${cierreCajasState.sumaIEC.credito}',
+                          '\$${Format.roundToTwoDecimals(cierreCajasState.sumaIEC.ingreso + cierreCajasState.sumaIEC.egreso)}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,

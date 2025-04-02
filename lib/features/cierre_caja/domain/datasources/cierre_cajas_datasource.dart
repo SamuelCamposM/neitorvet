@@ -17,7 +17,7 @@ class ResponseSumaIEC {
   final double deposito;
   final String error;
 
-  ResponseSumaIEC({
+  const ResponseSumaIEC({
     required this.ingreso,
     required this.egreso,
     required this.credito,

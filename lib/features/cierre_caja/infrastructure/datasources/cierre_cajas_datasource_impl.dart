@@ -75,9 +75,9 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
       );
 
       return ResponseSumaIEC(
-        credito: Parse.parseDynamicToDouble(response.data?['Ingreso']),
+        ingreso: Parse.parseDynamicToDouble(response.data?['Ingreso']),
         egreso: Parse.parseDynamicToDouble(response.data?['Egreso']),
-        ingreso: Parse.parseDynamicToDouble(response.data?['Credito']),
+        credito: Parse.parseDynamicToDouble(response.data?['Credito']),
         transferencia:
             Parse.parseDynamicToDouble(response.data?['Transferencia']),
         deposito: Parse.parseDynamicToDouble(response.data?['Deposito']),

@@ -7,6 +7,7 @@ import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
+import 'package:neitorvet/features/venta/infrastructure/input/min_value_cliente.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/producto_input.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/productos.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
@@ -67,7 +68,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     socket.on('disconnect', (_) {});
 
     socket.on("server:actualizadoExitoso", (data) {
-      print('hola');
       if (mounted) {
         try {
           if (data['tabla'] == 'proveedor') {
@@ -100,7 +100,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     });
 
     socket.on("server:guardadoExitoso", (data) {
-      print('hola');
       if (mounted) {
         try {
           if (data['tabla'] == 'proveedor') {
@@ -303,17 +302,21 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
           ventaForm: state.ventaForm.copyWith(
             venRucCliente: state.ventaForm.venRucCliente,
             venProductos: state.ventaForm.venProductos,
+            venTotal: state.ventaForm.venTotal,
           ),
           isFormValid: Formz.validate([
-            GenericRequiredInput.dirty(
-                state.ventaForm.venRucClienteInput.value),
-            Productos.dirty(state.ventaForm.venProductosInput.value)
+            MinValueCliente.dirty(state.ventaForm.venTotal,
+                venRucCliente: state.ventaForm.venRucCliente),
+            GenericRequiredInput.dirty(state.ventaForm.venRucCliente),
+            Productos.dirty(state.ventaForm.venProductos)
           ]));
     } else {
       state = state.copyWith(
           isFormValid: Formz.validate([
-        GenericRequiredInput.dirty(state.ventaForm.venRucClienteInput.value),
-        Productos.dirty(state.ventaForm.venProductosInput.value)
+        MinValueCliente.dirty(state.ventaForm.venTotal,
+            venRucCliente: state.ventaForm.venRucCliente),
+        GenericRequiredInput.dirty(state.ventaForm.venRucCliente),
+        Productos.dirty(state.ventaForm.venProductos)
       ]));
     }
   }

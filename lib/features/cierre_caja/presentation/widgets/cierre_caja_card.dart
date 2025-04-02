@@ -140,7 +140,7 @@ class CierreCajaCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "\$${cierreCaja.cajaIngreso}",
+                        "\$${cierreCaja.cajaTipoDocumento == 'INGRESO' ? cierreCaja.cajaIngreso : cierreCaja.cajaTipoDocumento == 'EGRESO' ? cierreCaja.cajaEgreso : cierreCaja.cajaCredito}",
                         style: TextStyle(
                           fontSize: size.iScreen(1.7),
                           fontWeight: FontWeight.bold,

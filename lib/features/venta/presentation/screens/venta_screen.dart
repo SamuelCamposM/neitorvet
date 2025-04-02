@@ -103,7 +103,7 @@ class _VentaForm extends ConsumerWidget {
     final ventaFState = ref.watch(ventaFormProvider(venta));
     final ventasState = ref.watch(ventasProvider);
     final updateForm = ref.read(ventaFormProvider(venta).notifier).updateState;
-
+    final colors = Theme.of(context).colorScheme;
     // final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -169,7 +169,7 @@ class _VentaForm extends ConsumerWidget {
                     child: CustomInputField(
                       readOnly: true,
                       controller: TextEditingController(
-                          text: ventaFState.ventaForm.venRucClienteInput.value),
+                          text: ventaFState.ventaForm.venRucCliente),
                       label: 'Ruc Cliente',
                       onChanged: (p0) {
                         updateForm(
@@ -472,7 +472,7 @@ class _VentaForm extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Descuenasdasdto:',
+                            'Descuento:',
                             style: TextStyle(
                                 fontSize: size.iScreen(1.4),
                                 fontWeight: FontWeight.normal),
@@ -554,6 +554,41 @@ class _VentaForm extends ConsumerWidget {
                           ),
                         ],
                       ),
+                      if (ventaFState.ventaForm.venTotalInput.errorMessage !=
+                          null)
+                        Text(
+                          '${ventaFState.ventaForm.venTotalInput.errorMessage}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: size.iScreen(1.2),
+                            color: colors.error,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      if (ventaFState
+                              .ventaForm.venProductosInput.errorMessage !=
+                          null)
+                        Text(
+                          '${ventaFState.ventaForm.venProductosInput.errorMessage}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: size.iScreen(1.2),
+                            color: colors.error,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      if (ventaFState
+                              .ventaForm.venRucClienteInput.errorMessage !=
+                          null)
+                        Text(
+                          '${ventaFState.ventaForm.venRucClienteInput.errorMessage}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: size.iScreen(1.2),
+                            color: colors.error,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                     ],
                   )),
               SizedBox(height: size.hScreen(15)),

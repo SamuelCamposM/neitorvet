@@ -20,4 +20,9 @@ class Format {
       return 'Fecha inválida';
     }
   }
+
+  /// Aproxima un número a 2 decimales
+  static double roundToTwoDecimals(double value) {
+    return double.parse(value.toStringAsFixed(2));
+  }
 }

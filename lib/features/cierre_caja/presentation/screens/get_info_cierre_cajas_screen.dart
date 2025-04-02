@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
-import 'package:neitorvet/features/cierre_caja/domain/datasources/cierre_cajas_datasource.dart';
-import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
-import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
+import 'package:neitorvet/features/cierre_caja/presentation/provider/get_info_cierre_caja_provider.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart'; 
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
 
@@ -17,17 +16,6 @@ class GetInfoCierreCajasScreen extends ConsumerStatefulWidget {
 
 class _GetInfoCierreCajasScreenState
     extends ConsumerState<GetInfoCierreCajasScreen> {
-  bool isLoading = false;
-  ResponseSumaIEC datos = ResponseSumaIEC(
-    ingreso: 0,
-    egreso: 0,
-    credito: 0,
-    error: '',
-    transferencia: 0,
-    deposito: 0,
-  );
-  String fecha = '';
-
   TextEditingController searchController = TextEditingController(text: '');
   @override
   void initState() {
@@ -43,29 +31,9 @@ class _GetInfoCierreCajasScreenState
     BuildContext context,
   ) {
     final colors = Theme.of(context).colorScheme;
-    void buscarCliente(String search, String fecha) async {
-      setState(() {
-        isLoading = true;
-      });
-      final res = await ref
-          .read(cierreCajasRepositoryProvider)
-          .getSumaIEC(fecha: fecha, search: search);
-      if (res.error.isNotEmpty) {
-        if (context.mounted) {
-          NotificationsService.show(context, res.error, SnackbarCategory.error);
-        }
-      }
-
-      datos = res;
-      // searchController.text = '';
-
-      // updateForm(clienteForm: ClienteForm.fromCliente(res.resultado!));
-
-      setState(() {
-        isLoading = false;
-      });
-    }
-
+    final getInfoState = ref.watch(getInfoCierreCajaProvider);
+    final buscarCliente =
+        ref.watch(getInfoCierreCajaProvider.notifier).buscarCliente;
     return Scaffold(
         appBar: AppBar(
           title: const Text('Buscar Información'),
@@ -84,25 +52,23 @@ class _GetInfoCierreCajasScreenState
                     onChanged: (p0) {
                       searchController.text = p0;
                     },
-                    isLoading: isLoading,
+                    isLoading: getInfoState.isLoading,
                     suffixIcon: IconButton(
                       onPressed: () async {
-                        buscarCliente(searchController.text, fecha);
+                        buscarCliente(
+                            searchController.text, getInfoState.fecha);
                       },
                       icon: const Icon(Icons.search),
                     ),
                     onFieldSubmitted: (p0) async {
-                      buscarCliente(searchController.text, fecha);
+                      buscarCliente(searchController.text, getInfoState.fecha);
                     },
                   ),
                   CustomDatePickerButton(
                     label: 'Fecha',
-                    value: fecha,
+                    value: getInfoState.fecha,
                     getDate: (String date) {
-                      setState(() {
-                        fecha = date;
-                      });
-                      buscarCliente(searchController.text, fecha);
+                      buscarCliente(searchController.text, date);
                     },
                   ),
                   const SizedBox(
@@ -119,7 +85,7 @@ class _GetInfoCierreCajasScreenState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Ingreso: \$${datos.ingreso}',
+                            'Ingreso: \$${getInfoState.datos.ingreso}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -127,7 +93,7 @@ class _GetInfoCierreCajasScreenState
                             ),
                           ),
                           Text(
-                            'Egreso: -\$${datos.egreso}',
+                            'Egreso: -\$${getInfoState.datos.egreso}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -135,7 +101,7 @@ class _GetInfoCierreCajasScreenState
                             ),
                           ),
                           Text(
-                            'Total Efectivo: \$${datos.ingreso - datos.egreso}',
+                            'Total Efectivo: \$${Format.roundToTwoDecimals(getInfoState.datos.ingreso + getInfoState.datos.egreso)}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -148,7 +114,7 @@ class _GetInfoCierreCajasScreenState
                             color: Colors.grey,
                           ), // Separador entre las secciones
                           Text(
-                            'Transferencia: \$${datos.transferencia}',
+                            'Transferencia: \$${getInfoState.datos.transferencia}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -156,7 +122,7 @@ class _GetInfoCierreCajasScreenState
                             ),
                           ),
                           Text(
-                            'Crédito: \$${datos.credito}',
+                            'Crédito: \$${getInfoState.datos.credito}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -164,7 +130,7 @@ class _GetInfoCierreCajasScreenState
                             ),
                           ),
                           Text(
-                            'Deposito: \$${datos.deposito}',
+                            'Deposito: \$${getInfoState.datos.deposito}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

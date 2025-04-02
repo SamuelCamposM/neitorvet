@@ -29,6 +29,8 @@ class VentaCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final colors = Theme.of(context).colorScheme;
+    final color = Theme.of(context).colorScheme.primary;
+
     return CardMarPad(
       size: size,
       child: Slidable(
@@ -37,18 +39,20 @@ class VentaCard extends ConsumerWidget {
           motion:
               const DrawerMotion(), // Puedes cambiar ScrollMotion por otro tipo de Motion
           children: [
+            // SlidableAction(
+            //   backgroundColor: color.withAlpha(90),
+            //   onPressed: (context) {
+            //     final pdfUrl =
+            //         '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
+            //     ref
+            //         .read(downloadPdfProvider.notifier)
+            //         .downloadPDF(context, pdfUrl);
+            //   },
+            //   icon: Icons.receipt_long,
+            //   label: 'Tick',
+            // ),
             SlidableAction(
-              onPressed: (context) {
-                final pdfUrl =
-                    '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
-                ref
-                    .read(downloadPdfProvider.notifier)
-                    .downloadPDF(context, pdfUrl);
-              },
-              icon: Icons.receipt_long,
-              label: 'Tick',
-            ),
-            SlidableAction(
+              backgroundColor: color.withAlpha(100),
               onPressed: (context) {
                 final pdfUrl =
                     '${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}';
@@ -58,10 +62,12 @@ class VentaCard extends ConsumerWidget {
                 // context.push(
                 // '/PDF/Factura/${Uri.encodeComponent('${Environment.serverPhpUrl}reportes/factura.php?codigo=${venta.venId}&empresa=${venta.venEmpresa}')}');
               },
+              foregroundColor: colors.onPrimary,
               icon: Icons.picture_as_pdf,
               label: 'PDF',
             ),
             SlidableAction(
+              backgroundColor: color.withAlpha(90),
               onPressed: (context) {
                 //SI MANDAR A ALLAMAR EL PROVIDER EMAIL ACA, daria problema por que se destruiria al instante ref.read
                 final initialEmails = venta.venEmailCliente;
@@ -84,18 +90,9 @@ class VentaCard extends ConsumerWidget {
           ],
         ),
         // endActionPane: ActionPane(
-        //   motion: const DrawerMotion(), // Puedes cambiar DrawerMotion por otro tipo de Motion
-        //   children: [
-        //     SlidableAction(
-        //       onPressed: (context) {
-        //         // Acción adicional
-        //       },
-        //       backgroundColor: Colors.green,
-        //       foregroundColor: Colors.white,
-        //       icon: Icons.share,
-        //       label: 'Compartir',
-        //     ),
-        //   ],
+        //   motion:
+        //       const DrawerMotion(), // Puedes cambiar DrawerMotion por otro tipo de Motion
+        //   children: [],
         // ),
         child: GestureDetector(
           onTap: redirect

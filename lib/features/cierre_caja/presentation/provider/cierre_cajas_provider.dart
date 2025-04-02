@@ -304,14 +304,14 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
 
   void setSumaIEC({required String fecha}) async {
     final res = await cierreCajasRepository.getSumaIEC(
-        fecha: fecha, search: isAdmin ? '' : user.usuario);
+        fecha: fecha, search: isAdmin ? state.search : user.usuario);
     if (res.error.isNotEmpty) {
       state = state.copyWith(isLoading: false, error: res.error);
       return;
     }
     state = state.copyWith(
         sumaIEC: SumaIEC(
-            ingreso: res.credito, egreso: res.egreso, credito: res.credito));
+            ingreso: res.ingreso, egreso: res.egreso, credito: res.credito));
   }
 }
 
