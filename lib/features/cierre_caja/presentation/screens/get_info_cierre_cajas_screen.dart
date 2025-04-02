@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/get_info_cierre_caja_provider.dart';
-import 'package:neitorvet/features/shared/helpers/format.dart'; 
+import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
+import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 class GetInfoCierreCajasScreen extends ConsumerStatefulWidget {
   const GetInfoCierreCajasScreen({super.key});
@@ -17,9 +19,51 @@ class GetInfoCierreCajasScreen extends ConsumerStatefulWidget {
 class _GetInfoCierreCajasScreenState
     extends ConsumerState<GetInfoCierreCajasScreen> {
   TextEditingController searchController = TextEditingController(text: '');
+
+  //************  PARTE PARA CONFIGURAR LA IMPRESORA*******************//
+
+  bool printBinded = false;
+  int paperSize = 0;
+  String serialNumber = "";
+  String printerVersion = "";
+
+  /// must binding ur printer at first init in app
+  Future<bool?> _bindingPrinter() async {
+    final bool? result = await SunmiPrinter.bindingPrinter();
+    return result;
+  }
+
+  //***********************************************/
+
   @override
   void initState() {
     super.initState();
+
+//************  INICIALIZA LA IMPRESORA*******************//
+    _bindingPrinter().then((bool? isBind) async {
+      SunmiPrinter.paperSize().then((int size) {
+        setState(() {
+          paperSize = size;
+        });
+      });
+
+      SunmiPrinter.printerVersion().then((String version) {
+        setState(() {
+          printerVersion = version;
+        });
+      });
+
+      SunmiPrinter.serialNumber().then((String serial) {
+        setState(() {
+          serialNumber = serial;
+        });
+      });
+
+      setState(() {
+        printBinded = isBind!;
+      });
+    });
+//***********************************************/
     // Leer el valor inicial desde Riverpod y asignarlo al controlador
     final initialSearchValue = ref.read(authProvider).user?.usuario ??
         ''; // Asignar el valor al controlador
@@ -142,7 +186,10 @@ class _GetInfoCierreCajasScreenState
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      printTicketBusqueda(getInfoState.datos,
+                          ref.read(authProvider).user, getInfoState.fecha);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                           colors.secondary, // Color de fondo del botón

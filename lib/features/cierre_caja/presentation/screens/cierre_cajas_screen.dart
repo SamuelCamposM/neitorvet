@@ -10,6 +10,7 @@ import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 class CierreCajasScreen extends ConsumerStatefulWidget {
   const CierreCajasScreen({super.key});
@@ -21,9 +22,50 @@ class CierreCajasScreen extends ConsumerStatefulWidget {
 class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
   final ScrollController scrollController = ScrollController();
 
+  //************  PARTE PARA CONFIGURAR LA IMPRESORA*******************//
+
+  bool printBinded = false;
+  int paperSize = 0;
+  String serialNumber = "";
+  String printerVersion = "";
+
+  /// must binding ur printer at first init in app
+  Future<bool?> _bindingPrinter() async {
+    final bool? result = await SunmiPrinter.bindingPrinter();
+    return result;
+  }
+
+  //***********************************************/
+
   @override
   void initState() {
     super.initState();
+
+//************  INICIALIZA LA IMPRESORA*******************//
+    _bindingPrinter().then((bool? isBind) async {
+      SunmiPrinter.paperSize().then((int size) {
+        setState(() {
+          paperSize = size;
+        });
+      });
+
+      SunmiPrinter.printerVersion().then((String version) {
+        setState(() {
+          printerVersion = version;
+        });
+      });
+
+      SunmiPrinter.serialNumber().then((String serial) {
+        setState(() {
+          serialNumber = serial;
+        });
+      });
+
+      setState(() {
+        printBinded = isBind!;
+      });
+    });
+//***********************************************/
 
     scrollController.addListener(
       () {
