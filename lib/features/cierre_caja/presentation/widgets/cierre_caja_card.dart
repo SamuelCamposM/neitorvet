@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_mar_pad.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_container.dart';
+import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 
-class CierreCajaCard extends StatelessWidget {
+class CierreCajaCard extends ConsumerWidget {
   final CierreCaja cierreCaja;
   final Responsive size;
   final bool redirect;
@@ -19,8 +22,9 @@ class CierreCajaCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
+    final user = ref.read(authProvider).user;
     // Asignar colores según el tipo de documento
     Color getColorByTipoDocumento(String tipoDocumento) {
       switch (tipoDocumento) {
@@ -146,6 +150,15 @@ class CierreCajaCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      IconButton(
+                          onPressed: () {
+                            // Imprimir ticket
+                            printTicketDesdeLista(cierreCaja, user!);
+                          },
+                          icon: const Icon(
+                            Icons.print_outlined,
+                            color: Colors.blue,
+                          ))
                     ],
                   ),
                 ),

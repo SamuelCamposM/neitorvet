@@ -2,6 +2,8 @@
 
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show NetworkAssetBundle, Uint8List;
+import 'package:neitorvet/features/cierre_caja/domain/datasources/cierre_cajas_datasource.dart';
+import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
 
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:sunmi_printer_plus/enums.dart';
@@ -140,3 +142,147 @@ Future<void> printTicket(
 }
 
 //=================================================================================================//
+//======================================IMPRIME INFORMACION DE LA BUSQUEDA===========================================================//
+
+Future<void> printTicketBusqueda(
+  ResponseSumaIEC info,
+  User? user,
+  String fecha,
+) async {
+  if (user == null) return;
+
+// Función principal de impresión
+  final totalEfctivo = info.egreso.toDouble() + info.ingreso.toDouble();
+
+  // Imprime el logo (si existe)
+  if (user.logo.isNotEmpty) {
+    String url = user.logo;
+
+    // Convertir la imagen a formato Uint8List
+    Uint8List byte = (await NetworkAssetBundle(Uri.parse(url)).load(url))
+        .buffer
+        .asUint8List();
+
+    // Decodificar la imagen
+    img.Image? originalImage = img.decodeImage(byte);
+
+    if (originalImage != null) {
+      // Redimensionar la imagen (ajusta width y height según tus necesidades)
+      img.Image resizedImage =
+          img.copyResize(originalImage, width: 150, height: 150);
+
+      // Convertir la imagen redimensionada de vuelta a Uint8List
+      Uint8List resizedByte = Uint8List.fromList(img.encodePng(resizedImage));
+
+      // Alinear la imagen y comenzar la transacción de impresión
+      await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+      await SunmiPrinter.printImage(resizedByte);
+
+      // Agregar un salto de línea para asegurar que el texto se imprima debajo
+      await SunmiPrinter.lineWrap(
+          2); // Esto asegura que haya espacio debajo del logo
+    }
+  } else {
+    // Si no hay logo, imprimir el texto "NO LOGO"
+    await SunmiPrinter.printText('NO LOGO');
+    await SunmiPrinter.lineWrap(1); // Saltar una línea para separación
+  }
+
+// Imprime el resto de la información
+  await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
+  await SunmiPrinter.printText('Usuario: ${validarCampo(user.usuario)}');
+
+  await SunmiPrinter.line();
+  await SunmiPrinter.printText(
+      'Fecha: $fecha'); // O utiliza formattedDate si corresponde
+  await SunmiPrinter.line();
+  await SunmiPrinter.printText('Ingreso: ${validarCampo(info.egreso)}');
+  await SunmiPrinter.printText('Egreso: ${validarCampo(info.egreso)}');
+  await SunmiPrinter.printText('Total Efectivo: ${totalEfctivo.toString()}');
+  await SunmiPrinter.lineWrap(2);
+  await SunmiPrinter.printText(
+      'Transferencia: ${validarCampo(info.transferencia.toString())}');
+  await SunmiPrinter.printText(
+      'Crédito: ${validarCampo(info.credito.toString())}');
+  await SunmiPrinter.printText(
+      'Depósito: ${validarCampo(info.deposito.toString())}');
+
+  await SunmiPrinter.line();
+
+  await SunmiPrinter.lineWrap(2);
+  await SunmiPrinter.exitTransactionPrint(true);
+}
+//======================================IMPRIME INFORMACION DESDE LA LISTA===========================================================//
+
+Future<void> printTicketDesdeLista(
+  CierreCaja info,
+  User user,
+) async {
+  if (user == null) return;
+
+  if (info == null) return;
+
+  // Imprime el logo (si existe)
+  if (user.logo.isNotEmpty) {
+    String url = user.logo;
+
+    // Convertir la imagen a formato Uint8List
+    Uint8List byte = (await NetworkAssetBundle(Uri.parse(url)).load(url))
+        .buffer
+        .asUint8List();
+
+    // Decodificar la imagen
+    img.Image? originalImage = img.decodeImage(byte);
+
+    if (originalImage != null) {
+      // Redimensionar la imagen (ajusta width y height según tus necesidades)
+      img.Image resizedImage =
+          img.copyResize(originalImage, width: 150, height: 150);
+
+      // Convertir la imagen redimensionada de vuelta a Uint8List
+      Uint8List resizedByte = Uint8List.fromList(img.encodePng(resizedImage));
+
+      // Alinear la imagen y comenzar la transacción de impresión
+      await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+      await SunmiPrinter.printImage(resizedByte);
+
+      // Agregar un salto de línea para asegurar que el texto se imprima debajo
+      await SunmiPrinter.lineWrap(
+          2); // Esto asegura que haya espacio debajo del logo
+    }
+  } else {
+    // Si no hay logo, imprimir el texto "NO LOGO"
+    await SunmiPrinter.printText('NO LOGO');
+    await SunmiPrinter.lineWrap(1); // Saltar una línea para separación
+  }
+
+// Imprime el resto de la información
+  await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
+  await SunmiPrinter.printText('Id: ${validarCampo(info.cajaId)}');
+  await SunmiPrinter.printText('Número: ${validarCampo(info.cajaNumero)}');
+  await SunmiPrinter.printText('Tipo: ${validarCampo(info.cajaTipoCaja)}');
+  await SunmiPrinter.printText(
+      'Documento: ${validarCampo(info.cajaTipoDocumento)}');
+  await SunmiPrinter.line();
+  await SunmiPrinter.printText(
+      'Fecha: ${info.cajaFecha}'); // O utiliza formattedDate si corresponde
+  await SunmiPrinter.line();
+  await SunmiPrinter.printText('Ingreso: ${validarCampo(info.cajaIngreso)}');
+  await SunmiPrinter.printText('Egreso: ${validarCampo(info.cajaEgreso)}');
+  await SunmiPrinter.printText('Crédito: ${validarCampo(info.cajaCredito)}');
+  await SunmiPrinter.printText('Monto: ${validarCampo(info.cajaMonto)}');
+  await SunmiPrinter.line();
+  await SunmiPrinter.printText(
+      'Autorización: ${validarCampo(info.cajaAutorizacion)}');
+  await SunmiPrinter.printText('Detalle: ${validarCampo(info.cajaDetalle)}');
+  await SunmiPrinter.line();
+  await SunmiPrinter.lineWrap(2);
+  await SunmiPrinter.exitTransactionPrint(true);
+}
+
+// Función para validar si una propiedad es null
+String validarCampo(dynamic valor) {
+  return valor == null || valor.toString().isEmpty
+      ? '--- --- ---'
+      : valor.toString();
+}
