@@ -47,7 +47,7 @@ class ClientesDatasourceImpl extends ClientesDatasource {
       String search) async {
     try {
       final response = await dio.get(
-        rucempresa == "TE2021"
+        rucempresa == "ZARACAY"
             ? "/proveedores/listar_clientes_factura/0"
             : "/proveedores/filtro/0",
         queryParameters: {

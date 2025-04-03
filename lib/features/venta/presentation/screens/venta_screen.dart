@@ -25,6 +25,15 @@ class VentaScreen extends ConsumerWidget {
         NotificationsService.show(context, next.error, SnackbarCategory.error);
       },
     );
+    ref.listen(
+      ventasProvider,
+      (_, next) {
+        if (next.error.isEmpty) return;
+        NotificationsService.show(
+            context, next.error, SnackbarCategory.error);
+        ref.read(ventasProvider.notifier).resetError();
+      },
+    );
 
     final ventaState = ref.watch(ventaProvider(ventaId));
 

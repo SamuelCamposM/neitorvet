@@ -46,7 +46,7 @@ class ClientesViewState extends ConsumerState<ClientesScreen> {
       (_, next) {
         if (next.error.isEmpty) return;
         NotificationsService.show(
-            context, next.error, SnackbarCategory.success);
+            context, next.error, SnackbarCategory.error);
       },
     );
 

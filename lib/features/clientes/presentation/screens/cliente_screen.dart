@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/cliente_provider.dart';
+import 'package:neitorvet/features/clientes/presentation/provider/clientes_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_repository_provider.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/form/cliente_form_provider.dart';
 
@@ -31,7 +32,14 @@ class ClienteScreen extends ConsumerWidget {
         NotificationsService.show(context, next.error, SnackbarCategory.error);
       },
     );
-
+    ref.listen(
+      clientesProvider,
+      (_, next) {
+        if (next.error.isEmpty) return;
+        NotificationsService.show(
+            context, next.error, SnackbarCategory.error);
+      },
+    );
     final clienteState = ref.watch(clienteProvider(clienteId));
 
     return GestureDetector(

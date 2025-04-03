@@ -52,7 +52,7 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
       (_, next) {
         if (next.error.isEmpty) return;
         NotificationsService.show(
-            context, next.error, SnackbarCategory.success);
+            context, next.error, SnackbarCategory.error);
         ref.read(cierreCajasProvider.notifier).resetError();
       },
     );
@@ -100,7 +100,7 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
                 },
                 icon: const Icon(Icons.search)),
           ],
-          title: Text('Cierre Cajas ${cierreCajasState.total}'),
+          title: Text('Cajas ${cierreCajasState.total}'),
           // bottom: TabBar(
           //   isScrollable: true,
           //   tabs: CierreCajaEstado.values.map((estado) {

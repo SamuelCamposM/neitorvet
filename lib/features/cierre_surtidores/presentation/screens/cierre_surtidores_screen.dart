@@ -50,7 +50,7 @@ class CierreSurtidoresViewState extends ConsumerState<CierreSurtidoresScreen> {
       (_, next) {
         if (next.error.isEmpty) return;
         NotificationsService.show(
-            context, next.error, SnackbarCategory.success);
+            context, next.error, SnackbarCategory.error);
         ref.read(cierreSurtidoresProvider.notifier).resetError();
       },
     );

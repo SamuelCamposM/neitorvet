@@ -35,8 +35,8 @@ class CierreCajaScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(cierreCajaState.cierreCaja?.cajaId == 0
-              ? 'Nuevo Cierre Caja'
-              : 'Editar Cierre Caja'),
+              ? 'Nueva Caja'
+              : 'Editar Caja'),
         ),
         body: cierreCajaState.isLoading
             ? const FullScreenLoader()

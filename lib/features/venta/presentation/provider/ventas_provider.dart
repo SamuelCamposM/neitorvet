@@ -114,6 +114,12 @@ class VentasNotifier extends StateNotifier<VentasState> {
         }
       }
     });
+    socket.on("server:error", (data) {
+      if (mounted) {
+        state = state.copyWith(
+            error: data['msg'] ?? "Hubo un error ${data['tabla']}");
+      }
+    });
   }
 
   void resetImprimirFactura() {

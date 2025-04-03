@@ -95,7 +95,7 @@ class Cliente {
         perProvincia: json["perProvincia"],
         perCanton: json["perCanton"],
         perTipoProveedor: json["perTipoProveedor"],
-        perTiempoCredito: json["perTiempoCredito"],
+        perTiempoCredito: Parse.parseDynamicToString(json["perTiempoCredito"]),
         perDocTipo: json["perDocTipo"],
         perDocNumero: json["perDocNumero"],
         perPerfil: List<String>.from(json["perPerfil"].map((x) => x)),

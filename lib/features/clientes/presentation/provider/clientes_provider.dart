@@ -66,6 +66,12 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
         }
       }
     });
+    socket.on("server:error", (data) {
+      if (mounted) {
+        state = state.copyWith(
+            error: data['msg'] ?? "Hubo un error ${data['tabla']}");
+      }
+    });
   }
 
   Future loadNextPage() async {

@@ -49,7 +49,7 @@ const cierreTurnoItems = <MenuItem>[
     color: Colors.green,
   ),
   MenuItem(
-    title: 'Cierre Caja',
+    title: 'Caja',
     subTitle: "",
     link: "/cierre_cajas",
     icon: 'assets/images/factura.png',
