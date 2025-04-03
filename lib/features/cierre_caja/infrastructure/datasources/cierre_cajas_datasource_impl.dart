@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:neitorvet/features/cierre_caja/domain/datasources/cierre_cajas_datasource.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
+import 'package:neitorvet/features/cierre_caja/domain/entities/no_facturado.dart';
 import 'package:neitorvet/features/shared/errors/error_api.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 
@@ -91,6 +92,25 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
           transferencia: 0,
           deposito: 0,
           error: ErrorApi.getErrorMessage(e));
+    }
+  }
+
+  @override
+  Future<ResponseNoFacturados> getNoFacturados() async {
+    try {
+      final response = await dio.post(
+        '/abastecimientos/no_facturados',
+      );
+      final List<NoFacturado> resultado = response.data.map<NoFacturado>((e) {
+        return NoFacturado.fromJson(e);
+      }).toList();
+      return ResponseNoFacturados(
+        resultado: resultado,
+        error: '',
+      );
+    } catch (e) {
+      return ResponseNoFacturados(
+          resultado: [], error: ErrorApi.getErrorMessage(e));
     }
   }
 }

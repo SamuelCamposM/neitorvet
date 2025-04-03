@@ -2,12 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/domain/domain.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/domain/datasources/cierre_cajas_datasource.dart';
+import 'package:neitorvet/features/cierre_caja/domain/entities/no_facturado.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
 import 'package:neitorvet/features/shared/helpers/get_date.dart';
 
-final getInfoCierreCajaProvider =
-    StateNotifierProvider.autoDispose<GenInfoCierreCajaNotifier, GenInfoCierreCajaState>(
+final getInfoCierreCajaProvider = StateNotifierProvider.autoDispose<
+    GenInfoCierreCajaNotifier, GenInfoCierreCajaState>(
   (ref) {
     final cierreCajasP = ref.watch(cierreCajasProvider.notifier);
     final user = ref.watch(authProvider).user!;
@@ -69,6 +70,44 @@ class GenInfoCierreCajaNotifier extends StateNotifier<GenInfoCierreCajaState> {
       );
     }
   }
+
+  Future<List<NoFacturado>> getNoFacturados() async {
+    // Actualizar el estado a "cargando"
+    state = state.copyWith(isLoading: true);
+
+    try {
+      // Llamada al repositorio para obtener los datos
+      final res =
+          await ref.read(cierreCajasRepositoryProvider).getNoFacturados();
+
+      // Manejar errores si los hay
+      if (res.error.isNotEmpty) {
+        state = state.copyWith(error: res.error);
+        return [];
+      }
+
+      // Actualizar el estado con los datos obtenidos
+      state = state.copyWith(
+        isLoading: false,
+        noFacturados: res.resultado,
+        error: res.resultado.isNotEmpty
+            ? 'Debe Facturas las pistolas primero'
+            : '',
+      );
+      return res.resultado;
+    } catch (e) {
+      // Manejar errores inesperados
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Error al cargar los datos',
+      );
+      return [];
+    }
+  }
+
+  void resetError() {
+    state = state.copyWith(error: '');
+  }
 }
 
 class GenInfoCierreCajaState {
@@ -76,8 +115,10 @@ class GenInfoCierreCajaState {
   final ResponseSumaIEC datos;
   final String fecha;
   final String error;
+  final List<NoFacturado> noFacturados;
   GenInfoCierreCajaState({
     this.error = '',
+    this.noFacturados = const [],
     this.isLoading = false,
     this.datos = const ResponseSumaIEC(
       ingreso: 0,
@@ -95,12 +136,14 @@ class GenInfoCierreCajaState {
     bool? isLoading,
     ResponseSumaIEC? datos,
     String? fecha,
+    List<NoFacturado>? noFacturados,
   }) {
     return GenInfoCierreCajaState(
       error: error ?? this.error,
       isLoading: isLoading ?? this.isLoading,
       datos: datos ?? this.datos,
       fecha: fecha ?? this.fecha,
+      noFacturados: noFacturados ?? this.noFacturados,
     );
   }
 }

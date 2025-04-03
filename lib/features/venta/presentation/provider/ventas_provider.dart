@@ -79,6 +79,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     socket.on('connect', (_) {});
 
     socket.on("server:actualizadoExitoso", (data) {
+      print('hola ${data['tabla']}');
       if (mounted) {
         if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Edita de la lista de ventas
@@ -92,6 +93,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     });
 
     socket.on("server:guardadoExitoso", (data) {
+      print('hola ${data['tabla']}');
       if (mounted) {
         if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Agrega a la lista de ventas
@@ -366,6 +368,13 @@ class VentasNotifier extends StateNotifier<VentasState> {
 
   @override
   void dispose() {
+    // Limpia los listeners del socket
+    socket.off("server:actualizadoExitoso");
+    socket.off("server:guardadoExitoso");
+    socket.off("server:error");
+    socket.off("connect");
+    socket.off("disconnect");
+
     super.dispose();
   }
 }

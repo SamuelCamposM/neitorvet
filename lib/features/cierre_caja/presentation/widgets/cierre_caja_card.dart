@@ -14,11 +14,14 @@ class CierreCajaCard extends ConsumerWidget {
   final CierreCaja cierreCaja;
   final Responsive size;
   final bool redirect;
+  final bool isAdmin;
+
   const CierreCajaCard({
     Key? key,
     required this.cierreCaja,
     required this.size,
     required this.redirect,
+    required this.isAdmin,
   }) : super(key: key);
 
   @override
@@ -86,7 +89,9 @@ class CierreCajaCard extends ConsumerWidget {
         child: GestureDetector(
           onTap: redirect
               ? () {
-                  context.push('/cierre_cajas/${cierreCaja.cajaId}');
+                  if (isAdmin) {
+                    context.push('/cierre_cajas/${cierreCaja.cajaId}');
+                  }
                 }
               : null,
           child: CardContainer(

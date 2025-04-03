@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/get_info_cierre_caja_provider.dart';
+import 'package:neitorvet/features/cierre_caja/presentation/widgets/no_facturado_card.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
+import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
@@ -74,151 +77,185 @@ class _GetInfoCierreCajasScreenState
   Widget build(
     BuildContext context,
   ) {
+    ref.listen(
+      getInfoCierreCajaProvider,
+      (_, next) {
+        if (next.error.isEmpty) return;
+        NotificationsService.show(context, next.error, SnackbarCategory.error);
+        ref.read(getInfoCierreCajaProvider.notifier).resetError();
+      },
+    );
     final colors = Theme.of(context).colorScheme;
     final getInfoState = ref.watch(getInfoCierreCajaProvider);
     final buscarCliente =
         ref.watch(getInfoCierreCajaProvider.notifier).buscarCliente;
-    return Scaffold(
+    final getNoFacturados =
+        ref.read(getInfoCierreCajaProvider.notifier).getNoFacturados;
+    final size = Responsive.of(context);
+
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
         appBar: AppBar(
           title: const Text('Buscar Información'),
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  CustomInputField(
-                    readOnly: !ref.read(authProvider).isAdmin,
-                    autofocus: true,
-                    label: 'Buscar USUARIO.',
-                    controller: searchController,
-                    onChanged: (p0) {
-                      searchController.text = p0;
-                    },
-                    isLoading: getInfoState.isLoading,
-                    suffixIcon: IconButton(
-                      onPressed: () async {
-                        buscarCliente(
-                            searchController.text, getInfoState.fecha);
-                      },
-                      icon: const Icon(Icons.search),
-                    ),
-                    onFieldSubmitted: (p0) async {
+        body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                CustomInputField(
+                  readOnly: !ref.read(authProvider).isAdmin,
+                  autofocus: true,
+                  label: 'Buscar USUARIO.',
+                  controller: searchController,
+                  onChanged: (p0) {
+                    searchController.text = p0;
+                  },
+                  isLoading: getInfoState.isLoading,
+                  suffixIcon: IconButton(
+                    onPressed: () async {
                       buscarCliente(searchController.text, getInfoState.fecha);
                     },
+                    icon: const Icon(Icons.search),
                   ),
-                  CustomDatePickerButton(
-                    label: 'Fecha',
-                    value: getInfoState.fecha,
-                    getDate: (String date) {
-                      buscarCliente(searchController.text, date);
-                    },
+                  onFieldSubmitted: (p0) async {
+                    buscarCliente(searchController.text, getInfoState.fecha);
+                  },
+                ),
+                CustomDatePickerButton(
+                  label: 'Fecha',
+                  value: getInfoState.fecha,
+                  getDate: (String date) {
+                    buscarCliente(searchController.text, date);
+                  },
+                ),
+                const SizedBox(height: 20),
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(
-                      height:
-                          20), // Espacio entre el campo de búsqueda y los datos
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Ingreso: \$${getInfoState.datos.ingreso}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                          Text(
-                            'Egreso: -\$${getInfoState.datos.egreso}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                            ),
-                          ),
-                          Text(
-                            'Total Efectivo: \$${Format.roundToTwoDecimals(getInfoState.datos.ingreso + getInfoState.datos.egreso)}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          const Divider(
-                            height: 30,
-                            thickness: 1,
-                            color: Colors.grey,
-                          ), // Separador entre las secciones
-                          Text(
-                            'Transferencia: \$${getInfoState.datos.transferencia}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.teal,
-                            ),
-                          ),
-                          Text(
-                            'Crédito: \$${getInfoState.datos.credito}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
-                            ),
-                          ),
-                          Text(
-                            'Deposito: \$${getInfoState.datos.deposito}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.purple,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      printTicketBusqueda(getInfoState.datos,
-                          ref.read(authProvider).user, getInfoState.fecha);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          colors.secondary, // Color de fondo del botón
-                      foregroundColor: Colors.white, // Color del texto e íconos
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 16), // Padding interno
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(8.0), // Bordes redondeados
-                      ),
-                      elevation: 4, // Sombra del botón
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.print, size: 20), // Ícono de impresión
-                        SizedBox(width: 8), // Espacio entre el ícono y el texto
                         Text(
-                          'Imprimir',
-                          style: TextStyle(
+                          'Ingreso: \$${getInfoState.datos.ingreso}',
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                        Text(
+                          'Egreso: -\$${getInfoState.datos.egreso}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                        Text(
+                          'Total Efectivo: \$${Format.roundToTwoDecimals(getInfoState.datos.ingreso + getInfoState.datos.egreso)}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const Divider(
+                          height: 30,
+                          thickness: 1,
+                          color: Colors.grey,
+                        ),
+                        Text(
+                          'Transferencia: \$${getInfoState.datos.transferencia}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal,
+                          ),
+                        ),
+                        Text(
+                          'Crédito: \$${getInfoState.datos.credito}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        Text(
+                          'Deposito: \$${getInfoState.datos.deposito}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              )),
-        ));
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final response = await getNoFacturados();
+                    if (response.isEmpty) {
+                      printTicketBusqueda(getInfoState.datos,
+                          ref.read(authProvider).user, getInfoState.fecha);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.secondary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.print, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        'Cierre de turno',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: getInfoState.noFacturados.length,
+                  itemBuilder: (context, index) {
+                    final noFacturado = getInfoState.noFacturados[index];
+                    return NoFacturadoCard(
+                      noFacturado: noFacturado,
+                      size: size,
+                      redirect: true,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
+// Column(
+// Expanded(
+// child: ListView.builder(

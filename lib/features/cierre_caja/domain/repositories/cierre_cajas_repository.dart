@@ -14,4 +14,5 @@ abstract class CierreCajasRepository {
     required String fecha,
     required String search,
   });
+  Future<ResponseNoFacturados> getNoFacturados();
 }

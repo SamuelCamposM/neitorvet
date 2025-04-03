@@ -31,4 +31,9 @@ class CierreCajasRepositoryImpl extends CierreCajasRepository {
       {required String fecha, required String search}) {
     return datasource.getSumaIEC(fecha: fecha, search: search);
   }
+
+  @override
+  Future<ResponseNoFacturados> getNoFacturados() {
+    return datasource.getNoFacturados();
+  }
 }

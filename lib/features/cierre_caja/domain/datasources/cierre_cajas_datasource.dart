@@ -1,4 +1,5 @@
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
+import 'package:neitorvet/features/cierre_caja/domain/entities/no_facturado.dart';
 
 class ResponseCierreCajasPaginacion {
   final List<CierreCaja> resultado;
@@ -27,6 +28,13 @@ class ResponseSumaIEC {
   });
 }
 
+class ResponseNoFacturados {
+  final List<NoFacturado> resultado;
+  final String error;
+
+  ResponseNoFacturados({required this.resultado, required this.error});
+}
+
 abstract class CierreCajasDatasource {
   Future<ResponseCierreCajasPaginacion> getCierreCajasByPage(
       {required int cantidad,
@@ -41,4 +49,5 @@ abstract class CierreCajasDatasource {
     required String fecha,
     required String search,
   });
+  Future<ResponseNoFacturados> getNoFacturados();
 }

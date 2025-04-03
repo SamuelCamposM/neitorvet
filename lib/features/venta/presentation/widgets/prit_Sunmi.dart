@@ -218,10 +218,6 @@ Future<void> printTicketDesdeLista(
   CierreCaja info,
   User user,
 ) async {
-  if (user == null) return;
-
-  if (info == null) return;
-
   // Imprime el logo (si existe)
   if (user.logo.isNotEmpty) {
     String url = user.logo;

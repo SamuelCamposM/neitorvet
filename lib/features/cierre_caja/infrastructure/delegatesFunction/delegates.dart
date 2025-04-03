@@ -10,6 +10,7 @@ Future<SearchGenericResult<CierreCaja>?> searchCierreCajas(
     {required BuildContext context,
     required WidgetRef ref,
     required CierreCajasState cierreCajasState,
+    required bool isAdmin,
     required Responsive size}) async {
   return showSearch(
       query: cierreCajasState.search,
@@ -21,6 +22,7 @@ Future<SearchGenericResult<CierreCaja>?> searchCierreCajas(
             redirect: false,
             cierreCaja: item,
             size: size,
+            isAdmin: isAdmin,
           );
         },
         setSearch: ref.read(cierreCajasProvider.notifier).setSearch,

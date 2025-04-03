@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
 import 'package:neitorvet/features/cierre_caja/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_provider.dart';
@@ -88,13 +89,12 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
     final colors = Theme.of(context).colorScheme;
     final size = Responsive.of(context);
     final cierreCajasState = ref.watch(cierreCajasProvider);
-
+    final isAdmin = ref.watch(authProvider).isAdmin;
     ref.listen(
       cierreCajasProvider,
       (_, next) {
         if (next.error.isEmpty) return;
-        NotificationsService.show(
-            context, next.error, SnackbarCategory.error);
+        NotificationsService.show(context, next.error, SnackbarCategory.error);
         ref.read(cierreCajasProvider.notifier).resetError();
       },
     );
@@ -129,6 +129,7 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
                       context: context,
                       ref: ref,
                       cierreCajasState: cierreCajasState,
+                      isAdmin: isAdmin,
                       size: size);
                   if (searchCierreCajaResult?.wasLoading == true) {
                     ref
@@ -309,6 +310,7 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
                     itemBuilder: (context, index) {
                       final cierreCaja = cierreCajasState.cierreCajas[index];
                       return CierreCajaCard(
+                        isAdmin: isAdmin,
                         cierreCaja: cierreCaja,
                         size: size,
                         redirect: true,
