@@ -30,6 +30,11 @@ class Placa extends FormzInput<String, PlacaError> {
   @override
   PlacaError? validator(String value) {
     if (value.isEmpty || value.trim().isEmpty) return PlacaError.empty;
+
+    // Si el valor tiene exactamente 6 caracteres, pasa la validación
+    if (value.length == 6) return null;
+
+    // Validar el formato de la placa
     if (!placaRegExp.hasMatch(value)) return PlacaError.format;
 
     return null;

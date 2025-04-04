@@ -8,6 +8,9 @@ import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
+import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
@@ -92,6 +95,24 @@ class _GetInfoCierreCajasScreenState
     final getNoFacturados =
         ref.read(getInfoCierreCajaProvider.notifier).getNoFacturados;
     final size = Responsive.of(context);
+    final surtidoresData = ref.watch(ventasProvider).surtidoresData;
+    // Validar si hay una venta
+    final venta = ref.watch(ventaProvider(0));
+    if (venta.venta == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Cargando'),
+        ),
+        body: const Center(
+          child: Text(
+            'No hay una venta disponible.',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+
+    ref.watch(ventaFormProvider(venta.venta!));
 
     return GestureDetector(
       onTap: () {
@@ -118,11 +139,13 @@ class _GetInfoCierreCajasScreenState
                   isLoading: getInfoState.isLoading,
                   suffixIcon: IconButton(
                     onPressed: () async {
+                      getNoFacturados(surtidoresData);
                       buscarCliente(searchController.text, getInfoState.fecha);
                     },
                     icon: const Icon(Icons.search),
                   ),
                   onFieldSubmitted: (p0) async {
+                    getNoFacturados(surtidoresData);
                     buscarCliente(searchController.text, getInfoState.fecha);
                   },
                 ),
@@ -202,13 +225,19 @@ class _GetInfoCierreCajasScreenState
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    final response = await getNoFacturados();
-                    if (response.isEmpty) {
-                      printTicketBusqueda(getInfoState.datos,
-                          ref.read(authProvider).user, getInfoState.fecha);
-                    }
-                  },
+                  onPressed: getInfoState.noFacturados.isEmpty &&
+                          !getInfoState.deshabilitarPrint
+                      ? () async {
+                          final response =
+                              await getNoFacturados(surtidoresData);
+                          if (response.isEmpty) {
+                            printTicketBusqueda(
+                                getInfoState.datos,
+                                ref.read(authProvider).user,
+                                getInfoState.fecha);
+                          }
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.secondary,
                     foregroundColor: Colors.white,
@@ -235,6 +264,35 @@ class _GetInfoCierreCajasScreenState
                   ),
                 ),
                 const SizedBox(height: 20),
+                if (getInfoState.noFacturados.isNotEmpty)
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Divider(
+                          thickness: 1,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          'Mangueras: ${getInfoState.noFacturados.length}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueGrey,
+                          ),
+                        ),
+                      ),
+                      const Expanded(
+                        child: Divider(
+                          thickness: 1,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 20),
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -245,6 +303,7 @@ class _GetInfoCierreCajasScreenState
                       noFacturado: noFacturado,
                       size: size,
                       redirect: true,
+                      venta: venta.venta!,
                     );
                   },
                 ),

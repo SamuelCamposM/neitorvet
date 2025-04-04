@@ -137,12 +137,6 @@ final goRouterProvider = Provider((ref) {
               idRegistro: idRegistro);
         },
       ),
-      GoRoute(
-        path: '/seleccionSurtidor/:id',
-        builder: (context, state) => MenuDespacho(
-          ventaId: int.tryParse(state.params['id'].toString()) ?? 0,
-        ),
-      ),
 
       // GoRoute(
       //   path: '/product/:id',

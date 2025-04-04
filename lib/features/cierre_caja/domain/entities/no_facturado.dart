@@ -23,7 +23,6 @@ class NoFacturado {
   final String? cedulaCliente;
   final String? nombreCliente;
   final List<String> tipoCombustible;
-
   NoFacturado({
     required this.idRegistro,
     required this.registro,

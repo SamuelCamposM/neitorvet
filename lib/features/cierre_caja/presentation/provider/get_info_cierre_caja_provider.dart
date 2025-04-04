@@ -5,6 +5,8 @@ import 'package:neitorvet/features/cierre_caja/domain/datasources/cierre_cajas_d
 import 'package:neitorvet/features/cierre_caja/domain/entities/no_facturado.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_provider.dart';
 import 'package:neitorvet/features/shared/helpers/get_date.dart';
 
 final getInfoCierreCajaProvider = StateNotifierProvider.autoDispose<
@@ -12,10 +14,12 @@ final getInfoCierreCajaProvider = StateNotifierProvider.autoDispose<
   (ref) {
     final cierreCajasP = ref.watch(cierreCajasProvider.notifier);
     final user = ref.watch(authProvider).user!;
+    final isAdmin = ref.watch(authProvider).isAdmin;
     return GenInfoCierreCajaNotifier(
       getCierreCajaById: cierreCajasP.getCierreCajaById,
       user: user,
       ref: ref,
+      isAdmin: isAdmin,
     );
   },
 );
@@ -25,9 +29,12 @@ class GenInfoCierreCajaNotifier extends StateNotifier<GenInfoCierreCajaState> {
   final User user;
   final Ref ref;
 
+  final bool isAdmin;
+
   GenInfoCierreCajaNotifier({
     required this.getCierreCajaById,
     required this.user,
+    required this.isAdmin,
     required this.ref,
   }) : super(GenInfoCierreCajaState()) {
     buscarCliente(user.usuario, GetDate.today);
@@ -43,6 +50,9 @@ class GenInfoCierreCajaNotifier extends StateNotifier<GenInfoCierreCajaState> {
           .read(cierreCajasRepositoryProvider)
           .getSumaIEC(fecha: fecha, search: search);
 
+      // Verificar si el StateNotifier sigue montado
+      if (!mounted) return;
+
       // Manejar errores si los hay
       if (res.error.isNotEmpty) {
         state = state.copyWith(error: res.error);
@@ -56,6 +66,9 @@ class GenInfoCierreCajaNotifier extends StateNotifier<GenInfoCierreCajaState> {
         datos: res,
       );
     } catch (e) {
+      // Verificar si el StateNotifier sigue montado
+      if (!mounted) return;
+
       // Manejar errores inesperados
       state = state.copyWith(
         isLoading: false,
@@ -71,9 +84,12 @@ class GenInfoCierreCajaNotifier extends StateNotifier<GenInfoCierreCajaState> {
     }
   }
 
-  Future<List<NoFacturado>> getNoFacturados() async {
+  Future<List<NoFacturado>> getNoFacturados(
+      List<Surtidor> surtidoresData) async {
     // Actualizar el estado a "cargando"
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(
+      isLoading: true,
+    );
 
     try {
       // Llamada al repositorio para obtener los datos
@@ -86,13 +102,39 @@ class GenInfoCierreCajaNotifier extends StateNotifier<GenInfoCierreCajaState> {
         return [];
       }
 
+      List<Estacion> pistolas = [];
+      if (!isAdmin) {
+        for (var surtidor in surtidoresData) {
+          final existeUsuario =
+              surtidor.usuarios.any((element) => element.perId == user.id);
+          if (existeUsuario) {
+            final List<Estacion> estaciones = [
+              surtidor.estacion1,
+              surtidor.estacion2,
+              surtidor.estacion3,
+            ]
+                .where((element) => element?.nombreProducto != null)
+                .cast<Estacion>()
+                .toList();
+            for (var element in estaciones) {
+              pistolas.add(element);
+            }
+          }
+        }
+      }
+
+      final resultadoFiltrado = res.resultado.where(
+        (element) {
+          return pistolas
+              .any((pistola) => pistola.numeroPistola == element.pistola);
+        },
+      ).toList();
       // Actualizar el estado con los datos obtenidos
       state = state.copyWith(
         isLoading: false,
-        noFacturados: res.resultado,
-        error: res.resultado.isNotEmpty
-            ? 'Debe Facturas las pistolas primero'
-            : '',
+        noFacturados: isAdmin ? res.resultado : resultadoFiltrado,
+        deshabilitarPrint: false,
+        error: res.resultado.isNotEmpty ? 'Hay Facturas Pendientes' : '',
       );
       return res.resultado;
     } catch (e) {
@@ -116,8 +158,10 @@ class GenInfoCierreCajaState {
   final String fecha;
   final String error;
   final List<NoFacturado> noFacturados;
+  final bool deshabilitarPrint;
   GenInfoCierreCajaState({
     this.error = '',
+    this.deshabilitarPrint = true,
     this.noFacturados = const [],
     this.isLoading = false,
     this.datos = const ResponseSumaIEC(
@@ -137,6 +181,7 @@ class GenInfoCierreCajaState {
     ResponseSumaIEC? datos,
     String? fecha,
     List<NoFacturado>? noFacturados,
+    bool? deshabilitarPrint,
   }) {
     return GenInfoCierreCajaState(
       error: error ?? this.error,
@@ -144,6 +189,7 @@ class GenInfoCierreCajaState {
       datos: datos ?? this.datos,
       fecha: fecha ?? this.fecha,
       noFacturados: noFacturados ?? this.noFacturados,
+      deshabilitarPrint: deshabilitarPrint ?? this.deshabilitarPrint,
     );
   }
 }
