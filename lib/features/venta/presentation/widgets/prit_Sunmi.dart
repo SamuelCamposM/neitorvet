@@ -137,6 +137,7 @@ Future<void> printTicket(
       style: SunmiStyle(fontSize: SunmiFontSize.SM));
   await SunmiPrinter.printText('\$0.81 : valor total sin subsidio',
       style: SunmiStyle(fontSize: SunmiFontSize.SM));
+  await SunmiPrinter.printText('Usuario: ${user.usuario}');
   await SunmiPrinter.lineWrap(4);
   await SunmiPrinter.exitTransactionPrint(true);
 }
@@ -206,6 +207,7 @@ Future<void> printTicketBusqueda(
       'Crédito: ${validarCampo(info.credito.toString())}');
   await SunmiPrinter.printText(
       'Depósito: ${validarCampo(info.deposito.toString())}');
+  await SunmiPrinter.printText('Usuario: ${user.usuario}');
 
   await SunmiPrinter.line();
 
@@ -271,6 +273,7 @@ Future<void> printTicketDesdeLista(
   await SunmiPrinter.printText(
       'Autorización: ${validarCampo(info.cajaAutorizacion)}');
   await SunmiPrinter.printText('Detalle: ${validarCampo(info.cajaDetalle)}');
+  await SunmiPrinter.printText('Usuario: ${user.usuario}');
   await SunmiPrinter.line();
   await SunmiPrinter.lineWrap(2);
   await SunmiPrinter.exitTransactionPrint(true);
