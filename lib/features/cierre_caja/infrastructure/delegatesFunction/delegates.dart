@@ -23,6 +23,7 @@ Future<SearchGenericResult<CierreCaja>?> searchCierreCajas(
             cierreCaja: item,
             size: size,
             isAdmin: isAdmin,
+            onDelete: () async {},
           );
         },
         setSearch: ref.read(cierreCajasProvider.notifier).setSearch,

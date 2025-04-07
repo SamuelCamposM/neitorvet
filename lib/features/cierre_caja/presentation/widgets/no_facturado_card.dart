@@ -92,10 +92,10 @@ class NoFacturadoCard extends ConsumerWidget {
                         valorIva: 0,
                         costoProduccion: 0,
                       ));
-                  ref
+                  final errorAgregar = ref
                       .read(ventaFormProvider(venta).notifier)
                       .agregarProducto(null);
-                  if (context.mounted) {
+                  if (context.mounted && !errorAgregar) {
                     context.push('/venta/${0}');
                   }
                 }
@@ -120,10 +120,10 @@ class NoFacturadoCard extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        "Fecha: ${Format.formatFechaHora(noFacturado.fechaHora)}",
+                        Format.formatFechaHora(noFacturado.fechaHora),
                         style: TextStyle(
-                          fontSize: size.iScreen(1.5),
-                        ),
+                            fontSize: size.iScreen(1.6),
+                            fontWeight: FontWeight.bold),
                       ),
                       Text(
                         "Lectura Inicial: ${noFacturado.totInicio.toStringAsFixed(2)}",
@@ -147,7 +147,7 @@ class NoFacturadoCard extends ConsumerWidget {
                       Text(
                         "Valor Total",
                         style: TextStyle(
-                          fontSize: size.iScreen(1.5),
+                          fontSize: size.iScreen(1.4),
                           fontWeight: FontWeight.bold,
                           color: Colors.green,
                         ),
@@ -163,7 +163,7 @@ class NoFacturadoCard extends ConsumerWidget {
                       Text(
                         "Combustible:",
                         style: TextStyle(
-                          fontSize: size.iScreen(1.5),
+                          fontSize: size.iScreen(1.4),
                           fontWeight: FontWeight.bold,
                         ),
                       ),

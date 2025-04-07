@@ -15,6 +15,7 @@ class CierreCajaCard extends ConsumerWidget {
   final Responsive size;
   final bool redirect;
   final bool isAdmin;
+  final Future<void> Function() onDelete; // Función para eliminar con Future
 
   const CierreCajaCard({
     Key? key,
@@ -22,44 +23,46 @@ class CierreCajaCard extends ConsumerWidget {
     required this.size,
     required this.redirect,
     required this.isAdmin,
+    required this.onDelete, // Recibir la función de eliminación
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final user = ref.read(authProvider).user;
+
     // Asignar colores según el tipo de documento
     Color getColorByTipoDocumento(String tipoDocumento) {
       switch (tipoDocumento) {
         case 'APERTURA':
-          return Colors.blue; // Azul para APERTURA
+          return Colors.blue;
         case 'INGRESO':
-          return Colors.green; // Verde para INGRESO
+          return Colors.green;
         case 'EGRESO':
-          return Colors.red; // Rojo para EGRESO
+          return Colors.red;
         case 'DEPOSITO':
-          return Colors.purple; // Morado para DEPOSITO
+          return Colors.purple;
         case 'CAJA CHICA':
-          return Colors.orange; // Naranja para CAJA CHICA
+          return Colors.orange;
         case 'TRANSFERENCIA':
-          return Colors.teal; // Verde azulado para TRANSFERENCIA
+          return Colors.teal;
         default:
-          return Colors.grey; // Gris para cualquier otro valor
+          return Colors.grey;
       }
     }
 
     Color getColorByTipoCaja(String tipoCaja) {
       switch (tipoCaja) {
         case 'EFECTIVO':
-          return Colors.green; // Verde para EFECTIVO
+          return Colors.green;
         case 'CHEQUE':
-          return Colors.blue; // Azul para CHEQUE
+          return Colors.blue;
         case 'TRANSFERENCIA':
-          return Colors.teal; // Verde azulado para TRANSFERENCIA
+          return Colors.teal;
         case 'DEPOSITO':
-          return Colors.purple; // Morado para DEPOSITO
+          return Colors.purple;
         default:
-          return Colors.grey; // Gris para cualquier otro valor
+          return Colors.grey;
       }
     }
 
@@ -67,25 +70,19 @@ class CierreCajaCard extends ConsumerWidget {
       size: size,
       child: Slidable(
         key: ValueKey(cierreCaja.cajaId),
-        startActionPane: const ActionPane(
-          motion:
-              DrawerMotion(), // Puedes cambiar ScrollMotion por otro tipo de Motion
-          children: [],
+        startActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (context) async {
+                await onDelete(); // Llamar a la función de eliminación con await
+              },
+              foregroundColor: Colors.black,
+              icon: Icons.delete,
+              label: 'Eliminar',
+            ),
+          ],
         ),
-        // endActionPane: ActionPane(
-        //   motion: const DrawerMotion(), // Puedes cambiar DrawerMotion por otro tipo de Motion
-        //   children: [
-        //     SlidableAction(
-        //       onPressed: (context) {
-        //         // Acción adicional
-        //       },
-        //       backgroundColor: Colors.green,
-        //       foregroundColor: Colors.white,
-        //       icon: Icons.share,
-        //       label: 'Compartir',
-        //     ),
-        //   ],
-        // ),
         child: GestureDetector(
           onTap: redirect
               ? () {
@@ -101,7 +98,7 @@ class CierreCajaCard extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  flex: 4, // 75% del ancho 3/4
+                  flex: 4,
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +133,7 @@ class CierreCajaCard extends ConsumerWidget {
                   ),
                 ),
                 Expanded(
-                  flex: 2, // 25% del ancho 1/4
+                  flex: 2,
                   child: Column(
                     children: [
                       Text(
@@ -144,26 +141,25 @@ class CierreCajaCard extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: size.iScreen(1.5),
                           fontWeight: FontWeight.bold,
-                          color: getColorByTipoCaja(cierreCaja
-                              .cajaTipoCaja), // Asignar color dinámico
+                          color: getColorByTipoCaja(cierreCaja.cajaTipoCaja),
                         ),
                       ),
                       Text(
-                        "\$${cierreCaja.cajaTipoDocumento == 'INGRESO' ? cierreCaja.cajaIngreso : cierreCaja.cajaTipoDocumento == 'EGRESO' ? cierreCaja.cajaEgreso : cierreCaja.cajaCredito}",
+                        "\$${cierreCaja.cajaProcedencia == 'VENTA' && (cierreCaja.cajaTipoCaja == 'CREDITO' || cierreCaja.cajaTipoCaja == 'TRANSFERENCIA') ? cierreCaja.cajaCredito : cierreCaja.cajaMonto}",
                         style: TextStyle(
                           fontSize: size.iScreen(1.7),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       IconButton(
-                          onPressed: () {
-                            // Imprimir ticket
-                            printTicketDesdeLista(cierreCaja, user!);
-                          },
-                          icon: const Icon(
-                            Icons.print_outlined,
-                            color: Colors.blue,
-                          ))
+                        onPressed: () {
+                          printTicketDesdeLista(cierreCaja, user!);
+                        },
+                        icon: const Icon(
+                          Icons.print_outlined,
+                          color: Colors.blue,
+                        ),
+                      ),
                     ],
                   ),
                 ),

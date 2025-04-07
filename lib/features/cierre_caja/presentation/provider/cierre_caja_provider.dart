@@ -31,7 +31,7 @@ class CierreCajaNotifier extends StateNotifier<CierreCajaState> {
       cajaDetalle: "",
       cajaEgreso: "",
       cajaEmpresa: "",
-      cajaEstado: "ACTIVO",
+      cajaEstado: "ACTIVA",
       cajaFecha: GetDate.today,
       cajaFecReg: "",
       cajaIdVenta: "",

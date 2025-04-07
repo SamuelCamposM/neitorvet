@@ -119,6 +119,26 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
         }
       }
     });
+    socket.on(
+      'server:eliminadoExitoso',
+      (data) async {
+        if (mounted) {
+          if (data['tabla'] == 'caja' &&
+              data['rucempresa'] == user.rucempresa) {
+            try {
+              // Eliminar el registro localmente de la lista
+              final updatedCierreCajas = state.cierreCajas
+                  .where((cierreCaja) => cierreCaja.cajaId != data['cajaId'])
+                  .toList();
+
+              state = state.copyWith(cierreCajas: updatedCierreCajas);
+            } catch (e) {
+              // print(e);
+            }
+          }
+        }
+      },
+    );
   }
 
   Future loadNextPage() async {
@@ -296,6 +316,21 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
     } else {
       socket.emit("client:guardarData", clienteMap);
     }
+  }
+
+  void deleteCierreCaja(int cajaId) async {
+    print({
+      'tabla': "caja",
+      'rucempresa': user.rucempresa,
+      'rol': user.rol,
+      'cajaId': cajaId,
+    });
+    socket.emit('client:eliminarData', {
+      'tabla': "caja",
+      'rucempresa': user.rucempresa,
+      'rol': user.rol,
+      'cajaId': cajaId,
+    });
   }
 
   void resetError() {

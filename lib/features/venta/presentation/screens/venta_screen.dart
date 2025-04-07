@@ -6,6 +6,7 @@ import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/form/email_list.dart';
+import 'package:neitorvet/features/shared/widgets/modal/cupertino_modal.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
@@ -29,8 +30,7 @@ class VentaScreen extends ConsumerWidget {
       ventasProvider,
       (_, next) {
         if (next.error.isEmpty) return;
-        NotificationsService.show(
-            context, next.error, SnackbarCategory.error);
+        NotificationsService.show(context, next.error, SnackbarCategory.error);
         ref.read(ventasProvider.notifier).resetError();
       },
     );
@@ -113,6 +113,15 @@ class _VentaForm extends ConsumerWidget {
     final ventasState = ref.watch(ventasProvider);
     final updateForm = ref.read(ventaFormProvider(venta).notifier).updateState;
     final colors = Theme.of(context).colorScheme;
+
+    ref.listen(
+      ventaFormProvider(venta),
+      (_, next) {
+        if (next.error.isEmpty) return;
+        NotificationsService.show(context, next.error, SnackbarCategory.error);
+      },
+    );
+
     // final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -185,38 +194,86 @@ class _VentaForm extends ConsumerWidget {
                             ventaForm: ventaFState.ventaForm
                                 .copyWith(venRucCliente: p0));
                       },
+                      suffixIcon: ventaFState.ventaForm.venRucCliente !=
+                              '9999999999999'
+                          ? IconButton(
+                              onPressed: () async {
+                                final res = await cupertinoModal(
+                                    context,
+                                    size,
+                                    '¿Está seguro que desea cambiar a ${ventaFState.ventaForm.venRucCliente.length == 10 ? 'RUC' : "CÉDULA"}?',
+                                    ['SI', 'NO'],
+                                    warning: true);
+
+                                if (res == 'SI') {
+                                  String nuevoRucCliente =
+                                      ventaFState.ventaForm.venRucCliente;
+
+                                  if (nuevoRucCliente.length == 10) {
+                                    // Agregar 3 dígitos "001"
+                                    nuevoRucCliente = '${nuevoRucCliente}001';
+                                  } else if (nuevoRucCliente.length == 13) {
+                                    // Quitar los últimos 3 dígitos
+                                    nuevoRucCliente =
+                                        nuevoRucCliente.substring(0, 10);
+                                  }
+
+                                  updateForm(
+                                    ventaForm: ventaFState.ventaForm.copyWith(
+                                        venRucCliente: nuevoRucCliente),
+                                  );
+                                }
+                              },
+                              icon: Icon(
+                                Icons.sync,
+                                color: colors.primary,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
-                  customBtnModals(size, Icons.search, () async {
-                    final cliente =
-                        await searchClienteResult(context: context, ref: ref);
-                    if (cliente != null) {
-                      updateForm(
-                          permitirCredito: cliente.perCredito == 'SI',
-                          placasData: cliente.perOtros,
-                          ventaForm: ventaFState.ventaForm.copyWith(
-                            venRucCliente: cliente.perDocNumero,
-                            venNomCliente: cliente.perNombre,
-                            venIdCliente: cliente.perId,
-                            venTipoDocuCliente: cliente.perDocTipo,
-                            venEmailCliente: cliente.perEmail,
-                            venTelfCliente: cliente.perTelefono,
-                            venCeluCliente: cliente.perCelular,
-                            venDirCliente: cliente.perDireccion,
-                            venOtrosDetalles: cliente.perOtros.isEmpty
-                                ? ""
-                                : cliente.perOtros[0],
-                          ));
-                    }
-                  }),
-                  customBtnModals(size, Icons.add, () {
-                    context.push('/cliente/0');
-                  }),
-                  customBtnModals(size, Icons.mark_email_read, () async {
-                    ref
-                        .read(ventaFormProvider(venta).notifier)
-                        .handleOcultarEmail();
-                  }),
+                  CustomButtonModal(
+                    size: size,
+                    icon: Icons.search,
+                    onPressed: () async {
+                      final cliente =
+                          await searchClienteResult(context: context, ref: ref);
+                      if (cliente != null) {
+                        updateForm(
+                            permitirCredito: cliente.perCredito == 'SI',
+                            placasData: cliente.perOtros,
+                            ventaForm: ventaFState.ventaForm.copyWith(
+                              venRucCliente: cliente.perDocNumero,
+                              venNomCliente: cliente.perNombre,
+                              venIdCliente: cliente.perId,
+                              venTipoDocuCliente: cliente.perDocTipo,
+                              venEmailCliente: cliente.perEmail,
+                              venTelfCliente: cliente.perTelefono,
+                              venCeluCliente: cliente.perCelular,
+                              venDirCliente: cliente.perDireccion,
+                              venOtrosDetalles: cliente.perOtros.isEmpty
+                                  ? ""
+                                  : cliente.perOtros[0],
+                            ));
+                      }
+                    },
+                  ),
+                  CustomButtonModal(
+                    size: size,
+                    icon: Icons.add,
+                    onPressed: () {
+                      context.push('/cliente/0');
+                    },
+                  ),
+                  CustomButtonModal(
+                    size: size,
+                    icon: Icons.mark_email_read,
+                    onPressed: () async {
+                      ref
+                          .read(ventaFormProvider(venta).notifier)
+                          .handleOcultarEmail();
+                    },
+                  ),
                 ],
               ),
               Text(ventaFState.nuevoEmail.value),

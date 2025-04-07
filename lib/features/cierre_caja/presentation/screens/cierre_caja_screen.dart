@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_caja_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/form/cierre_caja_form_provider.dart';
@@ -126,7 +127,8 @@ class _CierreCajaFormState extends ConsumerState<_CierreCajaForm> {
         .read(cierreCajaFormProvider(widget.cierreCaja).notifier)
         .updateState;
     final cierreCajaFormCopyWith = cierreCajaFState.cierreCajaForm.copyWith;
-
+    final isAdmin = ref.watch(authProvider).isAdmin;
+    final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: SingleChildScrollView(
@@ -164,27 +166,57 @@ class _CierreCajaFormState extends ConsumerState<_CierreCajaForm> {
             //     )
             //   ],
             // ),
+            SwitchListTile(
+              dense: true, // Hace que el SwitchListTile sea más compacto
+              value: cierreCajaFState.cierreCajaForm.cajaEstado == 'ACTIVA',
+              contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+              title: Text(
+                'Estado',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: size.iScreen(1.8),
+                ),
+              ),
 
-            const SizedBox(height: 20),
+              activeColor: colors.secondary
+                  .withAlpha(75), // Color del interruptor cuando está activo
+              activeTrackColor:
+                  colors.secondary, // Color de la pista cuando está activo
+
+              onChanged: cierreCajaFState.cierreCajaForm.cajaId == 0
+                  ? null // Deshabilitar el interruptor si la caja es nueva
+                  : (value) {
+                      updateForm(
+                        cierreCajaForm: cierreCajaFormCopyWith(
+                          cajaEstado: value ? 'ACTIVA' : 'ANULADA',
+                        ),
+                      );
+                    },
+            ),
+            const Divider(), // Línea divisoria para separar secciones
             CustomSelectField(
-              bold: false,
+              bold: true,
               errorMessage: cierreCajaFState
                   .cierreCajaForm.cajaTipoCajaInput.errorMessage,
               size: size,
-              label: 'Tipo',
+              label: 'Tipo de Caja',
               value: cierreCajaFState.cierreCajaForm.cajaTipoCaja,
               onChanged: (String? value) async {
                 updateForm(
-                    cierreCajaForm:
-                        cierreCajaFormCopyWith(cajaTipoCaja: value));
+                  cierreCajaForm: cierreCajaFormCopyWith(cajaTipoCaja: value),
+                );
               },
               options: [
                 Option(label: 'EFECTIVO', value: 'EFECTIVO'),
-                Option(label: "CHEQUE", value: "CHEQUE"),
-                Option(label: "TRANSFERENCIA", value: "TRANSFERENCIA"),
-                Option(label: "DEPOSITO", value: "DEPOSITO"),
+                Option(label: "CHEQUE", value: "CHEQUE", enabled: isAdmin),
+                Option(
+                    label: "TRANSFERENCIA",
+                    value: "TRANSFERENCIA",
+                    enabled: isAdmin),
+                Option(label: "DEPOSITO", value: "DEPOSITO", enabled: isAdmin),
               ],
             ),
+            const SizedBox(height: 10),
             CustomSelectField(
               bold: false,
               errorMessage: cierreCajaFState

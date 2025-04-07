@@ -96,6 +96,7 @@ class _GetInfoCierreCajasScreenState
         ref.read(getInfoCierreCajaProvider.notifier).getNoFacturados;
     final size = Responsive.of(context);
     final surtidoresData = ref.watch(ventasProvider).surtidoresData;
+    final isAdmin = !ref.read(authProvider).isAdmin;
     // Validar si hay una venta
     final venta = ref.watch(ventaProvider(0));
     if (venta.venta == null) {
@@ -129,7 +130,7 @@ class _GetInfoCierreCajasScreenState
             child: Column(
               children: [
                 CustomInputField(
-                  readOnly: !ref.read(authProvider).isAdmin,
+                  readOnly: isAdmin,
                   autofocus: true,
                   label: 'Buscar USUARIO.',
                   controller: searchController,

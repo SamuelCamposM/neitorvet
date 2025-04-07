@@ -11,6 +11,7 @@ import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/shared/widgets/modal/cupertino_modal.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 class CierreCajasScreen extends ConsumerStatefulWidget {
@@ -89,6 +90,8 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
     final colors = Theme.of(context).colorScheme;
     final size = Responsive.of(context);
     final cierreCajasState = ref.watch(cierreCajasProvider);
+    final deleteCierreCaja =
+        ref.watch(cierreCajasProvider.notifier).deleteCierreCaja;
     final isAdmin = ref.watch(authProvider).isAdmin;
     ref.listen(
       cierreCajasProvider,
@@ -314,6 +317,16 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
                         cierreCaja: cierreCaja,
                         size: size,
                         redirect: true,
+                        onDelete: () async {
+                          final res = await cupertinoModal(
+                              context,
+                              size,
+                              '¿Esta seguro de eliminar este registro: ${cierreCaja.cajaNumero}?',
+                              ['SI', 'NO']);
+                          if (res == 'SI') {
+                            deleteCierreCaja(cierreCaja.cajaId);
+                          }
+                        },
                       );
                     },
                   ),

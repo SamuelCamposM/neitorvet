@@ -125,7 +125,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
             }
           }
         } catch (e) {
-          print('hola');
           // print('Error handling server:actualizadoExitoso: $e');
         }
       }
@@ -224,22 +223,37 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
   }
 
-  void agregarProducto(TextEditingController? controller) {
+  bool agregarProducto(TextEditingController? controller) {
     if (state.nuevoProducto.isNotValid) {
       state = state.copyWith(
           nuevoProducto: ProductoInput.dirty(const ProductoInput.pure().value));
-      return;
+      return true; // Devuelve true si hay un error
     }
+
+    // Validar si el producto ya existe en la lista
+    final productoExistente = state.ventaForm.venProductos
+        .any((producto) => producto.codigo == state.nuevoProducto.value.codigo);
+
+    if (productoExistente) {
+      // Mostrar un mensaje o manejar el caso donde el producto ya existe
+      state = state.copyWith(
+        error: 'El producto ya existe en la lista',
+      );
+      _resetError();
+      return true; // Devuelve true si hay un error
+    }
+
     final producto = state.nuevoProducto.value.copyWith(
         cantidad: state.monto / state.nuevoProducto.value.valorUnitario);
 
-    final result = [producto, ...state.ventaForm.venProductosInput.value];
+    final result = [producto, ...state.ventaForm.venProductos];
     _calcularTotales(result, state.porcentajeFormaPago);
     state = state.copyWith(
       monto: 0,
       nuevoProducto: const ProductoInput.pure(),
     );
     controller?.text = '';
+    return false; // Devuelve false si no hay error
   }
 
   void eliminarProducto(String codigo) {
@@ -321,6 +335,10 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
   }
 
+  void _resetError() {
+    state = state.copyWith(error: '');
+  }
+
   @override
   void dispose() {
     // Log para verificar que se está destruyendo
@@ -341,7 +359,7 @@ class VentaFormState {
   final String productoSearch;
   final VentaForm ventaForm;
   final bool permitirCredito;
-
+  final String error;
   VentaFormState({
     this.nuevoEmail = const Email.pure(),
     this.nuevoProducto = const ProductoInput.pure(),
@@ -354,6 +372,7 @@ class VentaFormState {
     this.ocultarEmail = true,
     this.productoSearch = '',
     this.permitirCredito = false,
+    this.error = '',
     required this.ventaForm,
     // Make this parameter optional
   }); // Provide default value here
@@ -370,7 +389,8 @@ class VentaFormState {
       String? productoSearch,
       ProductoInput? nuevoProducto,
       VentaForm? ventaForm,
-      bool? permitirCredito}) {
+      bool? permitirCredito,
+      String? error}) {
     return VentaFormState(
       isFormValid: isFormValid ?? this.isFormValid,
       isPosted: isPosted ?? this.isPosted,
@@ -384,6 +404,7 @@ class VentaFormState {
       productoSearch: productoSearch ?? this.productoSearch,
       ventaForm: ventaForm ?? this.ventaForm,
       permitirCredito: permitirCredito ?? this.permitirCredito,
+      error: error ?? this.error,
     );
   }
 }

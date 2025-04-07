@@ -129,14 +129,20 @@ class GenInfoCierreCajaNotifier extends StateNotifier<GenInfoCierreCajaState> {
               .any((pistola) => pistola.numeroPistola == element.pistola);
         },
       ).toList();
+
+      // Ordenar los resultados por fechaHora de forma ascendente
+      final sortedNoFacturados = (isAdmin ? res.resultado : resultadoFiltrado)
+        ..sort((a, b) =>
+            DateTime.parse(b.fechaHora).compareTo(DateTime.parse(a.fechaHora)));
+
       // Actualizar el estado con los datos obtenidos
       state = state.copyWith(
         isLoading: false,
-        noFacturados: isAdmin ? res.resultado : resultadoFiltrado,
+        noFacturados: sortedNoFacturados,
         deshabilitarPrint: false,
-        error: res.resultado.isNotEmpty ? 'Hay Facturas Pendientes' : '',
+        error: sortedNoFacturados.isNotEmpty ? 'Hay Facturas Pendientes' : '',
       );
-      return res.resultado;
+      return sortedNoFacturados;
     } catch (e) {
       // Manejar errores inesperados
       state = state.copyWith(

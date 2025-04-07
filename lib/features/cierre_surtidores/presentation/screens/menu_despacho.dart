@@ -59,7 +59,7 @@ class BodyMenuDespacho extends ConsumerWidget {
       ),
       body: SingleChildScrollView(
         child: Container(
-          width: size.wScreen(100.0), 
+          width: size.wScreen(100.0),
           padding: EdgeInsets.only(top: size.iScreen(1.0)),
           child: Column(
             children: [
@@ -69,7 +69,8 @@ class BodyMenuDespacho extends ConsumerWidget {
                     final inventario = await searchInventario(
                         context: context, ref: ref, filterByCategory: true);
                     if (inventario != null) {
-                      final exist = ventaFState.ventaForm.venProductosInput.value
+                      final exist = ventaFState
+                          .ventaForm.venProductosInput.value
                           .any((e) => e.codigo == inventario.invSerie);
                       if (exist) {
                         if (context.mounted) {
@@ -95,7 +96,8 @@ class BodyMenuDespacho extends ConsumerWidget {
                             incluyeIva: inventario.invIncluyeIva,
                             recargoPorcentaje: 0,
                             recargo: 0,
-                            descPorcentaje: ventaState!.venta!.venDescPorcentaje,
+                            descPorcentaje:
+                                ventaState!.venta!.venDescPorcentaje,
                             descuento: 0,
                             precioSubTotalProducto: 0,
                             valorIva: 0,
@@ -302,12 +304,12 @@ class _CardSurtidor extends ConsumerWidget {
                                           valorIva: 0,
                                           costoProduccion: 0,
                                         ));
-                                ref
+                                final errorAgregar = ref
                                     .read(ventaFormProvider(ventaState!.venta!)
                                         .notifier)
                                     .agregarProducto(null);
 
-                                if (context.mounted) {
+                                if (context.mounted && !errorAgregar) {
                                   context.pop(context);
                                 }
                               }
