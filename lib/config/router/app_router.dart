@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/router/app_router.notifier.dart';
+
 import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/screens/cierre_caja_screen.dart';
@@ -18,6 +19,8 @@ import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
 import 'package:neitorvet/features/venta/presentation/screens/screens.dart';
 
 import 'package:neitorvet/features/home/home.dart';
+
+import '../../features/administracion/presentation/screens/screens.dart';
 
 final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
@@ -138,6 +141,10 @@ final goRouterProvider = Provider((ref) {
         },
       ),
 
+      GoRoute(
+        path: '/admin',
+        builder: (context, state) => const AdminScreens(),
+      ),
       // GoRoute(
       //   path: '/product/:id',
       //   builder: (context, state) {

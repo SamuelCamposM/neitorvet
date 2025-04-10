@@ -37,8 +37,14 @@ const appMenuItems = <MenuItem>[
     icon: 'assets/images/factura.png',
     color: Colors.green,
   ),
+  MenuItem(
+    title: 'Gestión',
+    subTitle: "",
+    link: "/admin",
+    icon: 'assets/images/timing.png',
+    color: Colors.blue,
+  ),
 ];
-
 
 const cierreTurnoItems = <MenuItem>[
   // MenuItem(
