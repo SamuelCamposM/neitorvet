@@ -44,8 +44,7 @@ class VentaScreen extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text(
-              ventaState.venta?.venId == 0 ? 'Nueva Venta' : 'Editar Venta'),
+          title: const Text('Nueva Venta'),
         ),
         body: ventaState.isLoading
             ? const FullScreenLoader()
@@ -236,8 +235,17 @@ class _VentaForm extends ConsumerWidget {
                     size: size,
                     icon: Icons.search,
                     onPressed: () async {
-                      final cliente =
-                          await searchClienteResult(context: context, ref: ref);
+                      final cliente = await searchClienteResult(
+                          context: context,
+                          ref: ref,
+                          customWidget: CustomButtonModal(
+                            size: size,
+                            icon: Icons.add,
+                            onPressed: () {
+                              context.pop();
+                              context.push('/cliente/0');
+                            },
+                          ));
                       if (cliente != null) {
                         updateForm(
                             permitirCredito: cliente.perCredito == 'SI',
@@ -258,13 +266,13 @@ class _VentaForm extends ConsumerWidget {
                       }
                     },
                   ),
-                  CustomButtonModal(
-                    size: size,
-                    icon: Icons.add,
-                    onPressed: () {
-                      context.push('/cliente/0');
-                    },
-                  ),
+                  // CustomButtonModal(
+                  //   size: size,
+                  //   icon: Icons.add,
+                  //   onPressed: () {
+                  //     context.push('/cliente/0');
+                  //   },
+                  // ),
                   CustomButtonModal(
                     size: size,
                     icon: Icons.mark_email_read,

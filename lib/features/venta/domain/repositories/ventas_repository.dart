@@ -12,7 +12,7 @@ abstract class VentasRepository {
       required String search,
       required BusquedaVenta busquedaVenta});
 
-  Future<ResponseFormasPago> getFormasPago(); 
+  Future<ResponseFormasPago> getFormasPago();
   Future<ResponseSecuencia> getSecuencia(String tipo);
   Future<ResponseInventario> getInventarioByQuery(
       {required String search, bool filterByCategory = false});
@@ -20,6 +20,7 @@ abstract class VentasRepository {
     required String pistola,
     required String codigoCombustible,
     required String numeroTanque,
+    int? idRegistroNoFacturado,
   });
   Future<ResponseCorreoVenta> sendCorreo(BodyCorreo bodyCorreo);
 }

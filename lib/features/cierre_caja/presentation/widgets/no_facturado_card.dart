@@ -53,13 +53,21 @@ class NoFacturadoCard extends ConsumerWidget {
                   final res = await ref
                       .read(ventasRepositoryProvider)
                       .getInventarioByPistola(
-                        pistola:
-                            Parse.parseDynamicToString(noFacturado.pistola),
-                        codigoCombustible: Parse.parseDynamicToString(
-                            noFacturado.tipoCombustible[0]),
-                        numeroTanque: Parse.parseDynamicToString(
-                            noFacturado.numeroTanque),
-                      );
+                          pistola:
+                              Parse.parseDynamicToString(noFacturado.pistola),
+                          codigoCombustible: Parse.parseDynamicToString(
+                              noFacturado.tipoCombustible[0]),
+                          numeroTanque: Parse.parseDynamicToString(
+                            noFacturado.numeroTanque,
+                          ),
+                          idRegistroNoFacturado: noFacturado.idRegistro);
+                  print(
+                      'Total: ${res.total}, Serie: ${res.resultado!.invSerie}, Nombre: ${res.resultado!.invNombre}, Precio: ${res.resultado!.invprecios[0]}, IVA: ${res.resultado!.invIva}, Incluye IVA: ${res.resultado!.invIncluyeIva}');
+
+                  // print(
+                  //     "Pistola: ${Parse.parseDynamicToString(noFacturado.pistola)}");
+                  // print("Tipo Combustible: ${noFacturado.tipoCombustible[0]}");
+                  // print("Número Tanque: ${noFacturado.numeroTanque}");
                   if (res.error.isNotEmpty && context.mounted) {
                     NotificationsService.show(
                         context, res.error, SnackbarCategory.error);
@@ -70,10 +78,10 @@ class NoFacturadoCard extends ConsumerWidget {
                   ref.read(ventaFormProvider(venta).notifier).updateState(
                       monto: res.total,
                       ventaForm: ventaResponse.copyWith(
-                        idAbastecimiento: res.idAbastecimiento,
-                        totInicio: res.totInicio,
-                        totFinal: res.totFinal,
-                      ),
+                          idAbastecimiento: res.idAbastecimiento,
+                          totInicio: res.totInicio,
+                          totFinal: res.totFinal,
+                          venProductos: []),
                       nuevoProducto: Producto(
                         cantidad: 0,
                         codigo: res.resultado!.invSerie,

@@ -19,6 +19,7 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
       itemWidgetBuilder;
 
   final bool onlySelect;
+  final Widget? customWidget; // Nuevo parámetro opcional
   List<T> initialItems;
   StreamController<List<T>> debounceItems = StreamController.broadcast();
   StreamController<bool> loadingStream = StreamController.broadcast();
@@ -30,14 +31,16 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
     required this.setSearch,
     required this.itemWidgetBuilder,
     this.onlySelect = true,
+    this.customWidget, // Inicializamos el nuevo parámetro
   }) : super(
           searchFieldLabel: 'Buscar',
           searchFieldStyle: const TextStyle(
-            fontSize: 17.0, // Ajusta el tamaño de fuente aquí
+            fontSize: 17.0,
             color: Colors.black,
           ),
         );
 
+  // Resto del código...
   void clearStreams() {
     debounceItems.close();
     loadingStream.close();
@@ -94,20 +97,31 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
       StreamBuilder(
         stream: loadingStream.stream,
         builder: (context, snapshot) {
-          return snapshot.data ?? false
-              ? SpinPerfect(
-                  duration: const Duration(seconds: 1),
-                  spins: 10,
-                  infinite: true,
-                  animate: query.isNotEmpty,
-                  child: IconButton(
-                      onPressed: () => query = '',
-                      icon: const Icon(Icons.refresh)))
-              : FadeIn(
-                  animate: query.isNotEmpty,
-                  child: IconButton(
-                      onPressed: () => query = '',
-                      icon: const Icon(Icons.clear)));
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              snapshot.data ?? false
+                  ? SpinPerfect(
+                      duration: const Duration(seconds: 1),
+                      spins: 10,
+                      infinite: true,
+                      animate: query.isNotEmpty,
+                      child: IconButton(
+                        onPressed: () => query = '',
+                        icon: const Icon(Icons.refresh),
+                      ),
+                    )
+                  : FadeIn(
+                      animate: query.isNotEmpty,
+                      child: IconButton(
+                        onPressed: () => query = '',
+                        icon: const Icon(Icons.clear),
+                      ),
+                    ),
+              if (customWidget != null)
+                customWidget!, // Agregar el widget opcional
+            ],
+          );
         },
       ),
       StreamBuilder(
@@ -118,13 +132,15 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
               : IconButton(
                   onPressed: () {
                     if (!onlySelect) {
-                      _debounceTimer!.cancel();
+                      _debounceTimer?.cancel();
                       clearStreams();
                       close(
-                          context,
-                          SearchGenericResult(
-                              setBusqueda: true,
-                              wasLoading: snapshot.data ?? false));
+                        context,
+                        SearchGenericResult(
+                          setBusqueda: true,
+                          wasLoading: snapshot.data ?? false,
+                        ),
+                      );
                     }
                   },
                   icon: const Icon(

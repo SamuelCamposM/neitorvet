@@ -48,16 +48,16 @@ class VentasRepositoryImpl extends VentasRepository {
     return datasource.sendCorreo(bodyCorreo);
   }
 
- 
-
   @override
   Future<ResponseInventarioIndividual> getInventarioByPistola(
       {required String pistola,
       required String codigoCombustible,
-      required String numeroTanque}) {
+      required String numeroTanque,
+      int? idRegistroNoFacturado}) {
     return datasource.getInventarioByPistola(
         pistola: pistola,
         codigoCombustible: codigoCombustible,
-        numeroTanque: numeroTanque);
+        numeroTanque: numeroTanque,
+        idRegistroNoFacturado: idRegistroNoFacturado);
   }
 }

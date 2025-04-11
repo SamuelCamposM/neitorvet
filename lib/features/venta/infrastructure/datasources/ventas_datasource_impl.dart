@@ -124,12 +124,14 @@ class VentasDatasourceImpl extends VentasDatasource {
   Future<ResponseInventarioIndividual> getInventarioByPistola(
       {required String pistola,
       required String codigoCombustible,
-      required String numeroTanque}) async {
+      required String numeroTanque,
+      int? idRegistroNoFacturado}) async {
     try {
       print({
         "pistola": pistola,
         "codigoCombustible": codigoCombustible,
-        "numeroTanque": numeroTanque
+        "numeroTanque": numeroTanque,
+        'idRegistro': idRegistroNoFacturado
       });
       final data = {
         // "pistola": 5,
@@ -138,8 +140,10 @@ class VentasDatasourceImpl extends VentasDatasource {
 
         "pistola": pistola,
         "codigoCombustible": codigoCombustible,
-        "numeroTanque": numeroTanque
+        "numeroTanque": numeroTanque,
+        'idRegistro': idRegistroNoFacturado
       };
+      print(data);
       final response =
           await dio.post('/abastecimientos/obtener_item', data: data);
 

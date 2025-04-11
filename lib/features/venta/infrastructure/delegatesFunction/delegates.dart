@@ -13,17 +13,19 @@ import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.d
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/venta_card.dart';
 
-Future<ClienteForeign?> searchClienteResult({
-  required BuildContext context,
-  required WidgetRef ref,
-}) async {
+Future<ClienteForeign?> searchClienteResult(
+    {required BuildContext context,
+    required WidgetRef ref,
+    Widget? customWidget}) async {
   final res = await showSearch(
     query: '',
     context: context,
     delegate: GenericDelegate(
+      customWidget: customWidget,
       itemWidgetBuilder: (clienteItem, onItemSelected) => ItemGenericSearch(
         item: clienteItem,
-        title: '${clienteItem.perNombre} - ${clienteItem.perOtros}',
+        title:
+            '${clienteItem.perDocNumero} - ${clienteItem.perNombre} - ${clienteItem.perOtros}',
         onItemSelected: onItemSelected,
       ),
       searchItems: ({search = ''}) async {

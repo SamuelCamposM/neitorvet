@@ -31,14 +31,20 @@ const appMenuItems = <MenuItem>[
     color: Colors.green,
   ),
   MenuItem(
-    title: 'Cierre Turno',
+    title: 'Caja',
     subTitle: "",
-    link: "/cierre_turno",
+    link: "/cierre_cajas",
     icon: 'assets/images/factura.png',
     color: Colors.green,
   ),
+  // MenuItem(
+  //   title: 'Cierre Turno',
+  //   subTitle: "",
+  //   link: "/cierre_turno",
+  //   icon: 'assets/images/factura.png',
+  //   color: Colors.green,
+  // ),
 ];
-
 
 const cierreTurnoItems = <MenuItem>[
   // MenuItem(
