@@ -18,7 +18,7 @@ class AuthDatasourceImpl extends AuthDatasource {
       final user = UserMapper.userJsonToEntity(res.data);
       return user;
     } on DioException catch (e) {
-      throw CustomError(ErrorApi.getErrorMessage(e));
+      throw CustomError(ErrorApi.getErrorMessage(e, 'checkAuthStatus'));
     }
   }
 
@@ -36,7 +36,7 @@ class AuthDatasourceImpl extends AuthDatasource {
       final user = UserMapper.userJsonToEntity(response.data);
       return user;
     } on DioException catch (e) {
-      throw CustomError(ErrorApi.getErrorMessage(e));
+      throw CustomError(ErrorApi.getErrorMessage(e, 'login'));
     }
   }
 

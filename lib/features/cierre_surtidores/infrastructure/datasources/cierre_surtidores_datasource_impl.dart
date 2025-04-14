@@ -39,7 +39,8 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
           total: response.data['data']['pagination']['numRows'] ?? 0);
     } on DioException catch (e) {
       return ResponseCierreSurtidores(
-          resultado: [], error: ErrorApi.getErrorMessage(e));
+          resultado: [],
+          error: ErrorApi.getErrorMessage(e, 'getCierreSurtidoresByPage'));
     }
   }
 
@@ -62,7 +63,7 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
       return ResponseSurtidores(resultado: surtidoresData, error: '');
     } on DioException catch (e) {
       return ResponseSurtidores(
-          resultado: [], error: ErrorApi.getErrorMessage(e));
+          resultado: [], error: ErrorApi.getErrorMessage(e, 'getSurtidores'));
     }
   }
 
@@ -90,7 +91,7 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
       // print(e);
       return ResponseCierreSurtidores(
         resultado: [],
-        error: ErrorApi.getErrorMessage(e),
+        error: ErrorApi.getErrorMessage(e, 'getCierreSurtidoresUuid'),
       );
     }
   }
@@ -116,7 +117,7 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
       // print(e);
       return ResponseGenerarCierre(
         uuid: '',
-        error: ErrorApi.getErrorMessage(e),
+        error: ErrorApi.getErrorMessage(e, 'generarCierre'),
       );
     }
   }

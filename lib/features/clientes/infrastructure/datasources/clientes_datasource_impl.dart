@@ -38,7 +38,8 @@ class ClientesDatasourceImpl extends ClientesDatasource {
           total: response.data['data']['pagination']['numRows'] ?? 0);
     } on DioException catch (e) {
       return ResponseClientesPaginacion(
-          resultado: [], error: ErrorApi.getErrorMessage(e));
+          resultado: [],
+          error: ErrorApi.getErrorMessage(e, 'getClientesByPage'));
     }
   }
 
@@ -66,7 +67,8 @@ class ClientesDatasourceImpl extends ClientesDatasource {
       );
     } on DioException catch (e) {
       return ResponseClientesForeign(
-          resultado: [], error: ErrorApi.getErrorMessage(e));
+          resultado: [],
+          error: ErrorApi.getErrorMessage(e, 'getClientesByQueryInVentas'));
     }
   }
 
@@ -88,7 +90,8 @@ class ClientesDatasourceImpl extends ClientesDatasource {
       );
     } on DioException catch (e) {
       return ResponseClienteForeign(
-          resultado: null, error: ErrorApi.getErrorMessage(e));
+          resultado: null,
+          error: ErrorApi.getErrorMessage(e, 'getNewClienteByDoc'));
     }
   }
 
@@ -110,7 +113,8 @@ class ClientesDatasourceImpl extends ClientesDatasource {
       );
     } on DioException catch (e) {
       return ResponseClienteForeign(
-          resultado: null, error: ErrorApi.getErrorMessage(e));
+          resultado: null,
+          error: ErrorApi.getErrorMessage(e, 'getNewClienteByPlaca'));
     }
   }
 }

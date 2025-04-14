@@ -23,11 +23,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           Image.network(
             logoUrl,
-            height: 40,
+            height: 30,
             errorBuilder: (context, error, stackTrace) {
               return Image.asset(
                 'assets/images/no-image.jpg',
-                height: 40,
+                height: 30,
               );
             },
           ),
@@ -41,7 +41,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               Text(
                 userName,
-                style: const TextStyle(fontSize: 12),
+                style: const TextStyle(fontSize: 10),
               ),
             ],
           ),

@@ -293,6 +293,19 @@ class CierreSurtidoresNotifier extends StateNotifier<CierreSurtidoresState> {
   void resetError() {
     state = state.copyWith(error: '');
   }
+
+  @override
+  void dispose() {
+    // Eliminar los listeners del socket
+    socket.off('connect');
+    socket.off('disconnect');
+    socket.off('server:actualizadoExitoso');
+    socket.off('server:guardadoExitoso');
+
+    // Log para verificar que se está destruyendo
+    debugPrint('CierreSurtidoresNotifier disposed');
+    super.dispose();
+  }
 }
 
 class CierreSurtidoresState {

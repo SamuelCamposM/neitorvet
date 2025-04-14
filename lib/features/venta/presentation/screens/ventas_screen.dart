@@ -134,7 +134,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
               },
               icon: const Icon(Icons.search)),
         ],
-        title: Text('Ventas ${ventasState.total}'),
+        title: const Text('Ventas'),
       ),
       body: Stack(
         children: [

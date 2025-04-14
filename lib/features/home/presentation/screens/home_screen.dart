@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:neitorvet/config/menu/menu_item.dart';
-import 'package:neitorvet/features/administracion/presentation/provider/boton_turno.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/home/presentation/provider/turno_provider.dart';
 import 'package:neitorvet/features/home/presentation/widgets/item_menu.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 // import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
@@ -34,7 +35,7 @@ class HomeScreen extends ConsumerWidget {
 class _HomeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isBotonActivo = ref.watch(botonTurnoProvider);
+    final isBotonActivo = ref.watch(turnoProvider).turnoActivo;
 
     final size = Responsive.of(context);
     final colors = Theme.of(context).colorScheme;
@@ -56,15 +57,15 @@ class _HomeView extends ConsumerWidget {
                   const SizedBox(height: 8.0),
                   Consumer(
                     builder: (context, ref, child) {
-                      final qrResult = ref.watch(qrScannerProvider);
+                      final qrResult = ref.watch(turnoProvider).qrUbicacion;
                       return Text(
-                        qrResult != null
+                        qrResult.isNotEmpty
                             ? 'Resultado: $qrResult'
                             : '--- ---- ---',
                         style: TextStyle(
                           fontSize: size.iScreen(1.7),
                           fontWeight: FontWeight.bold,
-                          color: qrResult != null
+                          color: qrResult.isNotEmpty
                               ? Colors.green
                               : Colors.grey[700],
                         ),
@@ -133,16 +134,23 @@ class BotonTurno extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(
+      turnoProvider,
+      (_, next) {
+        if (next.errorMessage.isEmpty) return;
+        NotificationsService.show(
+            context, next.errorMessage, SnackbarCategory.error);
+        ref.read(turnoProvider.notifier).resetErrorMessage();
+      },
+    );
     return GestureDetector(
       onTap: () {
-        // Cambiar el estado del botón de turno
-        ref.read(botonTurnoProvider.notifier).toggle();
         // Aquí puedes agregar la lógica para manejar el turno activo
-        // mostrarModalTurno(
-        //     context, isBotonActivo ? 'Finalizar' : 'Iniciar', size);
+        mostrarModalTurno(
+            context, isBotonActivo ? 'Finalizar' : 'Iniciar', size);
       },
       child: Container(
-        width: size.wScreen(46.0),
+        width: size.wScreen(50),
         padding: EdgeInsets.symmetric(
             horizontal: size.iScreen(2.0), vertical: size.iScreen(1.0)),
         decoration: BoxDecoration(
@@ -191,9 +199,8 @@ class BotonTurno extends ConsumerWidget {
           title: Text('$title Turno'),
           content: Consumer(
             builder: (context, ref, child) {
-              final qrResult = ref.watch(qrScannerProvider);
-              return Text(
-                  'Resultado del escaneo: ${qrResult ?? "Presiona escanear"}');
+              final qrResult = ref.watch(turnoProvider).qrUbicacion;
+              return Text('Resultado del escaneo: $qrResult');
             },
           ),
           actions: <Widget>[
@@ -201,10 +208,10 @@ class BotonTurno extends ConsumerWidget {
               builder: (context, ref, child) {
                 return TextButton(
                   onPressed: () async {
-                    Navigator.pop(context);
+                    Navigator.pop(dialogContext); // Cierra el modal actual
                     await ref
-                        .read(qrScannerProvider.notifier)
-                        .startScanning(dialogContext);
+                        .read(turnoProvider.notifier)
+                        .startScanning(context); // Usa el contexto principal
                   },
                   child: SizedBox(
                     width: size.wScreen(25.0),

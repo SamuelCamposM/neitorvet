@@ -50,7 +50,7 @@ class NoFacturado {
 
   factory NoFacturado.fromJson(Map<String, dynamic> json) => NoFacturado(
         idRegistro: json["idRegistro"],
-        registro: json["registro"],
+        registro: Parse.parseDynamicToInt(json["registro"]),
         pistola: json["pistola"],
         codigoCombustible: json["codigoCombustible"],
         numeroTanque: json["numeroTanque"],

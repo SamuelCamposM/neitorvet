@@ -229,6 +229,18 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
       socket.emit("client:guardarData", clienteMap);
     }
   }
+
+  @override
+  void dispose() {
+    // Eliminar los listeners del socket
+    socket.off('connect');
+    socket.off('disconnect');
+    socket.off('server:actualizadoExitoso');
+    socket.off('server:guardadoExitoso');
+    socket.off('server:error');
+
+    super.dispose();
+  }
 }
 
 class ClientesState {

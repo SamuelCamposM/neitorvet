@@ -341,7 +341,14 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
 
   @override
   void dispose() {
+    // Eliminar los listeners del socket
+    socket.off('connect');
+    socket.off('disconnect');
+    socket.off('server:actualizadoExitoso');
+    socket.off('server:guardadoExitoso');
+
     // Log para verificar que se está destruyendo
+    debugPrint('VentaFormNotifier disposed');
     super.dispose();
   }
 }

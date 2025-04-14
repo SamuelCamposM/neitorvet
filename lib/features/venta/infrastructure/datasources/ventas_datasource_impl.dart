@@ -43,7 +43,8 @@ class VentasDatasourceImpl extends VentasDatasource {
           error: '',
           total: response.data['data']['pagination']['numRows'] ?? 0);
     } on DioException catch (e) {
-      return ResponseVentas(resultado: [], error: ErrorApi.getErrorMessage(e));
+      return ResponseVentas(
+          resultado: [], error: ErrorApi.getErrorMessage(e, 'getVentasByPage'));
     }
   }
 
@@ -57,7 +58,7 @@ class VentasDatasourceImpl extends VentasDatasource {
       return ResponseFormasPago(resultado: formasPago, error: '');
     } on DioException catch (e) {
       return ResponseFormasPago(
-          resultado: [], error: ErrorApi.getErrorMessage(e));
+          resultado: [], error: ErrorApi.getErrorMessage(e, 'getFormasPago'));
     }
   }
 
@@ -75,7 +76,7 @@ class VentasDatasourceImpl extends VentasDatasource {
     } on DioException catch (e) {
       return ResponseSecuencia(
         resultado: '',
-        error: ErrorApi.getErrorMessage(e),
+        error: ErrorApi.getErrorMessage(e, 'getSecuencia'),
       );
     }
   }
@@ -103,7 +104,7 @@ class VentasDatasourceImpl extends VentasDatasource {
     } on DioException catch (e) {
       return ResponseInventario(
         resultado: [],
-        error: ErrorApi.getErrorMessage(e),
+        error: ErrorApi.getErrorMessage(e, 'getInventarioByQuery'),
       );
     }
   }
@@ -167,7 +168,7 @@ class VentasDatasourceImpl extends VentasDatasource {
     } on DioException catch (e) {
       return ResponseInventarioIndividual(
           resultado: null,
-          error: ErrorApi.getErrorMessage(e),
+          error: ErrorApi.getErrorMessage(e, 'getInventarioByPistola'),
           total: '0',
           idAbastecimiento: 0,
           totFinal: 0,

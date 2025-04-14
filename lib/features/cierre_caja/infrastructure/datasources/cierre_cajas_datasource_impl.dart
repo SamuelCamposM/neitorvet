@@ -59,7 +59,8 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
           total: response.data['data']['pagination']['numRows'] ?? 0);
     } on DioException catch (e) {
       return ResponseCierreCajasPaginacion(
-          resultado: [], error: ErrorApi.getErrorMessage(e));
+          resultado: [],
+          error: ErrorApi.getErrorMessage(e, 'getCierreCajasByPage'));
     }
   }
 
@@ -91,7 +92,7 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
           ingreso: 0,
           transferencia: 0,
           deposito: 0,
-          error: ErrorApi.getErrorMessage(e));
+          error: ErrorApi.getErrorMessage(e, 'getSumaIEC'));
     }
   }
 
@@ -110,7 +111,7 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
       );
     } catch (e) {
       return ResponseNoFacturados(
-          resultado: [], error: ErrorApi.getErrorMessage(e));
+          resultado: [], error: ErrorApi.getErrorMessage(e, 'getNoFacturados'));
     }
   }
 }
