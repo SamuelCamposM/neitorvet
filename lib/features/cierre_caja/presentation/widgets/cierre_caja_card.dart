@@ -118,7 +118,7 @@ class CierreCajaCard extends ConsumerWidget {
                             fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        "Fecha: ${Format.formatFecha(cierreCaja.cajaFecha)}",
+                        "Fecha: ${Format.formatFechaHora(cierreCaja.cajaFecReg)}",
                         style: TextStyle(
                           fontSize: size.iScreen(1.5),
                         ),

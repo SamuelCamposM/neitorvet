@@ -35,7 +35,8 @@ class HomeScreen extends ConsumerWidget {
 class _HomeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isBotonActivo = ref.watch(turnoProvider).turnoActivo;
+    final turnoActivo = ref.watch(turnoProvider).turnoActivo;
+    final isAdmin = ref.watch(authProvider).isAdmin;
 
     final size = Responsive.of(context);
     final colors = Theme.of(context).colorScheme;
@@ -52,26 +53,28 @@ class _HomeView extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  BotonTurno(
-                      size: size, isBotonActivo: isBotonActivo, colors: colors),
+                  if (!isAdmin)
+                    BotonTurno(
+                        size: size, isBotonActivo: turnoActivo, colors: colors),
                   const SizedBox(height: 8.0),
-                  Consumer(
-                    builder: (context, ref, child) {
-                      final qrResult = ref.watch(turnoProvider).qrUbicacion;
-                      return Text(
-                        qrResult.isNotEmpty
-                            ? 'Resultado: $qrResult'
-                            : '--- ---- ---',
-                        style: TextStyle(
-                          fontSize: size.iScreen(1.7),
-                          fontWeight: FontWeight.bold,
-                          color: qrResult.isNotEmpty
-                              ? Colors.green
-                              : Colors.grey[700],
-                        ),
-                      );
-                    },
-                  ),
+                  if (!isAdmin)
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final qrResult = ref.watch(turnoProvider).qrUbicacion;
+                        return Text(
+                          qrResult.isNotEmpty
+                              ? 'Resultado: $qrResult'
+                              : '',
+                          style: TextStyle(
+                            fontSize: size.iScreen(1.7),
+                            fontWeight: FontWeight.bold,
+                            color: qrResult.isNotEmpty
+                                ? Colors.green
+                                : Colors.grey[700],
+                          ),
+                        );
+                      },
+                    ),
                   Wrap(
                     alignment: WrapAlignment.center, // Centrar los elementos
                     spacing: size
@@ -79,10 +82,13 @@ class _HomeView extends ConsumerWidget {
                     runSpacing:
                         size.iScreen(1.0), // Espacio vertical entre las filas
                     children: appMenuItems.map((menuItem) {
+                      if (!isAdmin && menuItem.title == 'Gestión') {
+                        return const SizedBox.shrink(); // Ocultar el elemento
+                      }
                       return ItemMenu(
-                        size: size,
-                        menuItem: menuItem,
-                      );
+                          size: size,
+                          menuItem: menuItem,
+                          turnoActivo: turnoActivo || isAdmin);
                     }).toList(),
                   ),
                 ],
@@ -137,10 +143,16 @@ class BotonTurno extends ConsumerWidget {
     ref.listen(
       turnoProvider,
       (_, next) {
-        if (next.errorMessage.isEmpty) return;
-        NotificationsService.show(
-            context, next.errorMessage, SnackbarCategory.error);
-        ref.read(turnoProvider.notifier).resetErrorMessage();
+        if (next.errorMessage.isNotEmpty) {
+          NotificationsService.show(
+              context, next.errorMessage, SnackbarCategory.error);
+          ref.read(turnoProvider.notifier).resetErrorMessage();
+        }
+        if (next.successMessage.isNotEmpty) {
+          NotificationsService.show(
+              context, next.successMessage, SnackbarCategory.success);
+          ref.read(turnoProvider.notifier).resetSuccessMessage();
+        }
       },
     );
     return GestureDetector(

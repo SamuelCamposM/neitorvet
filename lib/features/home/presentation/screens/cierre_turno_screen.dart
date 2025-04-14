@@ -49,6 +49,7 @@ class _HomeView extends StatelessWidget {
                   return ItemMenu(
                     size: size,
                     menuItem: menuItem,
+                    turnoActivo: true,
                   );
                 }).toList(),
               ),

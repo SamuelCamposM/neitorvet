@@ -30,6 +30,7 @@ class VentasDatasourceImpl extends VentasDatasource {
         'orden': orden,
         'estado': estado,
         'mis_facturas_emitidas': 'SI',
+        'fromApp': true,
         'datos': busquedaVenta.toJsonString(), // Con
       };
       final response =

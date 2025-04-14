@@ -32,17 +32,19 @@ class TurnoNotifier extends StateNotifier<TurnoState> {
   Future<void> verificarTurnoActivo() async {
     state = state.copyWith(loading: true);
     final response = await turnosRepository.verificarTurnoActivo();
-    if (response.error.isNotEmpty) {
-      state = state.copyWith(
-        loading: false,
-        errorMessage: response.error,
-      );
-    } else {
-      state = state.copyWith(
-        loading: false,
-        turno: response.turno,
-        turnoActivo: response.response,
-      );
+    if (mounted) {
+      if (response.error.isNotEmpty) {
+        state = state.copyWith(
+          loading: false,
+          errorMessage: response.error,
+        );
+      } else {
+        state = state.copyWith(
+          loading: false,
+          turno: response.turno,
+          turnoActivo: response.response,
+        );
+      }
     }
   }
 
@@ -81,7 +83,7 @@ class TurnoNotifier extends StateNotifier<TurnoState> {
           return;
         }
         state = state.copyWith(
-            resetTurno: true, turnoActivo: false, errorMessage: resTurno.msg);
+            resetTurno: true, turnoActivo: false, successMessage: resTurno.msg);
       } else {
         final resTurno = await turnosRepository.iniciarTurno(
           qrUbicacion: state.qrUbicacion,
@@ -101,7 +103,7 @@ class TurnoNotifier extends StateNotifier<TurnoState> {
         state = state.copyWith(
             turno: resTurno.turno,
             turnoActivo: true,
-            errorMessage: resTurno.msg);
+            successMessage: resTurno.msg);
       }
     } catch (e) {
       state = state.copyWith(
@@ -146,6 +148,10 @@ class TurnoNotifier extends StateNotifier<TurnoState> {
   void resetErrorMessage() {
     state = state.copyWith(errorMessage: '');
   }
+
+  void resetSuccessMessage() {
+    state = state.copyWith(successMessage: '');
+  }
 }
 
 class TurnoState {
@@ -153,6 +159,7 @@ class TurnoState {
   final bool turnoActivo;
   final bool loading;
   final String errorMessage;
+  final String successMessage;
   final Turno? turno;
 
   TurnoState({
@@ -160,6 +167,7 @@ class TurnoState {
     this.turnoActivo = false,
     this.loading = false,
     this.errorMessage = '',
+    this.successMessage = '',
     this.turno,
   });
 
@@ -167,7 +175,8 @@ class TurnoState {
     String? qrUbicacion,
     bool? turnoActivo,
     bool? loading,
-    String? errorMessage, 
+    String? errorMessage,
+    String? successMessage,
     Turno? turno,
     bool resetTurno = false, // Nuevo marcador para sobrescribir con null
   }) {
@@ -176,6 +185,7 @@ class TurnoState {
       turnoActivo: turnoActivo ?? this.turnoActivo,
       loading: loading ?? this.loading,
       errorMessage: errorMessage ?? this.errorMessage,
+      successMessage: successMessage ?? this.successMessage,
       turno:
           resetTurno ? null : (turno ?? this.turno), // Manejo explícito de null
     );

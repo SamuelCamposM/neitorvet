@@ -86,13 +86,14 @@ class VentasViewState extends ConsumerState<VentasScreen> {
     final colors = Theme.of(context).colorScheme;
     final size = Responsive.of(context);
     final ventasState = ref.watch(ventasProvider);
+    final verificarEstadoVenta =
+        ref.watch(ventasProvider.notifier).verificarEstadoVenta;
     final user = ref.watch(authProvider).user;
     ref.listen(
       ventasProvider,
       (_, next) {
         if (next.error.isEmpty) return;
-        NotificationsService.show(
-            context, next.error, SnackbarCategory.error);
+        NotificationsService.show(context, next.error, SnackbarCategory.error);
         ref.read(ventasProvider.notifier).resetError();
       },
     );
@@ -145,7 +146,8 @@ class VentasViewState extends ConsumerState<VentasScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  children: VentaEstado.values.map((estado) {
+                  // children: VentaEstado.values.map((estado) {
+                  children: [].map((estado) {
                     final isSelected = ventasState.estado == estado;
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -281,6 +283,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
                       size: size,
                       user: user,
                       redirect: true,
+                      verificarEstadoVenta: verificarEstadoVenta,
                     );
                   },
                 ),

@@ -1,23 +1,23 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/menu/menu_item.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+
 class ItemMenu extends StatelessWidget {
   final MenuItem menuItem;
-
+  final bool turnoActivo;
   const ItemMenu({
     super.key,
     required this.size,
     required this.menuItem,
+    this.turnoActivo = false,
   });
 
   final Responsive size;
 
   @override
   Widget build(BuildContext context) {
-    final colorSecundario = Theme.of(context).colorScheme;
-    final colorPrimario = Theme.of(context).appBarTheme.backgroundColor;
+    final colors = Theme.of(context).colorScheme;
     return SizedBox(
       width: size.iScreen(14.0), // Ajustar el ancho de los elementos
       height: size.iScreen(14.0), // Ajustar el ancho de los elementos
@@ -34,17 +34,21 @@ class ItemMenu extends StatelessWidget {
                   10.0), // Radio de los bordes redondeados
             ),
             child: InkWell(
-              onTap: () {
-                // Acción al presionar el botón
-                context.push(menuItem.link);
-              },
-              splashColor: colorPrimario!
+              onTap: turnoActivo
+                  ? () {
+                      // Acción al presionar el botón
+                      context.push(menuItem.link);
+                    }
+                  : null,
+              splashColor: colors.primary
                   .withAlpha((0.7 * 255).toInt()), // Color del splash
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
                   border: Border.all(
-                      color: colorSecundario.secondary,
+                      color: turnoActivo
+                          ? colors.secondary
+                          : colors.secondary.withAlpha((0.4  * 255).toInt()),
                       width: 2.0), // Borde gris
                 ),
                 child: Center(
@@ -56,8 +60,10 @@ class ItemMenu extends StatelessWidget {
                       Image.asset(
                         menuItem.icon,
                         height: size.iScreen(7.0),
-                        color: colorSecundario
-                            .secondary, // Reducir el tamaño de la imagen
+                        color: turnoActivo
+                            ? colors.secondary
+                            : colors.secondary.withAlpha((0.4  * 255)
+                                .toInt()), // Reducir el tamaño de la imagen
                       ),
                       const SizedBox(height: 4), // Reducir el espacio
                       Text(
@@ -66,7 +72,9 @@ class ItemMenu extends StatelessWidget {
                           fontSize:
                               size.iScreen(1.8), // Reducir el tamaño del texto
                           fontWeight: FontWeight.bold,
-                          color: colorSecundario.secondary,
+                          color: turnoActivo
+                              ? colors.secondary
+                              : colors.secondary.withAlpha((0.4  * 255).toInt()),
                         ),
                         textAlign: TextAlign.center,
                       ),

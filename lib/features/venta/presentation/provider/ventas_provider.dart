@@ -5,6 +5,7 @@ import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dar
 import 'package:neitorvet/features/cierre_surtidores/domain/repositories/cierre_surtidores_repository.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_repository_provider.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
+import 'package:neitorvet/features/shared/widgets/modal/dialog_alert.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
@@ -79,7 +80,6 @@ class VentasNotifier extends StateNotifier<VentasState> {
     socket.on('connect', (_) {});
 
     socket.on("server:actualizadoExitoso", (data) {
-      print('hola ${data['tabla']}');
       if (mounted) {
         if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Edita de la lista de ventas
@@ -93,7 +93,6 @@ class VentasNotifier extends StateNotifier<VentasState> {
     });
 
     socket.on("server:guardadoExitoso", (data) {
-      print('hola ${data['tabla']}');
       if (mounted) {
         if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Agrega a la lista de ventas
@@ -293,6 +292,50 @@ class VentasNotifier extends StateNotifier<VentasState> {
 
   Future<void> createUpdateVenta(Map<String, dynamic> ventaMap) async {
     socket.emit('client:guardarData', ventaMap);
+  }
+
+  void verificarEstadoVenta(Venta venta, BuildContext context) {
+    if (venta.venEstado == "SIN AUTORIZAR") {
+      final fechaFactura = DateTime.parse(venta.venFechaFactura);
+      final hoy = DateTime.now();
+
+      // Calcula la diferencia en días
+      final diferencia = hoy.difference(fechaFactura).inDays;
+
+      if (diferencia > 3) {
+        // Mostrar alerta si han pasado más de 3 días
+        mostrarAlerta(
+          context,
+          "Han pasado más de 3 días desde la fecha de la factura.",
+          true,
+        );
+      } else {
+      
+        // Emitir evento al servidor si no han pasado más de 3 días
+        print({
+          ...venta.toJson(), // Incluye los datos de la venta
+          "venOption": "3",
+          "optionDocumento": venta.venTipoDocumento,
+          "rucempresa": user.rucempresa,
+          "rol": user.rol,
+          "venUser": user.usuario,
+          "venEmpresa": user.rucempresa,
+          "venProductosAntiguos": venta.venProductos,
+          "tabla": "venta",
+        });
+        socket.emit("client:guardarData", {
+          ...venta.toJson(), // Incluye los datos de la venta
+          "venOption": "3",
+          "optionDocumento": venta.venTipoDocumento,
+          "rucempresa": user.rucempresa,
+          "rol": user.rol,
+          "venUser": user.usuario,
+          "venEmpresa": user.rucempresa,
+          "venProductosAntiguos": venta.venProductos,
+          "tabla": "venta",
+        });
+      }
+    }
   }
 
   Future<void> _setFormasPago() async {

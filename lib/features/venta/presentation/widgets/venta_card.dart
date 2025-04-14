@@ -18,12 +18,16 @@ class VentaCard extends ConsumerWidget {
   final Responsive size;
   final bool redirect;
   final User? user;
-
+  final void Function(
+    Venta venta,
+    BuildContext context,
+  )? verificarEstadoVenta;
   const VentaCard({
     Key? key,
     required this.venta,
     required this.size,
     required this.user,
+    this.verificarEstadoVenta,
     this.redirect = true,
   }) : super(key: key);
 
@@ -98,7 +102,11 @@ class VentaCard extends ConsumerWidget {
         child: GestureDetector(
           onTap: redirect
               ? () {
-                  // context.push('/venta/${venta.venId}');
+                  if (verificarEstadoVenta != null) {
+                    verificarEstadoVenta!(venta, context);
+                  } else {
+                    // context.push('/ventas/${venta.venId}');
+                  }
                 }
               : null,
           child: CardContainer(
@@ -156,6 +164,12 @@ class VentaCard extends ConsumerWidget {
                           fontSize: size.iScreen(1.5),
                         ),
                       ),
+                      Text(
+                        "Usuario: ${venta.venUser}",
+                        style: TextStyle(
+                          fontSize: size.iScreen(1.5),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -184,7 +198,7 @@ class VentaCard extends ConsumerWidget {
                             user,
                           );
                         },
-                        icon: Icon(Icons.receipt, color: colors.secondary),
+                        icon: Icon(Icons.print, color: colors.secondary),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,

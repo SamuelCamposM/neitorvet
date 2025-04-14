@@ -37,11 +37,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               Text(
                 moduleName,
-                style: const TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 12),
               ),
               Text(
                 userName,
-                style: const TextStyle(fontSize: 10),
+                style: const TextStyle(fontSize: 8),
               ),
             ],
           ),

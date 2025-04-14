@@ -146,7 +146,7 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
                 },
                 icon: const Icon(Icons.search)),
           ],
-          title: Text('Cajas ${cierreCajasState.total}'),
+          title: const Text('Cajas'),
           // bottom: TabBar(
           //   isScrollable: true,
           //   tabs: CierreCajaEstado.values.map((estado) {

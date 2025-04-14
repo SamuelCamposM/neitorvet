@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/menu/menu_item.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/home/presentation/provider/turno_provider.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 
 class SideMenu extends ConsumerStatefulWidget {
@@ -20,6 +21,7 @@ class SideMenuState extends ConsumerState<SideMenu> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final turnoActivo = ref.watch(turnoProvider).turnoActivo || authState.isAdmin; 
     final size = Responsive.of(context);
     return Drawer(
       // backgroundColor: Color(Colors.red),
@@ -29,7 +31,7 @@ class SideMenuState extends ConsumerState<SideMenu> {
             child: Column(
               children: [
                 CircleAvatar(
-                  radius: size.hScreen(4.5),
+                  radius: size.hScreen(3),
                   child: ClipOval(
                     child: Image.network(
                       authState.user?.foto ?? "",
@@ -59,26 +61,57 @@ class SideMenuState extends ConsumerState<SideMenu> {
             padding: EdgeInsets.zero,
             children: [
               ...appMenuItems.map(
-                (e) => Column(
-                  children: [
-                    ListTile(
-                      leading: Image.asset(
-                        e.icon,
-                        height: size.iScreen(4),
-                      ), //Icon(e.icon),
-                      title: Text(
-                        e.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                (e) {
+                  if (!authState.isAdmin && e.title == 'Gestión') {
+                    return const SizedBox.shrink(); // Ocultar el elemento
+                  }
+                  return Column(
+                    children: [
+                      ListTile(
+                        leading: Image.asset(
+                          e.icon,
+                          height: size.iScreen(4),
+                          color: turnoActivo
+                              ? null
+                              : Colors
+                                  .grey, // Cambiar color del ícono si está deshabilitado
+                        ),
+                        title: Text(
+                          e.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: turnoActivo
+                                ? Colors.black
+                                : Colors
+                                    .grey, // Cambiar color del texto si está deshabilitado
+                          ),
+                        ),
+                        subtitle: Text(
+                          e.subTitle,
+                          style: TextStyle(
+                            color: turnoActivo
+                                ? Colors.black54
+                                : Colors
+                                    .grey, // Cambiar color del subtítulo si está deshabilitado
+                          ),
+                        ),
+                        onTap: turnoActivo
+                            ? () {
+                                context.push(e.link);
+                              }
+                            : null, // Deshabilitar interacción si turnoActivo es false
+                        trailing: Icon(
+                          Icons.keyboard_arrow_right,
+                          color: turnoActivo
+                              ? Colors.black
+                              : Colors
+                                  .grey, // Cambiar color del ícono si está deshabilitado
+                        ),
                       ),
-                      subtitle: Text(e.subTitle),
-                      onTap: () {
-                        context.push(e.link);
-                      },
-                      trailing: const Icon(Icons.keyboard_arrow_right),
-                    ),
-                    const Divider()
-                  ],
-                ),
+                      const Divider()
+                    ],
+                  );
+                },
               )
             ],
           )),
