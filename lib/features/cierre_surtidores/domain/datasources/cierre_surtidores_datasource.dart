@@ -30,6 +30,22 @@ class ResponseGenerarCierre {
   });
 }
 
+class ResponseStatusPicos {
+  final String error;
+  final bool success;
+  ResponseStatusPicos({
+    required this.error,
+    required this.success,
+  });
+}
+
+class ResponsePresetExtendido {
+  final String error;
+  ResponsePresetExtendido({
+    required this.error,
+  });
+}
+
 abstract class CierreSurtidoresDatasource {
   Future<ResponseCierreSurtidores> getCierreSurtidoresByPage(
       {required int cantidad,
@@ -52,4 +68,13 @@ abstract class CierreSurtidoresDatasource {
 //     "pistolas": "3,4,5,6,7,8"
 // }
   Future<ResponseSurtidores> getSurtidores();
+  Future<ResponseStatusPicos> getStatusPicos({
+    required String manguera,
+  });
+  Future<ResponsePresetExtendido> presetExtendido({
+    required String manguera,
+    required String valorPreset, // valor_preset
+    required String tipoPreset, // tipo_preset
+    required String nivelPrecio, // nivel_precio
+  });
 }

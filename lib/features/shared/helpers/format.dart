@@ -25,4 +25,12 @@ class Format {
   static double roundToTwoDecimals(double value) {
     return double.parse(value.toStringAsFixed(2));
   }
+
+  static String formatValorPreset(String valorPreset) {
+    // Convierte el valor a un entero y multiplica por 100 si es necesario
+    final intValue = int.parse(valorPreset) * 100;
+
+    // Devuelve el valor como una cadena con ceros a la izquierda (mínimo 9 caracteres)
+    return intValue.toString().padLeft(8, '0');
+  }
 }

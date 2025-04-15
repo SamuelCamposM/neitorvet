@@ -21,6 +21,8 @@ class CustomInputField extends StatelessWidget {
   final bool autofocus;
   final bool toUpperCase; // Nuevo parámetro para convertir a mayúsculas
   final bool isLoading; // Nuevo parámetro para mostrar el indicador de progreso
+  final bool onlyInt; // Nuevo parámetro para restringir a números enteros
+  final int? maxDigits; // Nuevo parámetro para limitar el número máximo de dígitos
 
   const CustomInputField({
     super.key,
@@ -43,6 +45,8 @@ class CustomInputField extends StatelessWidget {
     this.suffixIcon,
     this.toUpperCase = false, // Inicializando el nuevo parámetro
     this.isLoading = false, // Inicializando el nuevo parámetro
+    this.onlyInt = false, // Inicializando el nuevo parámetro
+    this.maxDigits, // Inicializando el nuevo parámetro
   });
 
   @override
@@ -56,21 +60,24 @@ class CustomInputField extends StatelessWidget {
           readOnly: readOnly,
           controller: controller,
           onChanged: onChanged,
-          inputFormatters: toUpperCase ? [_UpperCaseTextFormatter()] : [],
+          inputFormatters: [
+            if (toUpperCase) _UpperCaseTextFormatter(),
+            if (onlyInt) FilteringTextInputFormatter.digitsOnly, // Restringe a números enteros
+            if (maxDigits != null) LengthLimitingTextInputFormatter(maxDigits), // Limita el número máximo de dígitos
+          ],
           onFieldSubmitted: onFieldSubmitted,
           validator: validator,
           obscureText: obscureText,
-          keyboardType: keyboardType,
+          keyboardType: onlyInt ? TextInputType.number : keyboardType, // Cambia el teclado si es solo números
 
           style: const TextStyle(
             fontSize: 15,
           ),
-          maxLines: lines ??
-              1, // Usar el valor de lines si se proporciona, de lo contrario 1
+          maxLines: lines ?? 1, // Usar el valor de lines si se proporciona, de lo contrario 1
           initialValue: controller == null ? initialValue : null,
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(
-                vertical: 4, // Reducir el p padding horizontal
+                vertical: 4, // Reducir el padding horizontal
                 horizontal: 4),
             floatingLabelBehavior: (lines ?? 1) > 1
                 ? FloatingLabelBehavior.always

@@ -17,4 +17,13 @@ abstract class CierreSurtidoresRepository {
     required List<String> pistolas,
   });
   Future<ResponseSurtidores> getSurtidores();
+  Future<ResponseStatusPicos> getStatusPicos({
+    required String manguera,
+  });
+  Future<ResponsePresetExtendido> presetExtendido({
+    required String manguera,
+    required String valorPreset, // valor_preset
+    required String tipoPreset, // tipo_preset
+    required String nivelPrecio, // nivel_precio
+  });
 }

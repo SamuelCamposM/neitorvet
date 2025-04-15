@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/datasources/cierre_surtidores_datasource.dart'; 
 import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_repository_provider.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
-import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart'; 
+import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
@@ -144,6 +146,139 @@ class BodyMenuDespacho extends ConsumerWidget {
   }
 }
 
+Future<void> mostrarModalCentrado(
+    BuildContext context,
+    String numeroPistola,
+    Future<ResponsePresetExtendido> Function({
+      required String manguera,
+      required String valorPreset,
+      required String tipoPreset,
+      required String nivelPrecio,
+    }) presetExtendido) async {
+  final TextEditingController valorController = TextEditingController();
+  final TextEditingController galonesController = TextEditingController();
+
+  await showDialog(
+    context: context,
+    barrierDismissible: false, // Evita que se cierre al tocar fuera del modal
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
+            ),
+            contentPadding: const EdgeInsets.all(16.0),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // Ajusta el tamaño al contenido
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Despacho",
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  CustomInputField(
+                    controller: valorController,
+                    maxDigits: 3,
+                    onlyInt: true,
+                    keyboardType: TextInputType.number,
+                    label: 'Valor \$',
+                    onChanged: (p0) {
+                      // Borra el valor de galones y actualiza el estado
+                      setState(() {
+                        final int? parsedValue = int.tryParse(p0);
+                        valorController.value = TextEditingValue(
+                          text:
+                              parsedValue != null ? parsedValue.toString() : '',
+                        );
+                        galonesController.clear();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16.0),
+                  CustomInputField(
+                    controller: galonesController,
+                    maxDigits: 2,
+                    onlyInt: true,
+                    keyboardType: TextInputType.number,
+                    label: 'Galones',
+                    onChanged: (p0) {
+                      // Borra el valor de valor y actualiza el estado
+                      setState(() {
+                        final int? parsedValue = int.tryParse(p0);
+                        galonesController.value = TextEditingValue(
+                          text:
+                              parsedValue != null ? parsedValue.toString() : '',
+                        );
+                        valorController.clear();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 32.0),
+                  SizedBox(
+                    width: double.infinity, // Ocupa todo el ancho disponible
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Lógica para manejar el envío
+                        presetExtendido(
+                            manguera: numeroPistola,
+                            valorPreset: valorController.text != ''
+                                ? valorController.text
+                                : galonesController.text,
+                            tipoPreset: valorController.text != '' ? '0' : '1',
+                            nivelPrecio: '0');
+                        final int valor =
+                            int.tryParse(valorController.text) ?? 0;
+                        final int galones =
+                            int.tryParse(galonesController.text) ?? 0;
+                        print("Valor: $valor, Galones: $galones");
+                        Navigator.of(context).pop(); // Cierra el modal
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Colors.blue, // Color de fondo del botón
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16.0), // Altura del botón
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(8.0), // Bordes redondeados
+                        ),
+                      ),
+                      child: const Text(
+                        "Liberar",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // Color del texto
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Cierra el modal
+                      },
+                      child: const Text("Cerrar"),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
 class _CardSurtidor extends ConsumerWidget {
   final Responsive size;
   final Surtidor surtidor;
@@ -156,6 +291,7 @@ class _CardSurtidor extends ConsumerWidget {
     final getLados = ref.read(ventasProvider.notifier).getLados;
     final generarCierre =
         ref.read(cierreSurtidoresRepositoryProvider).generarCierre;
+
     return GestureDetector(
       onTap: () async {
         if (ventaState == null) {
@@ -304,14 +440,40 @@ class _CardSurtidor extends ConsumerWidget {
                                           valorIva: 0,
                                           costoProduccion: 0,
                                         ));
-                                final errorAgregar = ref
-                                    .read(ventaFormProvider(ventaState!.venta!)
-                                        .notifier)
-                                    .agregarProducto(null);
 
-                                if (context.mounted && !errorAgregar) {
-                                  context.pop(context);
+                                final responseGetStatus = await ref
+                                    .read(cierreSurtidoresRepositoryProvider)
+                                    .getStatusPicos(
+                                        manguera: responseModal
+                                            .estacion.numeroPistola
+                                            .toString());
+                                if (!responseGetStatus.success &&
+                                    context.mounted) {
+                                  NotificationsService.show(
+                                      context,
+                                      'No se puede despachar',
+                                      SnackbarCategory.error);
+                                  return;
                                 }
+                                if (context.mounted) {
+                                  mostrarModalCentrado(
+                                    context,
+                                    responseModal.estacion.numeroPistola
+                                        .toString(),
+                                    ref
+                                        .read(
+                                            cierreSurtidoresRepositoryProvider)
+                                        .presetExtendido,
+                                  );
+                                }
+                                // final errorAgregar = ref
+                                //     .read(ventaFormProvider(ventaState!.venta!)
+                                //         .notifier)
+                                //     .agregarProducto(null);
+
+                                // if (context.mounted && !errorAgregar) {
+                                // // context.pop(context);
+                                // }
                               }
                             },
                             style: TextButton.styleFrom(

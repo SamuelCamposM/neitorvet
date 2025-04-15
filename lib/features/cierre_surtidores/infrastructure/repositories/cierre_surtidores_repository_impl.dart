@@ -43,4 +43,24 @@ class CierreSurtidoresRepositoryImpl extends CierreSurtidoresRepository {
     return datasource.generarCierre(
         codCombustible: codCombustible, pistolas: pistolas);
   }
+
+  @override
+  Future<ResponseStatusPicos> getStatusPicos({
+    required String manguera,
+  }) {
+    return datasource.getStatusPicos(manguera: manguera);
+  }
+
+  @override
+  Future<ResponsePresetExtendido> presetExtendido(
+      {required String manguera,
+      required String valorPreset,
+      required String tipoPreset,
+      required String nivelPrecio}) {
+    return datasource.presetExtendido(
+        manguera: manguera,
+        valorPreset: valorPreset,
+        tipoPreset: tipoPreset,
+        nivelPrecio: nivelPrecio);
+  }
 }

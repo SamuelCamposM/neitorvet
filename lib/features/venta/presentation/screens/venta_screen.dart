@@ -388,47 +388,50 @@ class _VentaForm extends ConsumerWidget {
                   SizedBox(
                     width: size.wScreen(50.0),
                     child: OutlinedButton.icon(
-                      onPressed: () async {
-                        context.push('/seleccionSurtidor/${venta.venId}');
-                        // context.push('/venta/${venta.venId}');
-                        // final inventario =
-                        //     await searchInventario(context: context, ref: ref);
-                        // if (inventario != null) {
-                        //   final exist = ventaFState
-                        //       .ventaForm.venProductosInput.value
-                        //       .any((e) => e.codigo == inventario.invSerie);
-                        //   if (exist) {
-                        //     if (context.mounted) {
-                        //       NotificationsService.show(
-                        //           context,
-                        //           'Este Producto ya se encuentra en la lista',
-                        //           SnackbarCategory.error);
-                        //     }
-                        //     return;
-                        //   }
-                        //   ref
-                        //       .read(ventaFormProvider(venta).notifier)
-                        //       .updateState(
-                        //           nuevoProducto: Producto(
-                        //         cantidad: 0,
-                        //         codigo: inventario.invSerie,
-                        //         descripcion: inventario.invNombre,
-                        //         valUnitarioInterno: Parse.parseDynamicToDouble(
-                        //             inventario.invprecios[0]),
-                        //         valorUnitario: Parse.parseDynamicToDouble(
-                        //             inventario.invprecios[0]),
-                        //         llevaIva: inventario.invIva,
-                        //         incluyeIva: inventario.invIncluyeIva,
-                        //         recargoPorcentaje: 0,
-                        //         recargo: 0,
-                        //         descPorcentaje: venta.venDescPorcentaje,
-                        //         descuento: 0,
-                        //         precioSubTotalProducto: 0,
-                        //         valorIva: 0,
-                        //         costoProduccion: 0,
-                        //       ));
-                        // }
-                      },
+                      onPressed: ventaFState.ventaForm.venRucCliente ==
+                              '9999999999999'
+                          ? null
+                          : () async {
+                              context.push('/seleccionSurtidor/${venta.venId}');
+                              // context.push('/venta/${venta.venId}');
+                              // final inventario =
+                              //     await searchInventario(context: context, ref: ref);
+                              // if (inventario != null) {
+                              //   final exist = ventaFState
+                              //       .ventaForm.venProductosInput.value
+                              //       .any((e) => e.codigo == inventario.invSerie);
+                              //   if (exist) {
+                              //     if (context.mounted) {
+                              //       NotificationsService.show(
+                              //           context,
+                              //           'Este Producto ya se encuentra en la lista',
+                              //           SnackbarCategory.error);
+                              //     }
+                              //     return;
+                              //   }
+                              //   ref
+                              //       .read(ventaFormProvider(venta).notifier)
+                              //       .updateState(
+                              //           nuevoProducto: Producto(
+                              //         cantidad: 0,
+                              //         codigo: inventario.invSerie,
+                              //         descripcion: inventario.invNombre,
+                              //         valUnitarioInterno: Parse.parseDynamicToDouble(
+                              //             inventario.invprecios[0]),
+                              //         valorUnitario: Parse.parseDynamicToDouble(
+                              //             inventario.invprecios[0]),
+                              //         llevaIva: inventario.invIva,
+                              //         incluyeIva: inventario.invIncluyeIva,
+                              //         recargoPorcentaje: 0,
+                              //         recargo: 0,
+                              //         descPorcentaje: venta.venDescPorcentaje,
+                              //         descuento: 0,
+                              //         precioSubTotalProducto: 0,
+                              //         valorIva: 0,
+                              //         costoProduccion: 0,
+                              //       ));
+                              // }
+                            },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
                             color:

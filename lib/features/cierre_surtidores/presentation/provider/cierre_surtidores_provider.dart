@@ -267,8 +267,22 @@ class CierreSurtidoresNotifier extends StateNotifier<CierreSurtidoresState> {
 
       return;
     }
+    List<Estacion> estacionesRes = [];
+    for (var surtidor in surtidoresResponse.resultado) {
+      final List<Estacion> estaciones = [
+        surtidor.estacion1,
+        surtidor.estacion2,
+        surtidor.estacion3,
+      ]
+          .where((estacion) => estacion?.nombreProducto != null)
+          .cast<Estacion>()
+          .toList();
+      estacionesRes.addAll(estaciones);
+    }
     state = state.copyWith(
-        surtidoresData: surtidoresResponse.resultado, isLoading: false);
+        surtidoresData: surtidoresResponse.resultado,
+        isLoading: false,
+        estacionesData: estacionesRes);
   }
 
   List<Surtidor> getUniqueSurtidores() {
@@ -325,6 +339,7 @@ class CierreSurtidoresState {
   final bool isSearching;
   final bool mostrarImprimirFactura;
   final List<Surtidor> surtidoresData;
+  final List<Estacion> estacionesData;
   CierreSurtidoresState(
       {this.isLastPage = false,
       this.isLoading = false,
@@ -341,25 +356,28 @@ class CierreSurtidoresState {
       this.busquedaCierreSurtidor = const BusquedaCierreSurtidor(),
       this.isSearching = false,
       this.mostrarImprimirFactura = false,
-      this.surtidoresData = const []});
+      this.surtidoresData = const [],
+      this.estacionesData = const []});
 
-  CierreSurtidoresState copyWith(
-      {bool? isLastPage,
-      bool? isLoading,
-      int? cantidad,
-      int? page,
-      List<CierreSurtidor>? cierreSurtidores,
-      String? error,
-      int? total,
-      String? search,
-      String? input,
-      bool? orden,
-      List<CierreSurtidor>? searchedCierreSurtidores,
-      int? totalSearched,
-      BusquedaCierreSurtidor? busquedaCierreSurtidor,
-      bool? isSearching,
-      bool? mostrarImprimirFactura,
-      List<Surtidor>? surtidoresData}) {
+  CierreSurtidoresState copyWith({
+    bool? isLastPage,
+    bool? isLoading,
+    int? cantidad,
+    int? page,
+    List<CierreSurtidor>? cierreSurtidores,
+    String? error,
+    int? total,
+    String? search,
+    String? input,
+    bool? orden,
+    List<CierreSurtidor>? searchedCierreSurtidores,
+    int? totalSearched,
+    BusquedaCierreSurtidor? busquedaCierreSurtidor,
+    bool? isSearching,
+    bool? mostrarImprimirFactura,
+    List<Surtidor>? surtidoresData,
+    List<Estacion>? estacionesData,
+  }) {
     return CierreSurtidoresState(
       isLastPage: isLastPage ?? this.isLastPage,
       isLoading: isLoading ?? this.isLoading,
@@ -380,6 +398,7 @@ class CierreSurtidoresState {
       mostrarImprimirFactura:
           mostrarImprimirFactura ?? this.mostrarImprimirFactura,
       surtidoresData: surtidoresData ?? this.surtidoresData,
+      estacionesData: estacionesData ?? this.estacionesData,
     );
   }
 }

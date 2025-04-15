@@ -310,7 +310,6 @@ class VentasNotifier extends StateNotifier<VentasState> {
           true,
         );
       } else {
-      
         // Emitir evento al servidor si no han pasado más de 3 días
         print({
           ...venta.toJson(), // Incluye los datos de la venta
@@ -374,7 +373,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     final estado = state.estado == VentaEstado.facturas ||
             state.estado == VentaEstado.sinAutorizar
         ? "FACTURA"
-        // : state.estado == VentaEstado.notaVentas
+        // : state.estado == VentaEstado.notaVenta
         //     ? "NOTA DE VENTA"
         //     : state.estado == VentaEstado.proformas
         //         ? "PROFORMA"
