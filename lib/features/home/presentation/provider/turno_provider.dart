@@ -107,8 +107,10 @@ class TurnoNotifier extends StateNotifier<TurnoState> {
       }
     } catch (e) {
       state = state.copyWith(
-          errorMessage:
-              'Error al escanear el código QR o leer las coordenadas');
+          errorMessage: (e is String)
+              ? e
+              : 'Error al escanear el código QR o leer las coordenadas');
+
       return;
     }
   }
@@ -120,7 +122,7 @@ class TurnoNotifier extends StateNotifier<TurnoState> {
     // Verificar si el servicio de ubicación está habilitado
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      throw Exception('El servicio de ubicación está deshabilitado.');
+      throw ('Debe habilitar el GPS.');
     }
 
     // Solicitar permisos de ubicación
@@ -128,13 +130,12 @@ class TurnoNotifier extends StateNotifier<TurnoState> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        throw Exception('Los permisos de ubicación fueron denegados.');
+        throw ('Los permisos de ubicación fueron denegados.');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      throw Exception(
-          'Los permisos de ubicación están denegados permanentemente.');
+      throw ('Los permisos de ubicación están denegados permanentemente.');
     }
 
     // Obtener la posición actual

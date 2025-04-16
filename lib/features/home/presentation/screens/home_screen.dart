@@ -57,24 +57,24 @@ class _HomeView extends ConsumerWidget {
                     BotonTurno(
                         size: size, isBotonActivo: turnoActivo, colors: colors),
                   const SizedBox(height: 8.0),
-                  if (!isAdmin)
-                    Consumer(
-                      builder: (context, ref, child) {
-                        final qrResult = ref.watch(turnoProvider).qrUbicacion;
-                        return Text(
-                          qrResult.isNotEmpty
-                              ? 'Resultado: $qrResult'
-                              : '',
-                          style: TextStyle(
-                            fontSize: size.iScreen(1.7),
-                            fontWeight: FontWeight.bold,
-                            color: qrResult.isNotEmpty
-                                ? Colors.green
-                                : Colors.grey[700],
-                          ),
-                        );
-                      },
-                    ),
+                  // if (!isAdmin)
+                  //   Consumer(
+                  //     builder: (context, ref, child) {
+                  //       final qrResult = ref.watch(turnoProvider).qrUbicacion;
+                  //       return Text(
+                  //         qrResult.isNotEmpty
+                  //             ? 'Resultado: $qrResult'
+                  //             : '',
+                  //         style: TextStyle(
+                  //           fontSize: size.iScreen(1.7),
+                  //           fontWeight: FontWeight.bold,
+                  //           color: qrResult.isNotEmpty
+                  //               ? Colors.green
+                  //               : Colors.grey[700],
+                  //         ),
+                  //       );
+                  //     },
+                  //   ),
                   Wrap(
                     alignment: WrapAlignment.center, // Centrar los elementos
                     spacing: size

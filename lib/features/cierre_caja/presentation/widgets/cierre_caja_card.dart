@@ -103,13 +103,26 @@ class CierreCajaCard extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        cierreCaja.cajaTipoDocumento,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: getColorByTipoDocumento(
-                              cierreCaja.cajaTipoDocumento),
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            cierreCaja.cajaTipoDocumento,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: getColorByTipoDocumento(
+                                  cierreCaja.cajaTipoDocumento),
+                            ),
+                          ),
+                          Text(
+                            cierreCaja.cajaEstado != 'ANULADA'
+                                ? ''
+                                : ' - ${cierreCaja.cajaEstado}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: colors.error,
+                            ),
+                          ),
+                        ],
                       ),
                       Text(
                         cierreCaja.cajaNumero,

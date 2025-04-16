@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -268,6 +270,22 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     ));
   }
 
+  void printLargeMap(Map<String, dynamic> map, {int chunkSize = 20}) {
+    final entries = map.entries.toList();
+    final totalChunks = (entries.length / chunkSize).ceil();
+
+    for (int i = 0; i < totalChunks; i++) {
+      final start = i * chunkSize;
+      final end = start + chunkSize;
+      final chunk =
+          entries.sublist(start, end > entries.length ? entries.length : end);
+
+      final chunkMap =
+          Map.fromEntries(chunk); // Convertir el fragmento en un mapa
+      print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
+    }
+  }
+
   Future<bool> onFormSubmit() async {
     // Marcar todos los campos como tocados
     _touchedEverything(true);
@@ -283,19 +301,27 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
     // Actualizar el estado para indicar que se está posteando
     state = state.copyWith(isPosting: true);
-    final ventaMap = {
-      ...state.ventaForm.toVenta().toJson(),
-      "optionDocumento": 'F',
-      "venTipoDocumento": "F",
-      "venOption": "1",
-      "rucempresa": rucempresa,
-      "rol": rol,
-      "venUser": usuario,
-      "venEmpresa": rucempresa,
-      "tabla": "venta",
-    };
 
     try {
+      final ventaMap = {
+        ...state.ventaForm
+            .copyWith(
+              optionDocumento:
+                  state.ventaForm.venFormaPago == "CALIBRACIÓN" ? 'N' : 'F',
+              venTipoDocumento:
+                  state.ventaForm.venFormaPago == "CALIBRACIÓN" ? 'N' : "F",
+            )
+            .toVenta()
+            .toJson(),
+        "venOption": "1",
+        "rucempresa": rucempresa,
+        "rol": rol,
+        "venUser": usuario,
+        "venEmpresa": rucempresa,
+        "tabla": "venta",
+      };
+      // print(ventaMap);
+      printLargeMap(ventaMap);
       const result = true;
       await createUpdateVenta(ventaMap);
 

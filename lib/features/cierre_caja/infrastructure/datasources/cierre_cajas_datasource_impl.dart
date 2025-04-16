@@ -9,58 +9,53 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
   final Dio dio;
   final String rucempresa;
   CierreCajasDatasourceImpl({required this.dio, required this.rucempresa});
-
   @override
-  Future<ResponseCierreCajasPaginacion> getCierreCajasByPage(
-      {required int cantidad,
-      required int page,
-      required String search,
-      required String input,
-      required bool orden,
-      required BusquedaCierreCaja busquedaCierreCaja,
-      required String estado}) async {
+  Future<ResponseCierreCajasPaginacion> getCierreCajasByPage({
+    required int cantidad,
+    required int page,
+    required String search,
+    required String input,
+    required bool orden,
+    required BusquedaCierreCaja busquedaCierreCaja,
+    required String estado,
+  }) async {
     try {
-      print(
-        {
-          'search': search,
-          'cantidad': cantidad,
-          'page': page,
-          'input': input,
-          'orden': orden,
-          'estado':
-              estado == 'ANULADA' ? 'GENERAL' : estado, // DIARIA // GENERAL
-          'status':
-              estado == 'ANULADA' ? estado : 'ACTIVA', // ACTIVA // ANULADA
-          'datos': busquedaCierreCaja.toJsonString(),
-        },
-      );
-      final response = await dio.get(
-        '/cajas',
-        queryParameters: {
-          'search': search,
-          'cantidad': cantidad,
-          'page': page,
-          'input': input,
-          'orden': orden,
-          'estado':
-              estado == 'ANULADA' ? 'GENERAL' : estado, // DIARIA // GENERAL
-          'status':
-              estado == 'ANULADA' ? estado : 'ACTIVA', // ACTIVA // ANULADA
-          'datos': busquedaCierreCaja.toJsonString(),
-        },
-      );
-      final List<CierreCaja> newCierreCajas = response.data['data']['results']
-          .map<CierreCaja>((e) => CierreCaja.fromJson(e))
-          .toList();
+      final queryParams = {
+        'search': search,
+        'cantidad': cantidad,
+        'page': page,
+        'input': input,
+        'orden': orden,
+        'estado': estado == 'ANULADA' ? 'GENERAL' : estado,
+        'status': estado == 'ANULADA' ? estado : 'ACTIVA',
+        'datos': busquedaCierreCaja.toJsonString(),
+      };
+
+      final endpoint =
+          estado == 'DIARIA' ? '/cajas/lista/diaria_gasolineraApp' : '/cajas';
+
+      final response = await dio.get(endpoint, queryParameters: queryParams);
+
+      final data =
+          estado == 'DIARIA' ? response.data : response.data['data']['results'];
+
+      final List<CierreCaja> newCierreCajas =
+          data.map<CierreCaja>((e) => CierreCaja.fromJson(e)).toList();
+
+      final total = estado == 'DIARIA'
+          ? data.length
+          : response.data['data']['pagination']['numRows'] ?? 0;
 
       return ResponseCierreCajasPaginacion(
-          resultado: newCierreCajas,
-          error: '',
-          total: response.data['data']['pagination']['numRows'] ?? 0);
+        resultado: newCierreCajas,
+        error: '',
+        total: total,
+      );
     } on DioException catch (e) {
       return ResponseCierreCajasPaginacion(
-          resultado: [],
-          error: ErrorApi.getErrorMessage(e, 'getCierreCajasByPage'));
+        resultado: [],
+        error: ErrorApi.getErrorMessage(e, 'getCierreCajasByPage'),
+      );
     }
   }
 
@@ -69,7 +64,7 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
       {required String fecha, required String search}) async {
     try {
       final response = await dio.get(
-        '/cajas/saldo-total/ingreso-egreso-credito',
+        '/cajas/saldo-total/ingreso-egreso-credito_gasolineraApp',
         queryParameters: {
           'search': search,
           'fecha': fecha,

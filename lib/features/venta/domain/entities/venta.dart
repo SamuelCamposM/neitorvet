@@ -62,6 +62,7 @@ class Venta {
   final String venTelfCliente;
   final String venTipoDocuCliente;
   final String venTipoDocumento;
+  final String optionDocumento;
   final String venTotalRetencion;
   final String venUser;
   final int? idAbastecimiento;
@@ -73,6 +74,7 @@ class Venta {
     required this.venFecReg,
     required this.venOption,
     required this.venTipoDocumento,
+    this.optionDocumento = '',
     required this.venIdCliente,
     required this.venRucCliente,
     required this.venTipoDocuCliente,
@@ -132,6 +134,7 @@ class Venta {
         venFecReg: json["venFecReg"],
         venOption: json["venOption"],
         venTipoDocumento: json["venTipoDocumento"],
+        optionDocumento: json["optionDocumento"] ?? "",
         venIdCliente: Parse.parseDynamicToInt(json["venIdCliente"]),
         venRucCliente: json["venRucCliente"],
         venTipoDocuCliente: json["venTipoDocuCliente"],
@@ -197,6 +200,7 @@ class Venta {
         "venFecReg": venFecReg,
         "venOption": venOption,
         "venTipoDocumento": venTipoDocumento,
+        "optionDocumento": optionDocumento,
         "venIdCliente": venIdCliente,
         "venRucCliente": venRucCliente,
         "venTipoDocuCliente": venTipoDocuCliente,
@@ -380,6 +384,7 @@ class VentaForm extends Venta {
     required super.venTelfCliente,
     required super.venTipoDocuCliente,
     required super.venTipoDocumento,
+    required super.optionDocumento,
     required super.venTotal,
     required super.venTotalIva,
     required super.venTotalRetencion,
@@ -445,6 +450,7 @@ class VentaForm extends Venta {
     String? venTelfCliente,
     String? venTipoDocuCliente,
     String? venTipoDocumento,
+    String? optionDocumento,
     String? venTotalRetencion,
     String? venUser,
     String? venOtros,
@@ -476,6 +482,7 @@ class VentaForm extends Venta {
       venFecReg: venFecReg ?? this.venFecReg,
       venOption: venOption ?? this.venOption,
       venTipoDocumento: venTipoDocumento ?? this.venTipoDocumento,
+      optionDocumento: optionDocumento ?? this.optionDocumento,
       venIdCliente: venIdCliente ?? this.venIdCliente,
       venTipoDocuCliente: venTipoDocuCliente ?? this.venTipoDocuCliente,
       venEmailCliente: venEmailCliente ?? this.venEmailCliente,
@@ -539,6 +546,7 @@ class VentaForm extends Venta {
         venFecReg: venFecReg,
         venOption: venOption,
         venTipoDocumento: venTipoDocumento,
+        optionDocumento: optionDocumento,
         venIdCliente: venIdCliente,
         venRucCliente: venRucClienteInput.value,
         venProductos: venProductosInput.value,
@@ -604,6 +612,7 @@ class VentaForm extends Venta {
             venFecReg: venta.venFecReg,
             venOption: venta.venOption,
             venTipoDocumento: venta.venTipoDocumento,
+            optionDocumento: venta.optionDocumento,
             venIdCliente: venta.venIdCliente,
             venTipoDocuCliente: venta.venTipoDocuCliente,
             venNomCliente: venta.venNomCliente,
@@ -666,6 +675,7 @@ class VentaForm extends Venta {
             venFecReg: venta.venFecReg,
             venOption: venta.venOption,
             venTipoDocumento: venta.venTipoDocumento,
+            optionDocumento: venta.optionDocumento,
             venIdCliente: venta.venIdCliente,
             venTipoDocuCliente: venta.venTipoDocuCliente,
             venNomCliente: venta.venNomCliente,

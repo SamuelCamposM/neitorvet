@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:neitorvet/features/cierre_surtidores/domain/datasources/cierre_surtidores_datasource.dart'; 
+import 'package:neitorvet/features/cierre_surtidores/domain/datasources/cierre_surtidores_datasource.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_repository_provider.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
-import 'package:neitorvet/features/shared/msg/show_snackbar.dart'; 
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
@@ -238,6 +238,7 @@ Future<void> mostrarModalCentrado(
                             int.tryParse(galonesController.text) ?? 0;
                         print("Valor: $valor, Galones: $galones");
                         Navigator.of(context).pop(); // Cierra el modal
+                        context.push('/cargando/venta/$numeroPistola');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
@@ -441,39 +442,39 @@ class _CardSurtidor extends ConsumerWidget {
                                           costoProduccion: 0,
                                         ));
 
-                                final responseGetStatus = await ref
-                                    .read(cierreSurtidoresRepositoryProvider)
-                                    .getStatusPicos(
-                                        manguera: responseModal
-                                            .estacion.numeroPistola
-                                            .toString());
-                                if (!responseGetStatus.success &&
-                                    context.mounted) {
-                                  NotificationsService.show(
-                                      context,
-                                      'No se puede despachar',
-                                      SnackbarCategory.error);
-                                  return;
-                                }
-                                if (context.mounted) {
-                                  mostrarModalCentrado(
-                                    context,
-                                    responseModal.estacion.numeroPistola
-                                        .toString(),
-                                    ref
-                                        .read(
-                                            cierreSurtidoresRepositoryProvider)
-                                        .presetExtendido,
-                                  );
-                                }
-                                // final errorAgregar = ref
-                                //     .read(ventaFormProvider(ventaState!.venta!)
-                                //         .notifier)
-                                //     .agregarProducto(null);
-
-                                // if (context.mounted && !errorAgregar) {
-                                // // context.pop(context);
+                                // final responseGetStatus = await ref
+                                //     .read(cierreSurtidoresRepositoryProvider)
+                                //     .getStatusPicos(
+                                //         manguera: responseModal
+                                //             .estacion.numeroPistola
+                                //             .toString());
+                                // if (!responseGetStatus.success &&
+                                // if (context.mounted) {
+                                //   NotificationsService.show(
+                                //       context,
+                                //       'No se puede despachar',
+                                //       SnackbarCategory.error);
+                                //   return;
                                 // }
+                                // if (context.mounted) {
+                                //   mostrarModalCentrado(
+                                //     context,
+                                //     responseModal.estacion.numeroPistola
+                                //         .toString(),
+                                //     ref
+                                //         .read(
+                                //             cierreSurtidoresRepositoryProvider)
+                                //         .presetExtendido,
+                                //   );
+                                // }
+                                final errorAgregar = ref
+                                    .read(ventaFormProvider(ventaState!.venta!)
+                                        .notifier)
+                                    .agregarProducto(null);
+
+                                if (context.mounted && !errorAgregar) {
+                                  context.pop(context);
+                                }
                               }
                             },
                             style: TextButton.styleFrom(

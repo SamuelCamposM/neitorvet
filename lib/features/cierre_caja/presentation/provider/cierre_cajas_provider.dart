@@ -142,6 +142,11 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
   }
 
   Future loadNextPage() async {
+    print(state.page);
+    print(state.estado);
+    if (state.page == 1 && state.estado == CierreCajaEstado.diaria) {
+      return;
+    }
     if (state.isLastPage || state.isLoading) {
       return;
     }

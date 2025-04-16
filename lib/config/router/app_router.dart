@@ -12,9 +12,10 @@ import 'package:neitorvet/features/cierre_surtidores/presentation/screens/cierre
 import 'package:neitorvet/features/cierre_surtidores/presentation/screens/menu_despacho.dart';
 import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
 import 'package:neitorvet/features/home/presentation/screens/cierre_turno_screen.dart';
-import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
+import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart'; 
 import 'package:neitorvet/features/shared/screen/send_email.dart';
 import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
+import 'package:neitorvet/features/venta/presentation/screens/full_screen_loader_venta.dart';
 
 import 'package:neitorvet/features/venta/presentation/screens/screens.dart';
 
@@ -144,6 +145,14 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/admin',
         builder: (context, state) => const AdminScreens(),
+      ),
+      GoRoute(
+        path: '/cargando/venta/:manguera',
+        builder: (context, state) {
+          final manguera =
+              state.params['manguera'] ?? 'Desconocida'; // Valor por defecto
+          return FullScreenLoaderVenta(manguera: manguera);
+        },
       ),
       // GoRoute(
       //   path: '/product/:id',

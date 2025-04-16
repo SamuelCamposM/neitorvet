@@ -146,7 +146,8 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
                 },
                 icon: const Icon(Icons.search)),
           ],
-          title: const Text('Cajas'),
+          title: Text(
+              'Cajas ${cierreCajasState.estado == CierreCajaEstado.diaria ? cierreCajasState.cierreCajas.length : ''}'),
           // bottom: TabBar(
           //   isScrollable: true,
           //   tabs: CierreCajaEstado.values.map((estado) {
@@ -318,19 +319,22 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
                         size: size,
                         redirect: true,
                         onDelete: () async {
-                          final res = await cupertinoModal(
-                              context,
-                              size,
-                              '¿Esta seguro de eliminar este registro: ${cierreCaja.cajaNumero}?',
-                              ['SI', 'NO']);
-                          if (res == 'SI') {
-                            deleteCierreCaja(cierreCaja.cajaId);
+                          if (isAdmin) {
+                            final res = await cupertinoModal(
+                                context,
+                                size,
+                                '¿Esta seguro de eliminar este registro: ${cierreCaja.cajaNumero}?',
+                                ['SI', 'NO']);
+                            if (res == 'SI') {
+                              deleteCierreCaja(cierreCaja.cajaId);
+                            }
                           }
                         },
                       );
                     },
                   ),
                 ),
+                const SizedBox(height: 100),
               ],
             ),
             if (cierreCajasState.isLoading)

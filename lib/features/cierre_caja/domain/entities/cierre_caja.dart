@@ -63,7 +63,7 @@ class CierreCaja {
         cajaEmpresa: json["cajaEmpresa"],
         cajaUser: json["cajaUser"],
         cajaFecReg: json["cajaFecReg"],
-        todos: json["Todos"],
+        todos: json["Todos"] ?? '',
       );
 
   Map<String, dynamic> toJson() => {
