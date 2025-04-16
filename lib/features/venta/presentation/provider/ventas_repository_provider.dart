@@ -6,10 +6,13 @@ import 'package:neitorvet/features/venta/infrastructure/repositories/ventas_repo
 
 final ventasRepositoryProvider = Provider<VentasRepository>(
   (ref) {
+    final authState = ref.watch(authProvider); // Un solo ref.watch
     final dio = ref.watch(authProvider.notifier).dio;
-    final rucempresa = ref.watch(authProvider).user?.rucempresa ?? "";
 
     return VentasRepositoryImpl(
-        datasource: VentasDatasourceImpl(dio: dio, rucempresa: rucempresa));
+        datasource: VentasDatasourceImpl(
+            dio: dio,
+            rucempresa: authState.user!.rucempresa,
+            isAdmin: authState.isAdmin));
   },
 );

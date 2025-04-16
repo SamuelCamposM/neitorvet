@@ -38,8 +38,7 @@ class GetVentaResponse {
 final ventasProvider =
     StateNotifierProvider.autoDispose<VentasNotifier, VentasState>(
   (ref) {
-    final user = ref.watch(authProvider).user;
-
+    final authState = ref.watch(authProvider);
     final ventasRepository = ref.watch(ventasRepositoryProvider);
     final cierreSurtidoresRepository =
         ref.watch(cierreSurtidoresRepositoryProvider);
@@ -49,7 +48,8 @@ final ventasProvider =
         socket: socket,
         ventasRepository: ventasRepository,
         downloadPDF: downloadPDF,
-        user: user!,
+        user: authState.user!,
+        isAdmin: authState.isAdmin,
         cierreSurtidoresRepository: cierreSurtidoresRepository);
   },
 );
@@ -59,6 +59,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
   final CierreSurtidoresRepository cierreSurtidoresRepository;
   final io.Socket socket;
   final User user;
+  final bool isAdmin;
   final Future<void> Function(BuildContext? context, String infoPdf)
       downloadPDF;
   VentasNotifier({
@@ -67,6 +68,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     required this.user,
     required this.downloadPDF,
     required this.cierreSurtidoresRepository,
+    required this.isAdmin,
   }) : super(VentasState()) {
     _initializeSocketListeners();
     loadNextPage();
@@ -130,6 +132,10 @@ class VentasNotifier extends StateNotifier<VentasState> {
   }
 
   Future loadNextPage() async {
+    if (!isAdmin && state.page ==1) {
+      return;
+      
+    }
     if (state.isLastPage || state.isLoading) {
       return;
     }

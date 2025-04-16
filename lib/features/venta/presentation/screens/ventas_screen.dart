@@ -88,7 +88,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
     final ventasState = ref.watch(ventasProvider);
     final verificarEstadoVenta =
         ref.watch(ventasProvider.notifier).verificarEstadoVenta;
-    final user = ref.watch(authProvider).user;
+    final authState = ref.watch(authProvider);
     ref.listen(
       ventasProvider,
       (_, next) {
@@ -135,7 +135,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
               },
               icon: const Icon(Icons.search)),
         ],
-        title: const Text('Ventas'),
+        title: Text('Ventas ${authState.isAdmin ? '' : ventasState.total}'),
       ),
       body: Stack(
         children: [
@@ -281,7 +281,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
                     return VentaCard(
                       venta: venta,
                       size: size,
-                      user: user,
+                      user: authState.user,
                       redirect: true,
                       verificarEstadoVenta: verificarEstadoVenta,
                     );

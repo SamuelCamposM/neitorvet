@@ -1,6 +1,4 @@
-import 'dart:convert';
-
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
@@ -226,6 +224,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   }
 
   bool agregarProducto(TextEditingController? controller) {
+    const restrictedCodes = ['0101', '0185', '0121'];
+
     if (state.nuevoProducto.isNotValid) {
       state = state.copyWith(
           nuevoProducto: ProductoInput.dirty(const ProductoInput.pure().value));
@@ -243,6 +243,23 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       );
       _resetError();
       return true; // Devuelve true si hay un error
+    }
+
+// Validar si el nuevo producto tiene un código restringido
+    final nuevoCodigo = state.nuevoProducto.value.codigo;
+    if (restrictedCodes.contains(nuevoCodigo)) {
+      // Verificar si ya hay un producto registrado con un código restringido
+      final existeCodigoRestringido = state.ventaForm.venProductos
+          .any((producto) => restrictedCodes.contains(producto.codigo));
+
+      if (existeCodigoRestringido) {
+        state = state.copyWith(
+          error:
+              'Solo puede haber un producto con los códigos: 0101, 0185, 0121',
+        );
+        _resetError();
+        return true; // Devuelve true si hay un error
+      }
     }
 
     final producto = state.nuevoProducto.value.copyWith(
@@ -270,21 +287,21 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     ));
   }
 
-  void printLargeMap(Map<String, dynamic> map, {int chunkSize = 20}) {
-    final entries = map.entries.toList();
-    final totalChunks = (entries.length / chunkSize).ceil();
+  // void printLargeMap(Map<String, dynamic> map, {int chunkSize = 20}) {
+  //   final entries = map.entries.toList();
+  //   final totalChunks = (entries.length / chunkSize).ceil();
 
-    for (int i = 0; i < totalChunks; i++) {
-      final start = i * chunkSize;
-      final end = start + chunkSize;
-      final chunk =
-          entries.sublist(start, end > entries.length ? entries.length : end);
+  //   for (int i = 0; i < totalChunks; i++) {
+  //     final start = i * chunkSize;
+  //     final end = start + chunkSize;
+  //     final chunk =
+  //         entries.sublist(start, end > entries.length ? entries.length : end);
 
-      final chunkMap =
-          Map.fromEntries(chunk); // Convertir el fragmento en un mapa
-      print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
-    }
-  }
+  //     final chunkMap =
+  //         Map.fromEntries(chunk); // Convertir el fragmento en un mapa
+  //     print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
+  //   }
+  // }
 
   Future<bool> onFormSubmit() async {
     // Marcar todos los campos como tocados
@@ -321,7 +338,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
         "tabla": "venta",
       };
       // print(ventaMap);
-      printLargeMap(ventaMap);
+      // printLargeMap(ventaMap);
       const result = true;
       await createUpdateVenta(ventaMap);
 

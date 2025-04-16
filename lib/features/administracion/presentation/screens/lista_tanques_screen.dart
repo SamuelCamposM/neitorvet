@@ -117,13 +117,13 @@ class LiquidCircularProgressIndicatorPage extends StatelessWidget {
   const LiquidCircularProgressIndicatorPage({super.key, required this.tanque});
   @override
   Widget build(BuildContext context) {
-    final Random _random = Random();
+    final Random random = Random();
 
     Color generarColorAleatorio() {
       return Color.fromRGBO(
-        _random.nextInt(256),
-        _random.nextInt(256),
-        _random.nextInt(256),
+        random.nextInt(256),
+        random.nextInt(256),
+        random.nextInt(256),
         1.0,
       );
     }

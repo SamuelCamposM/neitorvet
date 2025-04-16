@@ -10,7 +10,9 @@ import 'package:neitorvet/features/shared/errors/error_api.dart';
 class VentasDatasourceImpl extends VentasDatasource {
   final Dio dio;
   final String rucempresa;
-  VentasDatasourceImpl({required this.dio, required this.rucempresa});
+  final bool isAdmin;
+  VentasDatasourceImpl(
+      {required this.dio, required this.rucempresa, required this.isAdmin});
 
   @override
   Future<ResponseVentas> getVentasByPage(
@@ -33,16 +35,21 @@ class VentasDatasourceImpl extends VentasDatasource {
         'fromApp': true,
         'datos': busquedaVenta.toJsonString(), // Con
       };
-      final response =
-          await dio.get('/ventas/', queryParameters: queryParameters);
-      final List<Venta> newVentas = response.data['data']['results']
-          .map<Venta>((e) => Venta.fromJson(e))
-          .toList();
+      final response = await dio.get(
+          isAdmin ? '/ventas/' : '/ventas/lista/diaria',
+          queryParameters: queryParameters);
+      final List<Venta> newVentas = isAdmin
+          ? response.data['data']['results']
+              .map<Venta>((e) => Venta.fromJson(e))
+              .toList()
+          : response.data.map<Venta>((e) => Venta.fromJson(e)).toList();
 
       return ResponseVentas(
           resultado: newVentas,
           error: '',
-          total: response.data['data']['pagination']['numRows'] ?? 0);
+          total: isAdmin
+              ? response.data['data']['pagination']['numRows'] ?? 0
+              : newVentas.length);
     } on DioException catch (e) {
       return ResponseVentas(
           resultado: [], error: ErrorApi.getErrorMessage(e, 'getVentasByPage'));
