@@ -89,6 +89,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
     final verificarEstadoVenta =
         ref.watch(ventasProvider.notifier).verificarEstadoVenta;
     final authState = ref.watch(authProvider);
+
     ref.listen(
       ventasProvider,
       (_, next) {
@@ -129,9 +130,6 @@ class VentasViewState extends ConsumerState<VentasScreen> {
                   ref.read(ventasProvider.notifier).handleSearch();
                 }
                 if (!context.mounted) return;
-                // if (searchVentaResult?.item != null) {
-                //   context.push('/venta/${searchVentaResult?.item?.venId}');
-                // }
               },
               icon: const Icon(Icons.search)),
         ],
@@ -139,156 +137,176 @@ class VentasViewState extends ConsumerState<VentasScreen> {
       ),
       body: Stack(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  // children: VentaEstado.values.map((estado) {
-                  children: [].map((estado) {
-                    final isSelected = ventasState.estado == estado;
-                    return ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isSelected
-                            ? colors.secondary
-                            : colors.secondary.withAlpha(75),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(12.0),
-                            topRight: Radius.circular(12.0),
-                            bottomLeft: Radius.circular(0),
-                            bottomRight: Radius.circular(0),
+          RefreshIndicator( 
+           
+            onRefresh: () async {
+              ref.read(ventasProvider.notifier).resetQuery();
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    // children: VentaEstado.values.map((estado) {
+                    children: [].map((estado) {
+                      final isSelected = ventasState.estado == estado;
+                      return ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isSelected
+                              ? colors.secondary
+                              : colors.secondary.withAlpha(75),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(12.0),
+                              topRight: Radius.circular(12.0),
+                              bottomLeft: Radius.circular(0),
+                              bottomRight: Radius.circular(0),
+                            ),
                           ),
                         ),
-                      ),
-                      onPressed: () {
-                        ref
-                            .read(ventasProvider.notifier)
-                            .resetQuery(estado: estado);
-                      },
-                      child: Text(
-                        estado.value == 'FACTURAS'
-                            ? 'AUTORIZADO'
-                            : "SIN AUTORIZAR",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isSelected
-                              ? colors.onSecondary
-                              : colors.onSecondary,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              if (ventasState.search.isNotEmpty)
-                Wrap(
-                  children: [
-                    Chip(
-                      label: Text('Buscando por: ${ventasState.search}'),
-                      deleteIcon: const Icon(Icons.clear),
-                      onDeleted: () {
-                        ref
-                            .read(ventasProvider.notifier)
-                            .resetQuery(search: '');
-                      },
-                    ),
-                  ],
-                ),
-              ExpansionTile(
-                dense: true,
-                title: const Text('Buscar - Ordenar'),
-                children: [
-                  Row(
-                    verticalDirection: VerticalDirection.down,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Expanded(
-                        child: CustomDatePickerButton(
-                          label: 'Fecha inicio',
-                          value: ventasState.busquedaVenta.venFechaFactura1,
-                          getDate: (String date) {
-                            ref.read(ventasProvider.notifier).resetQuery(
-                                busquedaVenta: ventasState.busquedaVenta
-                                    .copyWith(venFechaFactura1: date));
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: CustomDatePickerButton(
-                          label: 'Fecha Fin',
-                          value: ventasState.busquedaVenta.venFechaFactura2,
-                          getDate: (String date) {
-                            ref.read(ventasProvider.notifier).resetQuery(
-                                busquedaVenta: ventasState.busquedaVenta
-                                    .copyWith(venFechaFactura2: date));
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: CustomSelectField(
-                          size: size,
-                          label: 'Ordenar Por',
-                          value: ventasState.input,
-                          onChanged: (String? value) {
-                            ref.read(ventasProvider.notifier).resetQuery(
-                                  input: value,
-                                );
-                          },
-                          options: [
-                            Option(label: "Fec. Reg.", value: "venId"),
-                            Option(
-                              label: "Nombre Cliente",
-                              value: "venNomCliente",
-                            ),
-                            Option(
-                              label: "Documento",
-                              value: "venRucCliente",
-                            ),
-                          ].toList(),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          ventasState.orden
-                              ? Icons.arrow_upward
-                              : Icons.arrow_downward,
-                        ),
                         onPressed: () {
-                          ref.read(ventasProvider.notifier).resetQuery(
-                                orden: !ventasState.orden,
-                              );
+                          ref
+                              .read(ventasProvider.notifier)
+                              .resetQuery(estado: estado);
+                        },
+                        child: Text(
+                          estado.value == 'FACTURAS'
+                              ? 'AUTORIZADO'
+                              : "SIN AUTORIZAR",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isSelected
+                                ? colors.onSecondary
+                                : colors.onSecondary,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                if (ventasState.search.isNotEmpty)
+                  Wrap(
+                    children: [
+                      Chip(
+                        label: Text('Buscando por: ${ventasState.search}'),
+                        deleteIcon: const Icon(Icons.clear),
+                        onDeleted: () {
+                          ref
+                              .read(ventasProvider.notifier)
+                              .resetQuery(search: '');
                         },
                       ),
                     ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  itemCount: ventasState.ventas.length,
-                  itemBuilder: (context, index) {
-                    final venta = ventasState.ventas[index];
-                    return VentaCard(
-                      venta: venta,
-                      size: size,
-                      user: authState.user,
-                      redirect: true,
-                      verificarEstadoVenta: verificarEstadoVenta,
-                    );
-                  },
+                ExpansionTile(
+                  dense: true,
+                  title: const Text('Buscar - Ordenar'),
+                  children: [
+                    Row(
+                      verticalDirection: VerticalDirection.down,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Expanded(
+                          child: CustomDatePickerButton(
+                            label: 'Fecha inicio',
+                            value: ventasState.busquedaVenta.venFechaFactura1,
+                            getDate: (String date) {
+                              ref.read(ventasProvider.notifier).resetQuery(
+                                  busquedaVenta: ventasState.busquedaVenta
+                                      .copyWith(venFechaFactura1: date));
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: CustomDatePickerButton(
+                            label: 'Fecha Fin',
+                            value: ventasState.busquedaVenta.venFechaFactura2,
+                            getDate: (String date) {
+                              ref.read(ventasProvider.notifier).resetQuery(
+                                  busquedaVenta: ventasState.busquedaVenta
+                                      .copyWith(venFechaFactura2: date));
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: CustomSelectField(
+                            size: size,
+                            label: 'Ordenar Por',
+                            value: ventasState.input,
+                            onChanged: (String? value) {
+                              ref.read(ventasProvider.notifier).resetQuery(
+                                    input: value,
+                                  );
+                            },
+                            options: [
+                              Option(label: "Fec. Reg.", value: "venId"),
+                              Option(
+                                label: "Nombre Cliente",
+                                value: "venNomCliente",
+                              ),
+                              Option(
+                                label: "Documento",
+                                value: "venRucCliente",
+                              ),
+                            ].toList(),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            ventasState.orden
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                          ),
+                          onPressed: () {
+                            ref.read(ventasProvider.notifier).resetQuery(
+                                  orden: !ventasState.orden,
+                                );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                if (ventasState.search.isNotEmpty)
+                  Wrap(
+                    children: [
+                      Chip(
+                        label: Text('Buscando por: ${ventasState.search}'),
+                        deleteIcon: const Icon(Icons.clear),
+                        onDeleted: () {
+                          ref
+                              .read(ventasProvider.notifier)
+                              .resetQuery(search: '');
+                        },
+                      ),
+                    ],
+                  ),
+                Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: ventasState.ventas.length,
+                    itemBuilder: (context, index) {
+                      final venta = ventasState.ventas[index];
+                      return VentaCard(
+                        venta: venta,
+                        size: size,
+                        user: authState.user,
+                        redirect: true,
+                        verificarEstadoVenta: verificarEstadoVenta,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
           if (ventasState.isLoading)
             Positioned(
@@ -307,7 +325,6 @@ class VentasViewState extends ConsumerState<VentasScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           context.push('/venta/0');
-          // context.push('/menuDespacho');
         },
         child: const Icon(Icons.add),
       ),
