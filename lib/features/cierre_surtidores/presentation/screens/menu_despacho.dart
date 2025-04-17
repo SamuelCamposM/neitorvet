@@ -36,8 +36,8 @@ class MenuDespacho extends ConsumerWidget {
   }
 }
 
-class BodyMenuDespacho extends ConsumerWidget {
-  final VentaState? ventaState;
+class BodyMenuDespacho extends ConsumerStatefulWidget {
+  final VentaState ventaState;
 
   const BodyMenuDespacho({
     Key? key,
@@ -45,19 +45,33 @@ class BodyMenuDespacho extends ConsumerWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ref) {
-    final VentaFormState? ventaFState = ventaState?.venta != null
-        ? ref.watch(ventaFormProvider(ventaState!.venta!))
-        : null;
+  BodyMenuDespachoState createState() => BodyMenuDespachoState();
+}
+
+class BodyMenuDespachoState extends ConsumerState<BodyMenuDespacho> {
+  late VentaFormState ventaFState;
+  late List<Surtidor> uniqueSurtidores;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializar los valores necesarios
+    ventaFState = ref.read(ventaFormProvider(widget.ventaState.venta!));
+    uniqueSurtidores = ref.read(ventasProvider.notifier).getUniqueSurtidores();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final size = Responsive.of(context);
+
+    // Escuchar cambios en los providers
+    ventaFState = ref.watch(ventaFormProvider(widget.ventaState.venta!));
     ref.watch(ventasProvider);
-    final uniqueSurtidores =
-        ref.read(ventasProvider.notifier).getUniqueSurtidores();
 
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
-        title: Text(ventaState != null ? 'Despacho' : "Cierre de Caja"),
+        title: const Text('Despacho'),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -65,76 +79,75 @@ class BodyMenuDespacho extends ConsumerWidget {
           padding: EdgeInsets.only(top: size.iScreen(1.0)),
           child: Column(
             children: [
-              if (ventaFState != null && ventaState != null)
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final inventario = await searchInventario(
-                        context: context, ref: ref, filterByCategory: true);
-                    if (inventario != null) {
-                      final exist = ventaFState
-                          .ventaForm.venProductosInput.value
-                          .any((e) => e.codigo == inventario.invSerie);
-                      if (exist) {
-                        if (context.mounted) {
-                          NotificationsService.show(
-                              context,
-                              'Este Producto ya se encuentra en la lista',
-                              SnackbarCategory.error);
-                        }
-                        return;
-                      }
-                      ref
-                          .read(ventaFormProvider(ventaState!.venta!).notifier)
-                          .updateState(
-                              nuevoProducto: Producto(
-                            cantidad: 0,
-                            codigo: inventario.invSerie,
-                            descripcion: inventario.invNombre,
-                            valUnitarioInterno: Parse.parseDynamicToDouble(
-                                inventario.invprecios[0]),
-                            valorUnitario: Parse.parseDynamicToDouble(
-                                inventario.invprecios[0]),
-                            llevaIva: inventario.invIva,
-                            incluyeIva: inventario.invIncluyeIva,
-                            recargoPorcentaje: 0,
-                            recargo: 0,
-                            descPorcentaje:
-                                ventaState!.venta!.venDescPorcentaje,
-                            descuento: 0,
-                            precioSubTotalProducto: 0,
-                            valorIva: 0,
-                            costoProduccion: 0,
-                          ));
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final inventario = await searchInventario(
+                      context: context, ref: ref, filterByCategory: true);
+                  if (inventario != null) {
+                    final exist = ventaFState.ventaForm.venProductosInput.value
+                        .any((e) => e.codigo == inventario.invSerie);
+                    if (exist) {
                       if (context.mounted) {
-                        context.pop(context);
+                        NotificationsService.show(
+                            context,
+                            'Este Producto ya se encuentra en la lista',
+                            SnackbarCategory.error);
                       }
+                      return;
                     }
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                        color: ventaFState.nuevoProducto.errorMessage != null
-                            ? Colors.red
-                            : Colors.grey),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  icon: const Icon(Icons.create),
-                  label: Text(
-                    ventaFState.nuevoProducto.errorMessage != null
-                        ? ventaFState.nuevoProducto.errorMessage!
-                        : ventaFState.nuevoProducto.value.descripcion == ''
-                            ? "Otros Productos*"
-                            : '${ventaFState.nuevoProducto.value.descripcion} \$${ventaFState.nuevoProducto.value.valorUnitario}',
+                    ref
+                        .read(ventaFormProvider(widget.ventaState.venta!)
+                            .notifier)
+                        .updateState(
+                            nuevoProducto: Producto(
+                          cantidad: 0,
+                          codigo: inventario.invSerie,
+                          descripcion: inventario.invNombre,
+                          valUnitarioInterno: Parse.parseDynamicToDouble(
+                              inventario.invprecios[0]),
+                          valorUnitario: Parse.parseDynamicToDouble(
+                              inventario.invprecios[0]),
+                          llevaIva: inventario.invIva,
+                          incluyeIva: inventario.invIncluyeIva,
+                          recargoPorcentaje: 0,
+                          recargo: 0,
+                          descPorcentaje:
+                              widget.ventaState.venta!.venDescPorcentaje,
+                          descuento: 0,
+                          precioSubTotalProducto: 0,
+                          valorIva: 0,
+                          costoProduccion: 0,
+                        ));
+                    if (context.mounted) {
+                      context.pop(context);
+                    }
+                  }
+                },
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                      color: ventaFState.nuevoProducto.errorMessage != null
+                          ? Colors.red
+                          : Colors.grey),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
+                icon: const Icon(Icons.create),
+                label: Text(
+                  ventaFState.nuevoProducto.errorMessage != null
+                      ? ventaFState.nuevoProducto.errorMessage!
+                      : ventaFState.nuevoProducto.value.descripcion == ''
+                          ? "Otros Productos*"
+                          : '${ventaFState.nuevoProducto.value.descripcion} \$${ventaFState.nuevoProducto.value.valorUnitario}',
+                ),
+              ),
               Wrap(
                 alignment: WrapAlignment.center,
                 children: uniqueSurtidores
                     .map((e) => _CardSurtidor(
                           size: size,
                           surtidor: e,
-                          ventaState: ventaState,
+                          ventaState: widget.ventaState,
                         ))
                     .toList(),
               ),
@@ -147,14 +160,15 @@ class BodyMenuDespacho extends ConsumerWidget {
 }
 
 Future<void> mostrarModalCentrado(
-    BuildContext context,
-    String numeroPistola,
-    Future<ResponsePresetExtendido> Function({
+    {required BuildContext context,
+    required String numeroPistola,
+    required int venId,
+    required Future<ResponsePresetExtendido> Function({
       required String manguera,
       required String valorPreset,
       required String tipoPreset,
       required String nivelPrecio,
-    }) presetExtendido) async {
+    }) presetExtendido}) async {
   final TextEditingController valorController = TextEditingController();
   final TextEditingController galonesController = TextEditingController();
 
@@ -238,7 +252,8 @@ Future<void> mostrarModalCentrado(
                             int.tryParse(galonesController.text) ?? 0;
                         print("Valor: $valor, Galones: $galones");
                         Navigator.of(context).pop(); // Cierra el modal
-                        context.push('/cargando/venta/$numeroPistola');
+                        context.push(
+                            '/cargando/venta?numeroPistola=$numeroPistola&venId=$venId');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
@@ -405,76 +420,80 @@ class _CardSurtidor extends ConsumerWidget {
                                       SnackbarCategory.error);
                                   return;
                                 }
-                                final venta = ref
-                                    .read(ventaFormProvider(ventaState!.venta!))
-                                    .ventaForm;
-                                ref
-                                    .read(ventaFormProvider(ventaState!.venta!)
-                                        .notifier)
-                                    .updateState(
-                                        monto: res.total,
-                                        ventaForm: venta.copyWith(
-                                          idAbastecimiento:
-                                              res.idAbastecimiento,
-                                          totInicio: res.totInicio,
-                                          totFinal: res.totFinal,
-                                        ),
-                                        nuevoProducto: Producto(
-                                          cantidad: 0,
-                                          codigo: res.resultado!.invSerie,
-                                          descripcion: res.resultado!.invNombre,
-                                          valUnitarioInterno:
-                                              Parse.parseDynamicToDouble(
-                                                  res.resultado!.invprecios[0]),
-                                          valorUnitario:
-                                              Parse.parseDynamicToDouble(
-                                                  res.resultado!.invprecios[0]),
-                                          llevaIva: res.resultado!.invIva,
-                                          incluyeIva:
-                                              res.resultado!.invIncluyeIva,
-                                          recargoPorcentaje: 0,
-                                          recargo: 0,
-                                          descPorcentaje:
-                                              venta.venDescPorcentaje,
-                                          descuento: 0,
-                                          precioSubTotalProducto: 0,
-                                          valorIva: 0,
-                                          costoProduccion: 0,
-                                        ));
+                                // final venta = ref
+                                //     .read(ventaFormProvider(ventaState!.venta!))
+                                //     .ventaForm;
+                                // ref
+                                //     .read(ventaFormProvider(ventaState!.venta!)
+                                //         .notifier)
+                                //     .updateState(
+                                //         monto: res.total,
+                                //         ventaForm: venta.copyWith(
+                                //           idAbastecimiento:
+                                //               res.idAbastecimiento, //  "indice_memoria": "004429",
+                                //           totInicio: res.totInicio,  //"totalizador_inicial": 116.993,
+                                //           totFinal: res.totFinal,  //  "totalizador_final": 117.194,
+                                //         ),
+                                //         nuevoProducto: Producto(
+                                //           cantidad: 0,
+                                //           codigo: res.resultado!.invSerie, //"codigo_combustible": 57,
+                                //           descripcion: res.resultado!.invNombre, // del codigo
+                                //           valUnitarioInterno:
+                                //               Parse.parseDynamicToDouble(
+                                //                   res.resultado!.invprecios[0]), //   "precio_unitario": 2.495,
+                                //           valorUnitario:
+                                //               Parse.parseDynamicToDouble(
+                                //                   res.resultado!.invprecios[0]), //   "precio_unitario": 2.495,
+                                //           llevaIva: res.resultado!.invIva, // "NO"
+                                //           incluyeIva:
+                                //               res.resultado!.invIncluyeIva, // "NO"
+                                //           recargoPorcentaje: 0,
+                                //           recargo: 0,
+                                //           descPorcentaje:
+                                //               venta.venDescPorcentaje,
+                                //           descuento: 0,
+                                //           precioSubTotalProducto: 0,
+                                //           valorIva: 0,
+                                //           costoProduccion: 0,
+                                //         ));
 
-                                // final responseGetStatus = await ref
-                                //     .read(cierreSurtidoresRepositoryProvider)
-                                //     .getStatusPicos(
-                                //         manguera: responseModal
-                                //             .estacion.numeroPistola
-                                //             .toString());
-                                // if (!responseGetStatus.success &&
-                                // if (context.mounted) {
-                                //   NotificationsService.show(
-                                //       context,
-                                //       'No se puede despachar',
-                                //       SnackbarCategory.error);
-                                //   return;
-                                // }
-                                // if (context.mounted) {
-                                //   mostrarModalCentrado(
-                                //     context,
-                                //     responseModal.estacion.numeroPistola
-                                //         .toString(),
-                                //     ref
-                                //         .read(
-                                //             cierreSurtidoresRepositoryProvider)
-                                //         .presetExtendido,
-                                //   );
-                                // }
-                                final errorAgregar = ref
-                                    .read(ventaFormProvider(ventaState!.venta!)
-                                        .notifier)
-                                    .agregarProducto(null);
+                                final responseGetStatus = await ref
+                                    .read(cierreSurtidoresRepositoryProvider)
+                                    .getStatusPicos(
+                                        manguera: responseModal
+                                            .estacion.numeroPistola
+                                            .toString());
 
-                                if (context.mounted && !errorAgregar) {
-                                  context.pop(context);
+                                if (!responseGetStatus.success &&
+                                    context.mounted) {
+                                  NotificationsService.show(
+                                      context,
+                                      'No se puede despachar',
+                                      SnackbarCategory.error);
+                                  return;
                                 }
+                                if (context.mounted) {
+                                  mostrarModalCentrado(
+                                    context: context,
+                                    numeroPistola: responseModal
+                                        .estacion.numeroPistola
+                                        .toString(),
+                                    presetExtendido: ref
+                                        .read(
+                                            cierreSurtidoresRepositoryProvider)
+                                        .presetExtendido,
+                                    venId: ventaState!.venta!.venId,
+                                  );
+                                }
+                                // final errorAgregar = ref
+                                // ref
+                                //     .read(ventaFormProvider(ventaState!.venta!)
+                                //         .notifier)
+                                //     .agregarProducto(null);
+
+                                // if (context.mounted && !errorAgregar) {
+                                //   context.pop(context);
+                                // }
                               }
                             },
                             style: TextButton.styleFrom(

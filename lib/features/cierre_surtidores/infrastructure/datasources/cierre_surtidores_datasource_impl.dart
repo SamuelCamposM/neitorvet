@@ -131,7 +131,9 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
         '/status/picos',
       );
       return ResponseStatusPicos(
-          error: '', success: response.data[manguera] == 'B');
+          error: '',
+          success:
+              response.data[manguera] == 'B' || response.data[manguera] == 'L');
     } catch (e) {
       return ResponseStatusPicos(
           error: ErrorApi.getErrorMessage(e, 'getStatusPicos'), success: false);
@@ -151,6 +153,9 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
         'tipo_preset': tipoPreset,
         'nivel_precio': nivelPrecio,
       };
+      print(
+        '/picos/$manguera/preset_extendido',
+      );
       print(data);
       final response = await dioZaracay.post(
         '/picos/$manguera/preset_extendido',
@@ -164,4 +169,3 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
     }
   }
 }
- 

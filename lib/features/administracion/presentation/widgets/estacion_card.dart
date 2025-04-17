@@ -1,34 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_mar_pad.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_container.dart';
+import 'package:neitorvet/features/administracion/domain/entities/manguera_status.dart';
 
 class EstacionCard extends ConsumerWidget {
   final Estacion estacion;
   final Responsive size;
   final bool redirect;
-
+  final Datum? dato;
+  final LiveVisualization visualization;
   const EstacionCard({
     Key? key,
     required this.estacion,
     required this.size,
+    required this.dato,
+    required this.visualization,
     this.redirect = true,
   }) : super(key: key);
-
   // Método para obtener el color de fondo según el códigoProducto
-  Color _getBackgroundColor(String codigoProducto) {
-    switch (codigoProducto) {
-      case "0101":
-        return Colors.blue.shade100.withAlpha(230);
-      case "0185":
-        return Colors.green.shade100.withAlpha(230);
-      case "0121":
-        return Colors.orange.shade100.withAlpha(230);
+  /// Método para obtener un color según el tipo de `Datum`.
+  Color _getColorForDatum(Datum? datum) {
+    switch (datum) {
+      case Datum.L:
+        return Colors.green; // Libre
+      case Datum.B:
+        return Colors.red; // Bloqueado
+      case Datum.A:
+        return Colors.blue; // Abasteciendo
+      case Datum.E:
+        return Colors.orange; // En Espera
+      case Datum.P:
+        return Colors.lightGreen; // Pronto para abastecer
+      case Datum.F:
+        return Colors.purple; // En Falla
+      case Datum.C:
+        return Colors.yellowAccent; // En Falla
+      case Datum.hash:
+        return Colors.grey; // Ocupado
+      case Datum.exclamation:
+        return Colors.black; // Error genérico
       default:
-        return Colors.grey.shade200; // Color por defecto
+        return Colors.black; // Color predeterminado
     }
   }
 
@@ -55,7 +72,7 @@ class EstacionCard extends ConsumerWidget {
             size: size,
             child: Container(
               decoration: BoxDecoration(
-                color: _getBackgroundColor(estacion.codigoProducto ?? ""),
+                color: _getColorForDatum(dato),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -64,7 +81,7 @@ class EstacionCard extends ConsumerWidget {
                     offset: const Offset(0, 4),
                   ),
                 ],
-              ), 
+              ),
               child: Row(
                 children: [
                   // Imagen con fondo dinámico
@@ -112,11 +129,14 @@ class EstacionCard extends ConsumerWidget {
                     ),
                   ),
                   // Botón de acción (opcional)
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: size.iScreen(2),
-                    color: Colors.black45,
-                  ),
+                if (visualization.valorActual != 0)
+                    Text(
+                      "\$${visualization.valorActual.toStringAsFixed(2)}",
+                      style: TextStyle(
+                        fontSize: size.iScreen(1.8),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                 ],
               ),
             ),

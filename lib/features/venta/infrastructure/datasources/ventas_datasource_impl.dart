@@ -183,4 +183,76 @@ class VentasDatasourceImpl extends VentasDatasource {
           totInicio: 0);
     }
   }
+
+  @override
+  Future<ResponseInventarioIndividual> getLastInventarioByPistola(
+      {required String pistola}) async {
+    try {
+      // final data = {
+      //   // "pistola": 5,
+      //   // "codigoCombustible": "0101",
+      //   // "numeroTanque": 2
+
+      //   "pistola": pistola,
+      //   "codigoCombustible": codigoCombustible,
+      //   "numeroTanque": numeroTanque,
+      //   'idRegistro': idRegistroNoFacturado
+      // };
+      // print(data);
+      final response =
+          await dio.get('/abastecimientos/$pistola/last_dispatch');
+
+      final Inventario inventario =
+          Inventario.fromJson(response.data['producto']);
+      return ResponseInventarioIndividual(
+          resultado: Inventario(
+              invTipo: '',
+              invNombre: '',
+              invDescripcion: '',
+              invCosto1: '',
+              invCosto2: '',
+              invCosto3: '',
+              invStock: 0,
+              invIva: '',
+              invIncluyeIva: '',
+              invEstado: '',
+              invprecios: [],
+              invProveedor: '',
+              invCategoria: '',
+              invSubCategoria: '',
+              invUnidad: '',
+              invMarca: '',
+              invSubsidio: '',
+              invPlanCuenta: '',
+              invEmpresa: '',
+              invUser: '',
+              invId: 0,
+              invSerie: '',
+              invNumVentas: 0,
+              invFecReg: '',
+              invFecUpd: '',
+              invFotos: []),
+          error: '',
+          idAbastecimiento: Parse.parseDynamicToInt(
+            response.data['abastecimiento']['idAbastecimiento'],
+          ),
+          totInicio: Parse.parseDynamicToDouble(
+            response.data['abastecimiento']['totInicio'],
+          ),
+          totFinal: Parse.parseDynamicToDouble(
+            response.data['abastecimiento']['totFinal'],
+          ),
+          total: Parse.parseDynamicToString(
+            response.data['abastecimiento']['valorTotal'],
+          ));
+    } on DioException catch (e) {
+      return ResponseInventarioIndividual(
+          resultado: null,
+          error: ErrorApi.getErrorMessage(e, 'getInventarioByPistola'),
+          total: '0',
+          idAbastecimiento: 0,
+          totFinal: 0,
+          totInicio: 0);
+    }
+  }
 }

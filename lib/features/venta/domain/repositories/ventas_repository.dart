@@ -22,5 +22,8 @@ abstract class VentasRepository {
     required String numeroTanque,
     int? idRegistroNoFacturado,
   });
+  Future<ResponseInventarioIndividual> getLastInventarioByPistola({
+    required String pistola,
+  });
   Future<ResponseCorreoVenta> sendCorreo(BodyCorreo bodyCorreo);
 }

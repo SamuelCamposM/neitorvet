@@ -279,6 +279,11 @@ class CierreSurtidoresNotifier extends StateNotifier<CierreSurtidoresState> {
           .toList();
       estacionesRes.addAll(estaciones);
     }
+
+    // Ordenar las estaciones por numeroPistola
+    estacionesRes
+        .sort((a, b) => (a.numeroPistola ?? 0).compareTo(b.numeroPistola ?? 0));
+
     state = state.copyWith(
         surtidoresData: surtidoresResponse.resultado,
         isLoading: false,

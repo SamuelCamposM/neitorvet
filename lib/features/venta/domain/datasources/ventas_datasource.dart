@@ -98,7 +98,10 @@ abstract class VentasDatasource {
     required String pistola,
     required String codigoCombustible,
     required String numeroTanque,
-    int? idRegistroNoFacturado ,
+    int? idRegistroNoFacturado,
+  });
+  Future<ResponseInventarioIndividual> getLastInventarioByPistola({
+    required String pistola,
   });
   Future<ResponseCorreoVenta> sendCorreo(BodyCorreo bodyCorreo);
 }

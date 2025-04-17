@@ -60,4 +60,10 @@ class VentasRepositoryImpl extends VentasRepository {
         numeroTanque: numeroTanque,
         idRegistroNoFacturado: idRegistroNoFacturado);
   }
+
+  @override
+  Future<ResponseInventarioIndividual> getLastInventarioByPistola(
+      {required String pistola}) {
+    return datasource.getLastInventarioByPistola(pistola: pistola);
+  }
 }
