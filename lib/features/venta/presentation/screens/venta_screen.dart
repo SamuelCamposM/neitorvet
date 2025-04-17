@@ -83,7 +83,7 @@ class _FloatingButton extends ConsumerWidget {
 
         if (exitoso && context.mounted) {
           context.pop();
-          NotificationsService.show(context, '${ventasState.estado} Creada',
+          NotificationsService.show(context, '${ventasState.estado.value} Creada',
               SnackbarCategory.success);
         }
       },

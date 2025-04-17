@@ -25,7 +25,7 @@ class VentaNotifier extends StateNotifier<VentaState> {
     loadVenta();
   }
 
-  Venta newEmptyVenta() {
+  Venta newEmptyVenta(String secuencia) {
     return Venta(
       venId: 0,
       // optionDocumento: "",
@@ -70,7 +70,7 @@ class VentaNotifier extends StateNotifier<VentaState> {
       venFormaPago: "EFECTIVO",
       venNomCliente: "CONSUMIDOR FINAL",
       venNumero: "0",
-      venNumFactura: "",
+      venNumFactura: secuencia,
       venNumFacturaAnterior: "",
       venObservacion: "",
       venOption: "1",
@@ -84,6 +84,7 @@ class VentaNotifier extends StateNotifier<VentaState> {
       venCeluCliente: [],
       venEmailCliente: ["sin@sincorreo.com"],
       venProductos: [],
+      
     );
   }
 
@@ -97,7 +98,7 @@ class VentaNotifier extends StateNotifier<VentaState> {
         }
         state = state.copyWith(
             isLoading: false,
-            venta: newEmptyVenta(),
+            venta: newEmptyVenta(secuenciaResponse.resultado),
             secuencia: secuenciaResponse.resultado);
         return;
       }

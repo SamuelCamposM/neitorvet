@@ -104,12 +104,12 @@ class Producto {
         "incluyeIva": incluyeIva,
       };
 
-  double tresDecimales(double numero) {
+  double cincoDecimales(double numero) {
     return double.parse(numero.toStringAsFixed(5));
   }
 
-  double dosDecimales(double numero) {
-    return double.parse(numero.toStringAsFixed(2));
+  double tresDecimales(double numero) {
+    return double.parse(numero.toStringAsFixed(3));
   }
 
   Producto calcularProducto({
@@ -120,29 +120,29 @@ class Producto {
       double resvalorUnitario = 0;
 
       if (llevaIva == "SI" && incluyeIva == "SI") {
-        resvalorUnitario = tresDecimales(valUnitarioInterno / (1 + iva / 100));
+        resvalorUnitario = cincoDecimales(valUnitarioInterno / (1 + iva / 100));
       } else {
         resvalorUnitario = valUnitarioInterno;
       }
 
       double resdescuento =
-          tresDecimales(resvalorUnitario * (descPorcentaje / 100));
+          cincoDecimales(resvalorUnitario * (descPorcentaje / 100));
 
       double resprecioUnitarioConDescuento =
-          tresDecimales(resvalorUnitario - resdescuento);
+          cincoDecimales(resvalorUnitario - resdescuento);
 
       double resprecioSubTotalProducto =
-          tresDecimales(resprecioUnitarioConDescuento * cantidad);
+          cincoDecimales(resprecioUnitarioConDescuento * cantidad);
 
       double resrecargo =
-          tresDecimales(resprecioSubTotalProducto * (formPorcentaje / 100));
+          cincoDecimales(resprecioSubTotalProducto * (formPorcentaje / 100));
 
       resprecioSubTotalProducto =
-          tresDecimales(resprecioSubTotalProducto + resrecargo);
+          cincoDecimales(resprecioSubTotalProducto + resrecargo);
 
       double resvalorIva = 0;
       if (llevaIva == "SI") {
-        resvalorIva = tresDecimales(resprecioSubTotalProducto * (iva / 100));
+        resvalorIva = cincoDecimales(resprecioSubTotalProducto * (iva / 100));
       }
       // print({
       //   'valorUnitario': dosDecimales(resvalorUnitario),
@@ -155,18 +155,18 @@ class Producto {
       // });
 
       return Producto(
-        cantidad: dosDecimales(cantidad),
+        cantidad: tresDecimales(cantidad),
         codigo: codigo,
         descripcion: descripcion,
         valUnitarioInterno: valUnitarioInterno,
-        valorUnitario: dosDecimales(resvalorUnitario),
-        recargoPorcentaje: dosDecimales(formPorcentaje),
-        recargo: dosDecimales(resrecargo),
+        valorUnitario: tresDecimales(resvalorUnitario),
+        recargoPorcentaje: tresDecimales(formPorcentaje),
+        recargo: tresDecimales(resrecargo),
         descPorcentaje: descPorcentaje,
-        descuento: dosDecimales(resdescuento),
-        precioSubTotalProducto: dosDecimales(resprecioSubTotalProducto),
-        valorIva: dosDecimales(resvalorIva),
-        costoProduccion: dosDecimales(resvalorUnitario),
+        descuento: tresDecimales(resdescuento),
+        precioSubTotalProducto: tresDecimales(resprecioSubTotalProducto),
+        valorIva: tresDecimales(resvalorIva),
+        costoProduccion: tresDecimales(resvalorUnitario),
         llevaIva: llevaIva,
         incluyeIva: incluyeIva,
       );

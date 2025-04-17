@@ -105,10 +105,6 @@ class VentasNotifier extends StateNotifier<VentasState> {
               newVenta,
               user,
             );
-
-            // final pdfUrl =
-            //     '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${newVenta.venId}&empresa=${newVenta.venEmpresa}';
-            // downloadPDF(null, pdfUrl);
           }
           state = state.copyWith(ventas: [
             newVenta,
@@ -132,9 +128,8 @@ class VentasNotifier extends StateNotifier<VentasState> {
   }
 
   Future loadNextPage() async {
-    if (!isAdmin && state.page ==1) {
+    if (!isAdmin && state.page == 1) {
       return;
-      
     }
     if (state.isLastPage || state.isLoading) {
       return;
@@ -422,7 +417,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     socket.off("server:error");
     socket.off("connect");
     socket.off("disconnect");
-
+    print('Dispose');
     super.dispose();
   }
 }

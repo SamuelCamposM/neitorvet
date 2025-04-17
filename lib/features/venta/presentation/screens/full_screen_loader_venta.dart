@@ -75,7 +75,7 @@ class FullScreenLoaderVentaState extends State<FullScreenLoaderVenta> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withAlpha(25),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -91,7 +91,7 @@ class FullScreenLoaderVentaState extends State<FullScreenLoaderVenta> {
             const SizedBox(height: 30),
             // Texto del valor
             Text(
-              'Valor: \$${valor}',
+              'Valor: \$$valor',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -116,9 +116,9 @@ class FullScreenLoaderVentaState extends State<FullScreenLoaderVenta> {
                 },
                 icon: Icon(Icons.backspace_outlined)),
             // Mensaje adicional
-            Text(
+            const Text(
               'Por favor, espere mientras se procesa la venta...',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
                 color: Colors.white70,
