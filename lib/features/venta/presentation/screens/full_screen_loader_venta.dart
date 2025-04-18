@@ -7,7 +7,6 @@ import 'package:neitorvet/features/administracion/domain/entities/live_visualiza
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/screen/full_screen_loader.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
-import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_p.dart';
 import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_socket.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
