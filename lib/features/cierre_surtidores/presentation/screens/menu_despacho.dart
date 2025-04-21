@@ -423,12 +423,16 @@ class _CardSurtidor extends ConsumerWidget {
                                           cantidad: 0,
                                           codigo: res.resultado!.invSerie,
                                           descripcion: res.resultado!.invNombre,
-                                          valUnitarioInterno:
-                                              Parse.parseDynamicToDouble(
-                                                  res.resultado!.invprecios[0]),
-                                          valorUnitario:
-                                              Parse.parseDynamicToDouble(
-                                                  res.resultado!.invprecios[0]),
+                                          valUnitarioInterno: double.parse(
+                                            Parse.parseDynamicToDouble(res
+                                                    .resultado!.invprecios[0])
+                                                .toStringAsFixed(2),
+                                          ),
+                                          valorUnitario: double.parse(
+                                            Parse.parseDynamicToDouble(res
+                                                    .resultado!.invprecios[0])
+                                                .toStringAsFixed(2),
+                                          ),
                                           llevaIva: res.resultado!.invIva,
                                           incluyeIva:
                                               res.resultado!.invIncluyeIva,

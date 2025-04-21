@@ -202,7 +202,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       },
     ).toList();
 
-    final resultTotales = Venta.calcularTotales(newProductos);
+    final resultTotales =
+        Venta.calcularTotales(productos: newProductos, iva: iva.toDouble());
 
     state = state.copyWith(
         ventaForm: state.ventaForm.copyWith(
@@ -269,10 +270,15 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
         return true; // Devuelve true si hay un error
       }
     }
-
+    final cantidad = double.parse((state.monto /
+            double.parse(
+              state.nuevoProducto.value.valorUnitario.toStringAsFixed(2),
+            ))
+        .toStringAsFixed(3));
+    print(cantidad);
     final producto = state.nuevoProducto.value.copyWith(
-        cantidad: state.monto / state.nuevoProducto.value.valorUnitario);
-
+      cantidad: cantidad,
+    );
     final result = [producto, ...state.ventaForm.venProductos];
     _calcularTotales(result, state.porcentajeFormaPago);
     state = state.copyWith(

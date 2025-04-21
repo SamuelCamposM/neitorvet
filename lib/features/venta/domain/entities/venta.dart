@@ -253,18 +253,18 @@ class Venta {
         "totInicio": totInicio,
         "totFinal": totFinal,
       };
-  static double dosDecimales(double numero) {
-    return double.parse(numero.toStringAsFixed(2));
+  static double cincoDecimales(double numero) {
+    return double.parse(numero.toStringAsFixed(7));
   }
 
-  static double tresDecimales(double numero) {
-    return double.parse(numero.toStringAsFixed(4));
+  static double dosDecimales(double numero) {
+    return double.parse(numero.toStringAsFixed(2));
   }
 
   static Totales sumarCantidad(Totales acumulador, Producto valorActual) {
     var venSub0y12 = valorActual.llevaIva == "SI"
         ? Totales(
-            venSubTotal12: dosDecimales(
+            venSubTotal12: cincoDecimales(
                 acumulador.venSubTotal12 + valorActual.precioSubTotalProducto),
             venSubtotal0: acumulador.venSubtotal0,
             venDescuento: acumulador.venDescuento,
@@ -275,7 +275,7 @@ class Venta {
           )
         : Totales(
             venSubTotal12: acumulador.venSubTotal12,
-            venSubtotal0: dosDecimales(
+            venSubtotal0: cincoDecimales(
                 acumulador.venSubtotal0 + valorActual.precioSubTotalProducto),
             venDescuento: acumulador.venDescuento,
             venSubTotal: acumulador.venSubTotal,
@@ -287,32 +287,44 @@ class Venta {
     return Totales(
       venSubTotal12: venSub0y12.venSubTotal12,
       venSubtotal0: venSub0y12.venSubtotal0,
-      venDescuento: dosDecimales(acumulador.venDescuento +
+      venDescuento: cincoDecimales(acumulador.venDescuento +
           valorActual.descuento * valorActual.cantidad),
-      venSubTotal: dosDecimales(
+      venSubTotal: cincoDecimales(
           acumulador.venSubTotal + valorActual.precioSubTotalProducto),
-      venTotalIva: dosDecimales(acumulador.venTotalIva + valorActual.valorIva),
-      venTotal: dosDecimales(acumulador.venTotal +
+      venTotalIva:
+          cincoDecimales(acumulador.venTotalIva + valorActual.valorIva),
+      venTotal: cincoDecimales(acumulador.venTotal +
           valorActual.precioSubTotalProducto +
           valorActual.valorIva),
-      venCostoProduccion: dosDecimales(
+      venCostoProduccion: cincoDecimales(
           acumulador.venCostoProduccion + valorActual.costoProduccion),
     );
   }
 
-  static Totales calcularTotales(List<Producto> productos) {
+  static Totales calcularTotales(
+      {required List<Producto> productos, required double iva}) {
     var inicial = Totales.inicial();
     var resultado = productos.fold<Totales>(inicial, sumarCantidad);
 
-    var resvenSubTotal12 = dosDecimales(resultado.venSubTotal12);
-    var resvenSubtotal0 = dosDecimales(resultado.venSubtotal0);
-    var resvenDescuento = dosDecimales(resultado.venDescuento);
-    var resvenSubTotal = dosDecimales(resultado.venSubTotal);
-    var resvenTotalIva = dosDecimales(resultado.venTotalIva);
-    var resvenTotal =
-        dosDecimales(resvenSubTotal12 + resvenTotalIva + resvenSubtotal0);
-    var resvenCostoProduccion = dosDecimales(resultado.venCostoProduccion);
+    // Calcular los valores finales con dos decimales
+    double resvenSubTotal12 = dosDecimales(resultado.venSubTotal12);
+    double resvenSubtotal0 = dosDecimales(resultado.venSubtotal0);
+    double resvenDescuento = dosDecimales(resultado.venDescuento);
+    double resvenSubTotal = dosDecimales(resultado.venSubTotal);
+    double resvenTotalIva = dosDecimales(resultado.venTotalIva);
+    double resvenTotal = dosDecimales(resultado.venTotal);
+    double resvenCostoProduccion = dosDecimales(resultado.venCostoProduccion);
+    // // Calcular los valores finales con dos decimales
+    // double resvenSubTotal12 = dosDecimales(resultado.venSubTotal12);
+    // double resvenSubtotal0 = dosDecimales(resultado.venSubtotal0);
+    // double resvenDescuento = dosDecimales(resultado.venDescuento);
+    // double resvenSubTotal = dosDecimales(resvenSubTotal12 + resvenSubtotal0);
+    // double resvenTotalIva = dosDecimales(resvenSubTotal12 * (iva / 100));
+    // double resvenTotal =
+    //     dosDecimales(resvenSubTotal12 + resvenTotalIva + resvenSubtotal0);
+    // double resvenCostoProduccion = dosDecimales(resultado.venCostoProduccion);
 
+    // Retornar los totales calculados
     return Totales(
       venSubTotal12: resvenSubTotal12,
       venSubtotal0: resvenSubtotal0,
@@ -598,7 +610,7 @@ class VentaForm extends Venta {
         venOtros: venOtros,
         idAbastecimiento: idAbastecimiento,
         totInicio: totInicio,
-        totFinal: totFinal,
+        totFinal: totFinal
       );
 
   factory VentaForm.fromVenta(Venta venta) {
