@@ -28,9 +28,9 @@ class AuthDatasourceImpl extends AuthDatasource {
       final response = await dio.post(
         '/auth/login',
         data: {
-          'empresa': empresa,
-          'password': password,
-          'usuario': usuario,
+          'empresa': empresa.trim(),
+          'password': password.trim(),
+          'usuario': usuario.trim(),
         },
       );
       final user = UserMapper.userJsonToEntity(response.data);

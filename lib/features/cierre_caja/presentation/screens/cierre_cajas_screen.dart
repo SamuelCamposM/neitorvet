@@ -172,170 +172,182 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
         ),
         body: Stack(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: CierreCajaEstado.values.map((estado) {
-                      final isSelected = cierreCajasState.estado == estado;
-                      final color = estado == CierreCajaEstado.anulada
-                          ? colors.error
-                          : colors.secondary;
-                      return ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10, // Reducir el padding horizontal
-                          ),
-                          backgroundColor:
-                              isSelected ? color : color.withAlpha(75),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(12.0),
-                              topRight: Radius.circular(12.0),
-                              bottomLeft: Radius.circular(0),
-                              bottomRight: Radius.circular(0),
+            RefreshIndicator(
+              onRefresh: () async {
+                return ref.read(cierreCajasProvider.notifier).resetQuery();
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: CierreCajaEstado.values.map((estado) {
+                        final isSelected = cierreCajasState.estado == estado;
+                        final color = estado == CierreCajaEstado.anulada
+                            ? colors.error
+                            : colors.secondary;
+                        return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10, // Reducir el padding horizontal
+                            ),
+                            backgroundColor:
+                                isSelected ? color : color.withAlpha(75),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(12.0),
+                                topRight: Radius.circular(12.0),
+                                bottomLeft: Radius.circular(0),
+                                bottomRight: Radius.circular(0),
+                              ),
                             ),
                           ),
-                        ),
-                        onPressed: () {
-                          ref
-                              .read(cierreCajasProvider.notifier)
-                              .resetQuery(estado: estado);
-                        },
-                        child: Text(
-                          estado.value,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isSelected
-                                ? colors.onSecondary
-                                : colors.onSecondary,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                if (cierreCajasState.search.isNotEmpty)
-                  Wrap(
-                    children: [
-                      Chip(
-                        label: Text('Buscando por: ${cierreCajasState.search}'),
-                        deleteIcon: const Icon(Icons.clear),
-                        onDeleted: () {
-                          ref
-                              .read(cierreCajasProvider.notifier)
-                              .resetQuery(search: '');
-                        },
-                      ),
-                    ],
-                  ),
-                ExpansionTile(
-                  dense: true,
-                  title: const Text('Buscar - Ordenar'),
-                  children: [
-                    Row(
-                      verticalDirection: VerticalDirection.down,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Expanded(
-                          child: CustomDatePickerButton(
-                            label: 'Fecha inicio',
-                            value:
-                                cierreCajasState.busquedaCierreCaja.cajaFecha1,
-                            getDate: (String date) {
-                              ref.read(cierreCajasProvider.notifier).resetQuery(
-                                  busquedaCierreCaja: cierreCajasState
-                                      .busquedaCierreCaja
-                                      .copyWith(cajaFecha1: date));
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: CustomDatePickerButton(
-                            label: 'Fecha Fin',
-                            value:
-                                cierreCajasState.busquedaCierreCaja.cajaFecha2,
-                            getDate: (String date) {
-                              ref.read(cierreCajasProvider.notifier).resetQuery(
-                                  busquedaCierreCaja: cierreCajasState
-                                      .busquedaCierreCaja
-                                      .copyWith(cajaFecha2: date));
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: CustomSelectField(
-                            size: size,
-                            label: 'Ordenar Por',
-                            value: cierreCajasState.input,
-                            onChanged: (String? value) {
-                              ref.read(cierreCajasProvider.notifier).resetQuery(
-                                    input: value,
-                                  );
-                            },
-                            options: [
-                              Option(label: "Fec. Reg.", value: "cajaId"),
-                              Option(
-                                label: "Fecha",
-                                value: "cajaFecha",
-                              ),
-                            ].toList(),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            cierreCajasState.orden
-                                ? Icons.arrow_upward
-                                : Icons.arrow_downward,
-                          ),
                           onPressed: () {
-                            ref.read(cierreCajasProvider.notifier).resetQuery(
-                                  orden: !cierreCajasState.orden,
-                                );
+                            ref
+                                .read(cierreCajasProvider.notifier)
+                                .resetQuery(estado: estado);
+                          },
+                          child: Text(
+                            estado.value,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isSelected
+                                  ? colors.onSecondary
+                                  : colors.onSecondary,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  if (cierreCajasState.search.isNotEmpty)
+                    Wrap(
+                      children: [
+                        Chip(
+                          label:
+                              Text('Buscando por: ${cierreCajasState.search}'),
+                          deleteIcon: const Icon(Icons.clear),
+                          onDeleted: () {
+                            ref
+                                .read(cierreCajasProvider.notifier)
+                                .resetQuery(search: '');
                           },
                         ),
                       ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    itemCount: cierreCajasState.cierreCajas.length,
-                    itemBuilder: (context, index) {
-                      final cierreCaja = cierreCajasState.cierreCajas[index];
-                      return CierreCajaCard(
-                        isAdmin: isAdmin,
-                        cierreCaja: cierreCaja,
-                        size: size,
-                        redirect: true,
-                        onDelete: () async {
-                          if (isAdmin) {
-                            final res = await cupertinoModal(
-                                context,
-                                size,
-                                '¿Esta seguro de eliminar este registro: ${cierreCaja.cajaNumero}?',
-                                ['SI', 'NO']);
-                            if (res == 'SI') {
-                              deleteCierreCaja(cierreCaja.cajaId);
-                            }
-                          }
-                        },
-                      );
-                    },
+                  ExpansionTile(
+                    dense: true,
+                    title: const Text('Buscar - Ordenar'),
+                    children: [
+                      Row(
+                        verticalDirection: VerticalDirection.down,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Expanded(
+                            child: CustomDatePickerButton(
+                              label: 'Fecha inicio',
+                              value: cierreCajasState
+                                  .busquedaCierreCaja.cajaFecha1,
+                              getDate: (String date) {
+                                ref
+                                    .read(cierreCajasProvider.notifier)
+                                    .resetQuery(
+                                        busquedaCierreCaja: cierreCajasState
+                                            .busquedaCierreCaja
+                                            .copyWith(cajaFecha1: date));
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: CustomDatePickerButton(
+                              label: 'Fecha Fin',
+                              value: cierreCajasState
+                                  .busquedaCierreCaja.cajaFecha2,
+                              getDate: (String date) {
+                                ref
+                                    .read(cierreCajasProvider.notifier)
+                                    .resetQuery(
+                                        busquedaCierreCaja: cierreCajasState
+                                            .busquedaCierreCaja
+                                            .copyWith(cajaFecha2: date));
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: CustomSelectField(
+                              size: size,
+                              label: 'Ordenar Por',
+                              value: cierreCajasState.input,
+                              onChanged: (String? value) {
+                                ref
+                                    .read(cierreCajasProvider.notifier)
+                                    .resetQuery(
+                                      input: value,
+                                    );
+                              },
+                              options: [
+                                Option(label: "Fec. Reg.", value: "cajaId"),
+                                Option(
+                                  label: "Fecha",
+                                  value: "cajaFecha",
+                                ),
+                              ].toList(),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              cierreCajasState.orden
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                            ),
+                            onPressed: () {
+                              ref.read(cierreCajasProvider.notifier).resetQuery(
+                                    orden: !cierreCajasState.orden,
+                                  );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 100),
-              ],
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: cierreCajasState.cierreCajas.length,
+                      itemBuilder: (context, index) {
+                        final cierreCaja = cierreCajasState.cierreCajas[index];
+                        return CierreCajaCard(
+                          isAdmin: isAdmin,
+                          cierreCaja: cierreCaja,
+                          size: size,
+                          redirect: true,
+                          onDelete: () async {
+                            if (isAdmin) {
+                              final res = await cupertinoModal(
+                                  context,
+                                  size,
+                                  '¿Esta seguro de eliminar este registro: ${cierreCaja.cajaNumero}?',
+                                  ['SI', 'NO']);
+                              if (res == 'SI') {
+                                deleteCierreCaja(cierreCaja.cajaId);
+                              }
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 100),
+                ],
+              ),
             ),
             if (cierreCajasState.isLoading)
               Positioned(

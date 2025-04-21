@@ -246,11 +246,11 @@ Future<void> mostrarModalCentrado(
                                 : galonesController.text,
                             tipoPreset: valorController.text != '' ? '0' : '1',
                             nivelPrecio: '0');
-                        final int valor =
-                            int.tryParse(valorController.text) ?? 0;
-                        final int galones =
-                            int.tryParse(galonesController.text) ?? 0;
-                        print("Valor: $valor, Galones: $galones");
+                        // final int valor =
+                        //     int.tryParse(valorController.text) ?? 0;
+                        // final int galones =
+                        //     int.tryParse(galonesController.text) ?? 0;
+                        // print("Valor: $valor, Galones: $galones");
                         Navigator.of(context).pop(); // Cierra el modal
                         context.push(
                             '/cargando/venta?numeroPistola=$numeroPistola&venId=$venId');
@@ -420,80 +420,82 @@ class _CardSurtidor extends ConsumerWidget {
                                       SnackbarCategory.error);
                                   return;
                                 }
-                                // final venta = ref
-                                //     .read(ventaFormProvider(ventaState!.venta!))
-                                //     .ventaForm;
-                                // ref
-                                //     .read(ventaFormProvider(ventaState!.venta!)
-                                //         .notifier)
-                                //     .updateState(
-                                //         monto: res.total,
-                                //         ventaForm: venta.copyWith(
-                                //           idAbastecimiento:
-                                //               res.idAbastecimiento, //  "indice_memoria": "004429",
-                                //           totInicio: res.totInicio,  //"totalizador_inicial": 116.993,
-                                //           totFinal: res.totFinal,  //  "totalizador_final": 117.194,
-                                //         ),
-                                //         nuevoProducto: Producto(
-                                //           cantidad: 0,
-                                //           codigo: res.resultado!.invSerie, //"codigo_combustible": 57,
-                                //           descripcion: res.resultado!.invNombre, // del codigo
-                                //           valUnitarioInterno:
-                                //               Parse.parseDynamicToDouble(
-                                //                   res.resultado!.invprecios[0]), //   "precio_unitario": 2.495,
-                                //           valorUnitario:
-                                //               Parse.parseDynamicToDouble(
-                                //                   res.resultado!.invprecios[0]), //   "precio_unitario": 2.495,
-                                //           llevaIva: res.resultado!.invIva, // "NO"
-                                //           incluyeIva:
-                                //               res.resultado!.invIncluyeIva, // "NO"
-                                //           recargoPorcentaje: 0,
-                                //           recargo: 0,
-                                //           descPorcentaje:
-                                //               venta.venDescPorcentaje,
-                                //           descuento: 0,
-                                //           precioSubTotalProducto: 0,
-                                //           valorIva: 0,
-                                //           costoProduccion: 0,
-                                //         ));
+                                final venta = ref
+                                    .read(ventaFormProvider(ventaState!.venta!))
+                                    .ventaForm;
+                                ref
+                                    .read(ventaFormProvider(ventaState!.venta!)
+                                        .notifier)
+                                    .updateState(
+                                        monto: res.total,
+                                        ventaForm: venta.copyWith(
+                                          idAbastecimiento:
+                                              res.idAbastecimiento,
+                                          totInicio: res.totInicio,
+                                          totFinal: res.totFinal,
+                                        ),
+                                        nuevoProducto: Producto(
+                                          cantidad: 0,
+                                          codigo: res.resultado!.invSerie,
+                                          descripcion: res.resultado!.invNombre,
+                                          valUnitarioInterno: double.parse(
+                                            Parse.parseDynamicToDouble(res
+                                                    .resultado!.invprecios[0])
+                                                .toStringAsFixed(2),
+                                          ),
+                                          valorUnitario: double.parse(
+                                            Parse.parseDynamicToDouble(res
+                                                    .resultado!.invprecios[0])
+                                                .toStringAsFixed(2),
+                                          ),
+                                          llevaIva: res.resultado!.invIva,
+                                          incluyeIva:
+                                              res.resultado!.invIncluyeIva,
+                                          recargoPorcentaje: 0,
+                                          recargo: 0,
+                                          descPorcentaje:
+                                              venta.venDescPorcentaje,
+                                          descuento: 0,
+                                          precioSubTotalProducto: 0,
+                                          valorIva: 0,
+                                          costoProduccion: 0,
+                                        ));
+                                // final responseGetStatus = await ref
+                                //     .read(cierreSurtidoresRepositoryProvider)
+                                //     .getStatusPicos(
+                                //         manguera: responseModal
+                                //             .estacion.numeroPistola
+                                //             .toString());
 
-                                final responseGetStatus = await ref
-                                    .read(cierreSurtidoresRepositoryProvider)
-                                    .getStatusPicos(
-                                        manguera: responseModal
-                                            .estacion.numeroPistola
-                                            .toString());
-
-                                if (!responseGetStatus.success &&
-                                    context.mounted) {
-                                  NotificationsService.show(
-                                      context,
-                                      'No se puede despachar',
-                                      SnackbarCategory.error);
-                                  return;
-                                }
-                                if (context.mounted) {
-                                  mostrarModalCentrado(
-                                    context: context,
-                                    numeroPistola: responseModal
-                                        .estacion.numeroPistola
-                                        .toString(),
-                                    presetExtendido: ref
-                                        .read(
-                                            cierreSurtidoresRepositoryProvider)
-                                        .presetExtendido,
-                                    venId: ventaState!.venta!.venId,
-                                  );
-                                }
-                                // final errorAgregar = ref
-                                // ref
-                                //     .read(ventaFormProvider(ventaState!.venta!)
-                                //         .notifier)
-                                //     .agregarProducto(null);
-
-                                // if (context.mounted && !errorAgregar) {
-                                //   context.pop(context);
+                                // if (!responseGetStatus.success &&
+                                //     context.mounted) {
+                                //   NotificationsService.show(
+                                //       context,
+                                //       'No se puede despachar',
+                                //       SnackbarCategory.error);
+                                //   return;
                                 // }
+                                // if (context.mounted) {
+                                //   mostrarModalCentrado(
+                                //     context: context,
+                                //     numeroPistola: responseModal
+                                //         .estacion.numeroPistola
+                                //         .toString(),
+                                //     presetExtendido: ref
+                                //         .read(
+                                //             cierreSurtidoresRepositoryProvider)
+                                //         .presetExtendido,
+                                //     venId: ventaState!.venta!.venId,
+                                //   );
+                                // }
+                                final errorAgregar = ref
+                                    .read(ventaFormProvider(ventaState!.venta!)
+                                        .notifier)
+                                    .agregarProducto(null);
+
+                                if (context.mounted && !errorAgregar) {
+                                  context.pop(context);
+                                }
                               }
                             },
                             style: TextButton.styleFrom(
@@ -531,7 +533,7 @@ Future<ResponseModal?> _surtidorModal(BuildContext context, Responsive size,
     builder: (BuildContext builder) {
       return CupertinoActionSheet(
         title: Text(
-          '${data.nombreSurtidor.toUpperCase()}   Lado ${data.lado.toUpperCase()} ',
+          '${data.nombreSurtidor.toUpperCase()} Lado ${data.lado.toUpperCase()} ',
           style: TextStyle(
             fontSize: size.iScreen(2.0),
             fontWeight: FontWeight.bold,

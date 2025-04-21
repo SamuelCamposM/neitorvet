@@ -203,6 +203,13 @@ class VentaCard extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
+                          Text(
+                            venta.venOtrosDetalles,
+                            style: TextStyle(
+                              fontSize: size.iScreen(1.7),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           Icon(Icons.email,
                               color: venta.venEnvio == "ENVIADO"
                                   ? Colors.green.shade800

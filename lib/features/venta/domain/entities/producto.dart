@@ -105,11 +105,11 @@ class Producto {
       };
 
   double cincoDecimales(double numero) {
-    return double.parse(numero.toStringAsFixed(5));
+    return double.parse(numero.toStringAsFixed(7));
   }
 
   double tresDecimales(double numero) {
-    return double.parse(numero.toStringAsFixed(3));
+    return double.parse(numero.toStringAsFixed(2));
   }
 
   Producto calcularProducto({
@@ -120,29 +120,25 @@ class Producto {
       double resvalorUnitario = 0;
 
       if (llevaIva == "SI" && incluyeIva == "SI") {
-        resvalorUnitario = cincoDecimales(valUnitarioInterno / (1 + iva / 100));
+        resvalorUnitario = (valUnitarioInterno / (1 + iva / 100));
       } else {
         resvalorUnitario = valUnitarioInterno;
       }
 
-      double resdescuento =
-          cincoDecimales(resvalorUnitario * (descPorcentaje / 100));
+      double resdescuento = (resvalorUnitario * (descPorcentaje / 100));
 
-      double resprecioUnitarioConDescuento =
-          cincoDecimales(resvalorUnitario - resdescuento);
+      double resprecioUnitarioConDescuento = (resvalorUnitario - resdescuento);
 
       double resprecioSubTotalProducto =
-          cincoDecimales(resprecioUnitarioConDescuento * cantidad);
+          (resprecioUnitarioConDescuento * cantidad);
 
-      double resrecargo =
-          cincoDecimales(resprecioSubTotalProducto * (formPorcentaje / 100));
+      double resrecargo = (resprecioSubTotalProducto * (formPorcentaje / 100));
 
-      resprecioSubTotalProducto =
-          cincoDecimales(resprecioSubTotalProducto + resrecargo);
+      resprecioSubTotalProducto = (resprecioSubTotalProducto + resrecargo);
 
       double resvalorIva = 0;
       if (llevaIva == "SI") {
-        resvalorIva = cincoDecimales(resprecioSubTotalProducto * (iva / 100));
+        resvalorIva = (resprecioSubTotalProducto * (iva / 100));
       }
       // print({
       //   'valorUnitario': dosDecimales(resvalorUnitario),
@@ -155,7 +151,7 @@ class Producto {
       // });
 
       return Producto(
-        cantidad: tresDecimales(cantidad),
+        cantidad: double.parse(cantidad.toStringAsFixed(3)),
         codigo: codigo,
         descripcion: descripcion,
         valUnitarioInterno: valUnitarioInterno,

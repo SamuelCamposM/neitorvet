@@ -19,22 +19,6 @@ class VentaScreen extends ConsumerWidget {
   const VentaScreen({super.key, required this.ventaId});
   @override
   Widget build(BuildContext context, ref) {
-    ref.listen(
-      ventaProvider(ventaId),
-      (_, next) {
-        if (next.error.isEmpty) return;
-        NotificationsService.show(context, next.error, SnackbarCategory.error);
-      },
-    );
-    ref.listen(
-      ventasProvider,
-      (_, next) {
-        if (next.error.isEmpty) return;
-        NotificationsService.show(context, next.error, SnackbarCategory.error);
-        ref.read(ventasProvider.notifier).resetError();
-      },
-    );
-
     final ventaState = ref.watch(ventaProvider(ventaId));
 
     return GestureDetector(
@@ -83,8 +67,8 @@ class _FloatingButton extends ConsumerWidget {
 
         if (exitoso && context.mounted) {
           context.pop();
-          NotificationsService.show(context, '${ventasState.estado.value} Creada',
-              SnackbarCategory.success);
+          NotificationsService.show(context,
+              '${ventasState.estado.value} Creada', SnackbarCategory.success);
         }
       },
       child: ventaFState.isPosting
@@ -120,7 +104,21 @@ class _VentaForm extends ConsumerWidget {
         NotificationsService.show(context, next.error, SnackbarCategory.error);
       },
     );
-
+    ref.listen(
+      ventaProvider(venta.venId),
+      (_, next) {
+        if (next.error.isEmpty) return;
+        NotificationsService.show(context, next.error, SnackbarCategory.error);
+      },
+    );
+    ref.listen(
+      ventasProvider,
+      (_, next) {
+        if (next.error.isEmpty) return;
+        NotificationsService.show(context, next.error, SnackbarCategory.error);
+        ref.read(ventasProvider.notifier).resetError();
+      },
+    );
     // final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -219,7 +217,14 @@ class _VentaForm extends ConsumerWidget {
 
                                   updateForm(
                                     ventaForm: ventaFState.ventaForm.copyWith(
-                                        venRucCliente: nuevoRucCliente),
+                                        venRucCliente: nuevoRucCliente,
+                                        venTipoDocuCliente: ventaFState
+                                                    .ventaForm
+                                                    .venRucCliente
+                                                    .length ==
+                                                10
+                                            ? 'RUC'
+                                            : "CEDULA"),
                                   );
                                 }
                               },
@@ -231,6 +236,7 @@ class _VentaForm extends ConsumerWidget {
                           : null,
                     ),
                   ),
+                  Text(ventaFState.ventaForm.venTipoDocuCliente),
                   CustomButtonModal(
                     size: size,
                     icon: Icons.search,

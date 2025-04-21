@@ -84,7 +84,6 @@ class VentaNotifier extends StateNotifier<VentaState> {
       venCeluCliente: [],
       venEmailCliente: ["sin@sincorreo.com"],
       venProductos: [],
-      
     );
   }
 
@@ -119,7 +118,7 @@ class VentaNotifier extends StateNotifier<VentaState> {
   }
 
   @override
-  void dispose() { 
+  void dispose() {
     // Log para verificar que se está destruyendo
     super.dispose();
   }

@@ -294,7 +294,21 @@ class VentasNotifier extends StateNotifier<VentasState> {
   Future<void> createUpdateVenta(Map<String, dynamic> ventaMap) async {
     socket.emit('client:guardarData', ventaMap);
   }
+  // void printLargeMap(Map<String, dynamic> map, {int chunkSize = 20}) {
+  //   final entries = map.entries.toList();
+  //   final totalChunks = (entries.length / chunkSize).ceil();
 
+  //   for (int i = 0; i < totalChunks; i++) {
+  //     final start = i * chunkSize;
+  //     final end = start + chunkSize;
+  //     final chunk =
+  //         entries.sublist(start, end > entries.length ? entries.length : end);
+
+  //     final chunkMap =
+  //         Map.fromEntries(chunk); // Convertir el fragmento en un mapa
+  //     print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
+  //   }
+  // }
   void verificarEstadoVenta(Venta venta, BuildContext context) {
     if (venta.venEstado == "SIN AUTORIZAR") {
       final fechaFactura = DateTime.parse(venta.venFechaFactura);
@@ -318,7 +332,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
           "optionDocumento": venta.venTipoDocumento,
           "rucempresa": user.rucempresa,
           "rol": user.rol,
-          "venUser": user.usuario,
+          "venUserUpdate": user.usuario,
           "venEmpresa": user.rucempresa,
           "venProductosAntiguos": venta.venProductos,
           "tabla": "venta",
@@ -329,7 +343,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
           "optionDocumento": venta.venTipoDocumento,
           "rucempresa": user.rucempresa,
           "rol": user.rol,
-          "venUser": user.usuario,
+          "venUserUpdate": user.usuario,
           "venEmpresa": user.rucempresa,
           "venProductosAntiguos": venta.venProductos,
           "tabla": "venta",
