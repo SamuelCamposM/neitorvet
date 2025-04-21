@@ -217,7 +217,14 @@ class _VentaForm extends ConsumerWidget {
 
                                   updateForm(
                                     ventaForm: ventaFState.ventaForm.copyWith(
-                                        venRucCliente: nuevoRucCliente),
+                                        venRucCliente: nuevoRucCliente,
+                                        venTipoDocuCliente: ventaFState
+                                                    .ventaForm
+                                                    .venRucCliente
+                                                    .length ==
+                                                10
+                                            ? 'RUC'
+                                            : "CEDULA"),
                                   );
                                 }
                               },
@@ -229,6 +236,7 @@ class _VentaForm extends ConsumerWidget {
                           : null,
                     ),
                   ),
+                  Text(ventaFState.ventaForm.venTipoDocuCliente),
                   CustomButtonModal(
                     size: size,
                     icon: Icons.search,

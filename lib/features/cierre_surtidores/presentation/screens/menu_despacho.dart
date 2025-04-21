@@ -516,7 +516,7 @@ Future<ResponseModal?> _surtidorModal(BuildContext context, Responsive size,
     builder: (BuildContext builder) {
       return CupertinoActionSheet(
         title: Text(
-          '${data.nombreSurtidor.toUpperCase()}   Lado ${data.lado.toUpperCase()} ',
+          '${data.nombreSurtidor.toUpperCase()} Lado ${data.lado.toUpperCase()} ',
           style: TextStyle(
             fontSize: size.iScreen(2.0),
             fontWeight: FontWeight.bold,

@@ -137,10 +137,9 @@ class VentasViewState extends ConsumerState<VentasScreen> {
       ),
       body: Stack(
         children: [
-          RefreshIndicator( 
-           
+          RefreshIndicator(
             onRefresh: () async {
-              ref.read(ventasProvider.notifier).resetQuery();
+              return ref.read(ventasProvider.notifier).resetQuery();
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
