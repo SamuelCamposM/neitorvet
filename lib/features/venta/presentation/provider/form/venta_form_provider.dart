@@ -270,11 +270,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
         return true; // Devuelve true si hay un error
       }
     }
-    final cantidad = double.parse((state.monto /
-            double.parse(
-              state.nuevoProducto.value.valorUnitario.toStringAsFixed(2),
-            ))
-        .toStringAsFixed(3));
+    final cantidad = state.monto / state.nuevoProducto.value.valorUnitario;
     print(cantidad);
     final producto = state.nuevoProducto.value.copyWith(
       cantidad: cantidad,

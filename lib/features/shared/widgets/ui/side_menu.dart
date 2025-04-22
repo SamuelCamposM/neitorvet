@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/menu/menu_item.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
 import 'package:neitorvet/features/home/presentation/provider/turno_provider.dart';
+import 'package:neitorvet/features/shared/helpers/get_date.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 
 class SideMenu extends ConsumerStatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -21,7 +25,8 @@ class SideMenuState extends ConsumerState<SideMenu> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final turnoActivo = ref.watch(turnoProvider).turnoActivo || authState.isAdmin; 
+    final turnoActivo =
+        ref.watch(turnoProvider).turnoActivo || authState.isAdmin;
     final size = Responsive.of(context);
     return Drawer(
       // backgroundColor: Color(Colors.red),
@@ -126,8 +131,37 @@ class SideMenuState extends ConsumerState<SideMenu> {
               ListTile(
                 leading: const Icon(Icons.exit_to_app),
                 title: const Text('Cerrar sesión'),
-                onTap: () {
-                  ref.read(authProvider.notifier).logout();
+                onTap: () async {
+                  // Leer los proveedores al inicio
+                  final auth = ref.read(authProvider);
+                  if (auth.isAdmin) {
+                    ref.read(authProvider.notifier).logout();
+                  } else {
+                    final cierreCajasRepository =
+                        ref.read(cierreCajasRepositoryProvider);
+                    final turnoActivo = ref.read(turnoProvider).turnoActivo;
+
+                    if (turnoActivo) {
+                      NotificationsService.show(
+                          context, 'Debe cerrar turno', SnackbarCategory.error);
+                      return Navigator.of(context).pop(); // Cerrar el drawer
+                    }
+
+            
+
+                    final suma = await cierreCajasRepository.getSumaIEC(
+                      fecha: GetDate.today,
+                      search: auth.user!.usuario,
+                    );
+                    if (suma.error.isNotEmpty && context.mounted) {
+                      NotificationsService.show(
+                          context, suma.error, SnackbarCategory.error);
+                      return Navigator.of(context).pop(); // Cerrar el drawer
+                    }
+
+                    printTicketBusqueda(suma, auth.user, GetDate.today);
+                    ref.read(authProvider.notifier).logout();
+                  }
                 },
               ),
               const SizedBox(

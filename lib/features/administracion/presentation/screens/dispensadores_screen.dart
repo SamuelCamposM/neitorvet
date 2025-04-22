@@ -79,6 +79,25 @@ class _DispensadoresScreenState extends ConsumerState<DispensadoresScreen> {
     final cierreSurtidoresState = ref.watch(cierreSurtidoresProvider);
     final size = Responsive.of(context);
 
+    // Crear una copia de la lista y luego ordenarla
+    final estacionesOrdenadas = List.from(cierreSurtidoresState.estacionesData.reversed)
+      ..sort((a, b) {
+        // Verificar si manguerasStatus o data es null
+        if (manguerasStatus == null) {
+          return 0; // No realizar ningún cambio en el orden si es null
+        }
+
+        final datoa = manguerasStatus!.data[a.numeroPistola.toString()];
+        final datab = manguerasStatus!.data[b.numeroPistola.toString()];
+
+        // Comparar los valores, asegurándote de manejar valores null
+        if (datoa == null && datab == null) return 0;
+        if (datoa == null) return 1;
+        if (datab == null) return -1;
+
+        return datoa == Datum.A ? 0 : 1;
+      });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mangueras'),
@@ -93,10 +112,11 @@ class _DispensadoresScreenState extends ConsumerState<DispensadoresScreen> {
                     const SizedBox(height: 10),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: cierreSurtidoresState.estacionesData.length,
+                        itemCount: estacionesOrdenadas
+                            .length, // Usar estacionesOrdenadas
                         itemBuilder: (context, index) {
-                          final estacion =
-                              cierreSurtidoresState.estacionesData[index];
+                          final estacion = estacionesOrdenadas[
+                              index]; // Usar estacionesOrdenadas
                           final dato = manguerasStatus!
                               .data[estacion.numeroPistola.toString()];
                           final visualization =

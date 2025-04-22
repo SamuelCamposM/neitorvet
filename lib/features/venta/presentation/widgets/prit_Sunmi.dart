@@ -4,6 +4,7 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show NetworkAssetBundle, Uint8List;
 import 'package:neitorvet/features/cierre_caja/domain/datasources/cierre_cajas_datasource.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
 
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:sunmi_printer_plus/enums.dart';
@@ -54,6 +55,9 @@ Future<void> printTicket(
     await SunmiPrinter.lineWrap(1);
   }
 
+  await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+  await SunmiPrinter.printText('FACTURA',
+      style: SunmiStyle(bold: true, fontSize: SunmiFontSize.LG));
   await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
   await SunmiPrinter.printText('Ruc: ${info.venEmpRuc}');
   await SunmiPrinter.printText('Dir: ${info.venEmpDireccion}');
@@ -64,7 +68,7 @@ Future<void> printTicket(
   await SunmiPrinter.printText('Cliente: ${info.venNomCliente}');
   await SunmiPrinter.printText('Ruc: ${info.venRucCliente}');
   await SunmiPrinter.printText('Factura: ${info.venNumFactura}');
-  await SunmiPrinter.printText('Fecha: ${info.venFechaFactura}');
+  await SunmiPrinter.printText('Fecha: ${Format.formatFechaHora(info.venFechaFactura)}');
   await SunmiPrinter.printText('Placa: ${info.venOtrosDetalles}');
   await SunmiPrinter.printText(info.venEmailCliente.isNotEmpty
       ? 'Email: ${info.venEmailCliente[0]}'
@@ -106,7 +110,7 @@ Future<void> printTicket(
     await SunmiPrinter.printText('No hay productos para mostrar.');
   }
 
-  await SunmiPrinter.line();
+  await SunmiPrinter.line(); 
   await SunmiPrinter.printRow(cols: [
     ColumnMaker(text: 'SubTotal', width: 20, align: SunmiPrintAlign.LEFT),
     ColumnMaker(
@@ -132,7 +136,8 @@ Future<void> printTicket(
   ]);
 
   await SunmiPrinter.line();
-
+  await SunmiPrinter.printText(
+      'Autorización: ${validarCampo(info.venAutorizacion)}');
   await SunmiPrinter.printText('\$0.81 : Monto equivalente al subsidio',
       style: SunmiStyle(fontSize: SunmiFontSize.SM));
   await SunmiPrinter.printText('\$0.81 : valor total sin subsidio',
@@ -195,7 +200,7 @@ Future<void> printTicketBusqueda(
 
   await SunmiPrinter.line();
   await SunmiPrinter.printText(
-      'Fecha: $fecha'); // O utiliza formattedDate si corresponde
+      'Fecha: ${Format.formatFechaHora(fecha)}'); // O utiliza formattedDate si corresponde
   await SunmiPrinter.line();
   await SunmiPrinter.printText('Ingreso: ${validarCampo(info.egreso)}');
   await SunmiPrinter.printText('Egreso: ${validarCampo(info.egreso)}');
@@ -263,7 +268,7 @@ Future<void> printTicketDesdeLista(
       'Documento: ${validarCampo(info.cajaTipoDocumento)}');
   await SunmiPrinter.line();
   await SunmiPrinter.printText(
-      'Fecha: ${info.cajaFecha}'); // O utiliza formattedDate si corresponde
+      'Fecha: ${Format.formatFechaHora(info.cajaFecha)}'); // O utiliza formattedDate si corresponde
   await SunmiPrinter.line();
   await SunmiPrinter.printText('Ingreso: ${validarCampo(info.cajaIngreso)}');
   await SunmiPrinter.printText('Egreso: ${validarCampo(info.cajaEgreso)}');

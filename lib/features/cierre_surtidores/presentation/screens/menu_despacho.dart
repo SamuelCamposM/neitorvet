@@ -441,12 +441,12 @@ class _CardSurtidor extends ConsumerWidget {
                                           valUnitarioInterno: double.parse(
                                             Parse.parseDynamicToDouble(res
                                                     .resultado!.invprecios[0])
-                                                .toStringAsFixed(2),
+                                                .toStringAsFixed(3),
                                           ),
                                           valorUnitario: double.parse(
                                             Parse.parseDynamicToDouble(res
                                                     .resultado!.invprecios[0])
-                                                .toStringAsFixed(2),
+                                                .toStringAsFixed(3),
                                           ),
                                           llevaIva: res.resultado!.invIva,
                                           incluyeIva:

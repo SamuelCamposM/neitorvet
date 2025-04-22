@@ -31,13 +31,13 @@ class EstacionCard extends ConsumerWidget {
       case Datum.B:
         return Colors.red; // Bloqueado
       case Datum.A:
-        return Colors.blue; // Abasteciendo
+        return Colors.green; // Abasteciendo
       case Datum.E:
         return Colors.orange; // En Espera
       case Datum.P:
         return Colors.lightGreen; // Pronto para abastecer
       case Datum.F:
-        return Colors.purple; // En Falla
+        return Colors.red; // En Falla
       case Datum.C:
         return Colors.yellowAccent; // En Falla
       case Datum.hash:
@@ -47,6 +47,22 @@ class EstacionCard extends ConsumerWidget {
       default:
         return Colors.black; // Color predeterminado
     }
+  }
+
+  // Nueva función para obtener el color según el producto y el dato
+  Color _getColorForProducto(String nombreProducto, Datum? dato) {
+    if (nombreProducto == 'DIESEL PREMIUN' &&
+        (dato == Datum.L || dato == Datum.B)) {
+      return Colors.yellow.shade300;
+    } else if (nombreProducto == 'GASOLINA EXTRA' &&
+        (dato == Datum.L || dato == Datum.B)) {
+      return Colors.lightBlue.shade300;
+    } else if (nombreProducto == 'GASOLINA SUPER' &&
+        (dato == Datum.L || dato == Datum.B)) {
+      return Colors.blueGrey.shade200;
+    }
+    return _getColorForDatum(dato);
+    // Color predeterminado si no coincide
   }
 
   @override
@@ -72,7 +88,8 @@ class EstacionCard extends ConsumerWidget {
             size: size,
             child: Container(
               decoration: BoxDecoration(
-                color: _getColorForDatum(dato),
+                color:
+                    _getColorForProducto(estacion.nombreProducto ?? '', dato),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -119,7 +136,7 @@ class EstacionCard extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          "${estacion.nombreProducto}",
+                          "${estacion.nombreProducto == 'DIESEL PREMIUN' ? 'DIESEL PREMIUM' : estacion.nombreProducto}",
                           style: TextStyle(
                             fontSize: size.iScreen(1.6),
                             fontWeight: FontWeight.bold,
@@ -129,7 +146,7 @@ class EstacionCard extends ConsumerWidget {
                     ),
                   ),
                   // Botón de acción (opcional)
-                if (visualization.valorActual != 0)
+                  if (visualization.valorActual != 0)
                     Text(
                       "\$${visualization.valorActual.toStringAsFixed(2)}",
                       style: TextStyle(

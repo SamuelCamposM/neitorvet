@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:neitorvet/config/menu/menu_item.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
 import 'package:neitorvet/features/home/presentation/provider/turno_provider.dart';
 import 'package:neitorvet/features/home/presentation/widgets/item_menu.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -106,7 +107,7 @@ class _HomeView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Ver: 1.0.4',
+                      'Ver: 1.0.5',
                       style: TextStyle(
                         fontSize: size.iScreen(1.7),
                         fontWeight: FontWeight.bold,
@@ -156,10 +157,19 @@ class BotonTurno extends ConsumerWidget {
       },
     );
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         // Aquí puedes agregar la lógica para manejar el turno activo
-        mostrarModalTurno(
-            context, isBotonActivo ? 'Finalizar' : 'Iniciar', size);
+        final res =
+            await ref.read(cierreCajasRepositoryProvider).getNoFacturados();
+        if (res.resultado.isNotEmpty && context.mounted) {
+          NotificationsService.show(
+              context, 'Hay Facturas Pendientes', SnackbarCategory.error);
+          return;
+        }
+        if (context.mounted) {
+          mostrarModalTurno(
+              context, isBotonActivo ? 'Finalizar' : 'Iniciar', size);
+        }
       },
       child: Container(
         width: size.wScreen(50),

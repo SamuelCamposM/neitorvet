@@ -63,12 +63,13 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
     final clienteMap = {
       ...state.clienteForm
           .copyWith(
-              perCelular:
-                  state.clienteForm.perCelular.isEmpty ? ['0900000000'] : null,
-              perEmail:
-                  state.clienteForm.perEmail.isEmpty ? ['correo@sincorreo.com'] : null,
-                  
-                  )
+            perCelular:
+                state.clienteForm.perCelular.isEmpty ? ['0900000000'] : null,
+            perEmail: state.clienteForm.perEmail.isEmpty
+                ? ['correo@sincorreo.com']
+                : null,
+            perNombre: state.clienteForm.perNombre.toUpperCase(),
+          )
           .toCliente()
           .toJson(),
       ...dataDefaultMap(empresaPropery: 'perEmpresa', userProperty: 'perUser'),

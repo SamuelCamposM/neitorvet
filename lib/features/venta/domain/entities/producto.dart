@@ -109,7 +109,7 @@ class Producto {
   }
 
   double tresDecimales(double numero) {
-    return double.parse(numero.toStringAsFixed(2));
+    return double.parse(numero.toStringAsFixed(3));
   }
 
   Producto calcularProducto({
@@ -149,7 +149,9 @@ class Producto {
       //   'costoProduccion': dosDecimales(resvalorUnitario),
       //   'recargo': dosDecimales(resrecargo),
       // });
-
+      print('valUnitarioInterno ${valUnitarioInterno}');
+      print('resvalorUnitario ${resvalorUnitario}');
+      print('tresDecimales ${tresDecimales(resvalorUnitario)}');
       return Producto(
         cantidad: double.parse(cantidad.toStringAsFixed(3)),
         codigo: codigo,

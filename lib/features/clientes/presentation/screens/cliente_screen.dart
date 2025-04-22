@@ -36,8 +36,7 @@ class ClienteScreen extends ConsumerWidget {
       clientesProvider,
       (_, next) {
         if (next.error.isEmpty) return;
-        NotificationsService.show(
-            context, next.error, SnackbarCategory.error);
+        NotificationsService.show(context, next.error, SnackbarCategory.error);
       },
     );
     final clienteState = ref.watch(clienteProvider(clienteId));
@@ -267,6 +266,7 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
             ),
             CustomInputField(
               controller: nombreController,
+              toUpperCase: true,
               label: 'Nombres',
               initialValue: clienteFState.clienteForm.perNombre,
               onChanged: (p0) {

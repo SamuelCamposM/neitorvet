@@ -258,7 +258,7 @@ class Venta {
   }
 
   static double dosDecimales(double numero) {
-    return double.parse(numero.toStringAsFixed(2));
+    return double.parse(numero.toStringAsFixed(3));
   }
 
   static Totales sumarCantidad(Totales acumulador, Producto valorActual) {
