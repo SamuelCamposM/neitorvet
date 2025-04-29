@@ -160,8 +160,8 @@ class BotonTurno extends ConsumerWidget {
       onTap: () async {
         // Aquí puedes agregar la lógica para manejar el turno activo
         final res =
-            await ref.read(cierreCajasRepositoryProvider).getNoFacturados();
-        if (res.resultado.isNotEmpty && context.mounted) {
+            await ref.read(cierreCajasRepositoryProvider).getNoFacturados(); 
+        if (res.resultado.isNotEmpty && context.mounted && isBotonActivo) {
           NotificationsService.show(
               context, 'Hay Facturas Pendientes', SnackbarCategory.error);
           return;

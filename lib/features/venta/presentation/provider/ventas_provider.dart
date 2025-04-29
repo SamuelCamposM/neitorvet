@@ -326,17 +326,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
         );
       } else {
         // Emitir evento al servidor si no han pasado más de 3 días
-        print({
-          ...venta.toJson(), // Incluye los datos de la venta
-          "venOption": "3",
-          "optionDocumento": venta.venTipoDocumento,
-          "rucempresa": user.rucempresa,
-          "rol": user.rol,
-          "venUserUpdate": user.usuario,
-          "venEmpresa": user.rucempresa,
-          "venProductosAntiguos": venta.venProductos,
-          "tabla": "venta",
-        });
+ 
         socket.emit("client:guardarData", {
           ...venta.toJson(), // Incluye los datos de la venta
           "venOption": "3",
@@ -430,8 +420,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     socket.off("server:guardadoExitoso");
     socket.off("server:error");
     socket.off("connect");
-    socket.off("disconnect");
-    print('Dispose');
+    socket.off("disconnect"); 
     super.dispose();
   }
 }

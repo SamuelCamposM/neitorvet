@@ -19,13 +19,16 @@ class NoFacturadoCard extends ConsumerWidget {
   final Responsive size;
   final bool redirect;
   final Venta venta;
-
+  final VentaFormState ventaFState;
+  final VentaFormNotifier ventaFormNotifier;
   const NoFacturadoCard({
     Key? key,
     required this.noFacturado,
     required this.size,
     required this.redirect,
     required this.venta,
+    required this.ventaFState,
+    required this.ventaFormNotifier,
   }) : super(key: key);
 
   @override
@@ -73,9 +76,8 @@ class NoFacturadoCard extends ConsumerWidget {
                         context, res.error, SnackbarCategory.error);
                     return;
                   }
-                  final ventaResponse =
-                      ref.read(ventaFormProvider(venta)).ventaForm;
-                  ref.read(ventaFormProvider(venta).notifier).updateState(
+                  final ventaResponse = ventaFState.ventaForm;
+                  ventaFormNotifier.updateState(
                       monto: res.total,
                       ventaForm: ventaResponse.copyWith(
                           idAbastecimiento: res.idAbastecimiento,
@@ -106,9 +108,7 @@ class NoFacturadoCard extends ConsumerWidget {
                         valorIva: 0,
                         costoProduccion: 0,
                       ));
-                  final errorAgregar = ref
-                      .read(ventaFormProvider(venta).notifier)
-                      .agregarProducto(null);
+                  final errorAgregar = ventaFormNotifier.agregarProducto(null);
                   if (context.mounted && !errorAgregar) {
                     context.push('/venta/${0}');
                   }

@@ -321,8 +321,7 @@ class CierreSurtidoresNotifier extends StateNotifier<CierreSurtidoresState> {
     socket.off('server:actualizadoExitoso');
     socket.off('server:guardadoExitoso');
 
-    // Log para verificar que se está destruyendo
-    debugPrint('CierreSurtidoresNotifier disposed');
+    // Log para verificar que se está destruyendo 
     super.dispose();
   }
 }

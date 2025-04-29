@@ -16,15 +16,14 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 final ventaFormProvider = StateNotifierProvider.family
     .autoDispose<VentaFormNotifier, VentaFormState, Venta>((ref, venta) {
-  final createUpdateVenta =
-      ref.watch(ventasProvider.notifier).createUpdateVenta;
+  final createUpdateVenta = ref.read(ventasProvider.notifier).createUpdateVenta;
   final formasPago = ref.watch(ventasProvider).formasPago;
-  final iva = ref.watch(authProvider).user?.iva ?? 15;
-  final rol = ref.watch(authProvider).user!.rol;
-  final rucempresa = ref.watch(authProvider).user!.rucempresa;
-  final usuario = ref.watch(authProvider).user!.usuario;
-
-  final socket = ref.watch(socketProvider);
+  final user = ref.read(authProvider).user!;
+  final iva = user.iva;
+  final rol = user.rol;
+  final rucempresa = user.rucempresa;
+  final usuario = user.usuario;
+  final socket = ref.read(socketProvider);
   return VentaFormNotifier(
     socket: socket,
     venta: venta,
@@ -58,6 +57,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
           ventaForm: VentaForm.fromVenta(venta),
           placasData: [venta.venOtrosDetalles],
         )) {
+    print('INICIANDO NUEVO VENTA FORM');
+
     _initializeSocketListeners();
     setPorcentajeFormaPago(venta.venFormaPago);
   }
@@ -77,65 +78,63 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   }
 
   void _onActualizadoExitoso(dynamic data) {
-    if (mounted) {
-      try {
-        if (data['tabla'] == 'proveedor') {
-          // Edita de la lista de clientes
-          final updatedCliente = Cliente.fromJson(data);
-          if (updatedCliente.perUser == usuario) {
-            updateState(
-                permitirCredito: updatedCliente.perCredito == 'SI',
-                placasData: updatedCliente.perOtros,
-                ventaForm: state.ventaForm.copyWith(
-                  venRucCliente: updatedCliente.perDocNumero,
-                  venNomCliente: updatedCliente.perNombre,
-                  venIdCliente: updatedCliente.perId,
-                  venTipoDocuCliente: updatedCliente.perDocTipo,
-                  venEmailCliente: updatedCliente.perEmail,
-                  venTelfCliente: updatedCliente.perTelefono,
-                  venCeluCliente: updatedCliente.perCelular,
-                  venDirCliente: updatedCliente.perDireccion,
-                  venOtrosDetalles: updatedCliente.perOtros.isEmpty
-                      ? ""
-                      : updatedCliente.perOtros[0],
-                ));
-          }
+    print('actualizado exitoso: ');
+    try {
+      if (data['tabla'] == 'proveedor') {
+        // Edita de la lista de clientes
+        final updatedCliente = Cliente.fromJson(data);
+        if (updatedCliente.perUser == usuario) {
+          updateState(
+              permitirCredito: updatedCliente.perCredito == 'SI',
+              placasData: updatedCliente.perOtros,
+              ventaForm: state.ventaForm.copyWith(
+                venRucCliente: updatedCliente.perDocNumero,
+                venNomCliente: updatedCliente.perNombre,
+                venIdCliente: updatedCliente.perId,
+                venTipoDocuCliente: updatedCliente.perDocTipo,
+                venEmailCliente: updatedCliente.perEmail,
+                venTelfCliente: updatedCliente.perTelefono,
+                venCeluCliente: updatedCliente.perCelular,
+                venDirCliente: updatedCliente.perDireccion,
+                venOtrosDetalles: updatedCliente.perOtros.isEmpty
+                    ? ""
+                    : updatedCliente.perOtros[0],
+              ));
         }
-      } catch (e) {
-        print('hola');
-        // print('Error handling server:actualizadoExitoso: $e');
       }
+    } catch (e) {
+      print('hola');
+      // print('Error handling server:actualizadoExitoso: $e');
     }
   }
 
   void _onGuardadoExitoso(dynamic data) {
-    print('LLEGANDO');
-    if (mounted) {
-      try {
-        if (data['tabla'] == 'proveedor') {
-          // Agrega a la lista de clientes
-          final newCliente = Cliente.fromJson(data);
-          if (newCliente.perUser == usuario) {
-            updateState(
-                permitirCredito: newCliente.perCredito == 'SI',
-                placasData: newCliente.perOtros,
-                ventaForm: state.ventaForm.copyWith(
-                  venRucCliente: newCliente.perDocNumero,
-                  venNomCliente: newCliente.perNombre,
-                  venIdCliente: newCliente.perId,
-                  venTipoDocuCliente: newCliente.perDocTipo,
-                  venEmailCliente: newCliente.perEmail,
-                  venTelfCliente: newCliente.perTelefono,
-                  venCeluCliente: newCliente.perCelular,
-                  venDirCliente: newCliente.perDireccion,
-                  venOtrosDetalles:
-                      newCliente.perOtros.isEmpty ? "" : newCliente.perOtros[0],
-                ));
-          }
+    print('Guardado exitoso: ');
+    try {
+      if (data['tabla'] == 'proveedor') {
+        // Agrega a la lista de clientes
+        final newCliente = Cliente.fromJson(data);
+        if (newCliente.perUser == usuario) {
+          print(state.ventaForm.venProductos);
+          updateState(
+              permitirCredito: newCliente.perCredito == 'SI',
+              placasData: newCliente.perOtros,
+              ventaForm: state.ventaForm.copyWith(
+                venRucCliente: newCliente.perDocNumero,
+                venNomCliente: newCliente.perNombre,
+                venIdCliente: newCliente.perId,
+                venTipoDocuCliente: newCliente.perDocTipo,
+                venEmailCliente: newCliente.perEmail,
+                venTelfCliente: newCliente.perTelefono,
+                venCeluCliente: newCliente.perCelular,
+                venDirCliente: newCliente.perDireccion,
+                venOtrosDetalles:
+                    newCliente.perOtros.isEmpty ? "" : newCliente.perOtros[0],
+              ));
         }
-      } catch (e) {
-        // print('Error handling server:actualizadoExitoso: $e');
       }
+    } catch (e) {
+      // print('Error handling server:actualizadoExitoso: $e');
     }
   }
 
@@ -401,7 +400,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     socket.off('server:guardadoExitoso', _onGuardadoExitoso);
 
     // Log for debugging
-    debugPrint('VentaFormNotifier disposed');
+
+    print('Dispose VENTA FORM');
     super.dispose();
   }
 }

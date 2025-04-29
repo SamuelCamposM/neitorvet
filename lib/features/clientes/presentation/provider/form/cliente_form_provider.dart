@@ -69,6 +69,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
                 ? ['correo@sincorreo.com']
                 : null,
             perNombre: state.clienteForm.perNombre.toUpperCase(),
+            
           )
           .toCliente()
           .toJson(),
@@ -81,7 +82,7 @@ class ClienteFormNotifier extends StateNotifier<ClienteFormState> {
         ...{...state.clienteForm.perEmpresa, user.rucempresa}
       ],
       "tabla": "proveedor",
-    };
+    };  
 
     try {
       // socket.emit('editar-registro', clienteMap);

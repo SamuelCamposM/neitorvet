@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/get_info_cierre_caja_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/widgets/no_facturado_card.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
+import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
@@ -88,33 +90,57 @@ class _GetInfoCierreCajasScreenState
         ref.read(getInfoCierreCajaProvider.notifier).resetError();
       },
     );
+
+    // Validar si hay una venta
+    final venta = ref.watch(ventaProvider(0));
+    final surtidoresData = ref.watch(ventasProvider).surtidoresData;
+    final getInfoState = ref.watch(getInfoCierreCajaProvider); 
+    return venta.isLoading
+        ? Scaffold(
+            appBar: AppBar(
+              title: const Text('Cargando'),
+            ),
+            body: const Center(
+              child: Text(
+                'No hay una venta disponible.',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          )
+        : _BodyInfoCierreCajas(
+            venta: venta.venta!,
+            searchController: searchController,
+            surtidoresData: surtidoresData,
+            getInfoState: getInfoState);
+  }
+}
+// Column(
+// Expanded(
+// child: ListView.builder(
+
+class _BodyInfoCierreCajas extends ConsumerWidget {
+  final Venta venta;
+  final TextEditingController searchController;
+  final List<Surtidor> surtidoresData;
+  final GenInfoCierreCajaState getInfoState;
+  const _BodyInfoCierreCajas({
+    required this.venta,
+    required this.searchController,
+    required this.surtidoresData,
+    required this.getInfoState,
+  });
+
+  @override
+  Widget build(BuildContext context, ref) {
     final colors = Theme.of(context).colorScheme;
-    final getInfoState = ref.watch(getInfoCierreCajaProvider);
     final buscarCliente =
-        ref.watch(getInfoCierreCajaProvider.notifier).buscarCliente;
+        ref.read(getInfoCierreCajaProvider.notifier).buscarCliente;
     final getNoFacturados =
         ref.read(getInfoCierreCajaProvider.notifier).getNoFacturados;
     final size = Responsive.of(context);
-    final surtidoresData = ref.watch(ventasProvider).surtidoresData;
     final isAdmin = !ref.read(authProvider).isAdmin;
-    // Validar si hay una venta
-    final venta = ref.watch(ventaProvider(0));
-    if (venta.venta == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Cargando'),
-        ),
-        body: const Center(
-          child: Text(
-            'No hay una venta disponible.',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-      );
-    }
-
-    ref.watch(ventaFormProvider(venta.venta!));
-
+    final ventaFState = ref.watch(ventaFormProvider(venta));
+    final ventaFormNotifier = ref.watch(ventaFormProvider(venta).notifier);
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -304,7 +330,9 @@ class _GetInfoCierreCajasScreenState
                       noFacturado: noFacturado,
                       size: size,
                       redirect: true,
-                      venta: venta.venta!,
+                      venta: venta,
+                      ventaFState: ventaFState,
+                      ventaFormNotifier: ventaFormNotifier,
                     );
                   },
                 ),
@@ -316,6 +344,3 @@ class _GetInfoCierreCajasScreenState
     );
   }
 }
-// Column(
-// Expanded(
-// child: ListView.builder(

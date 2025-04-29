@@ -36,8 +36,7 @@ class _DispensadoresScreenState extends ConsumerState<DispensadoresScreen> {
 
     // Escuchar mensajes segúrate de importar esto para usar json.decode
 
-    _channelStatus.stream.listen((data) {
-      print(data);
+    _channelStatus.stream.listen((data) { 
       final decodedData = json.decode(data); // Decodificar el string JSON
       if (decodedData['type'] == 'pico_status') {
         final Map<String, Datum> parsedData = Map<String, Datum>.from(
@@ -51,8 +50,7 @@ class _DispensadoresScreenState extends ConsumerState<DispensadoresScreen> {
         });
       }
     });
-    _channelPrecios.stream.listen((data) {
-      print(data);
+    _channelPrecios.stream.listen((data) { 
       final decodedData = json.decode(data); // Decodificar el string JSON
       if (decodedData['type'] == 'live_visualization') {
         // Convertir los datos a una lista de LiveVisualization

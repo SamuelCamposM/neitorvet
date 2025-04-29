@@ -19,8 +19,8 @@ class VentaScreen extends ConsumerWidget {
   const VentaScreen({super.key, required this.ventaId});
   @override
   Widget build(BuildContext context, ref) {
+    print(ventaId);
     final ventaState = ref.watch(ventaProvider(ventaId));
-
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -92,10 +92,10 @@ class _VentaForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final size = Responsive.of(context);
-    final ventaFState = ref.watch(ventaFormProvider(venta));
     final ventasState = ref.watch(ventasProvider);
-    final updateForm = ref.read(ventaFormProvider(venta).notifier).updateState;
     final colors = Theme.of(context).colorScheme;
+    final ventaFState = ref.watch(ventaFormProvider(venta));
+    final updateForm = ref.read(ventaFormProvider(venta).notifier).updateState;
 
     ref.listen(
       ventaFormProvider(venta),

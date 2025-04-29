@@ -221,8 +221,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
   }
 
   Future<void> createUpdateCliente(
-      Map<String, dynamic> clienteMap, bool editando) async {
-    print('clienteMap: $clienteMap');
+      Map<String, dynamic> clienteMap, bool editando) async { 
     if (editando) {
       socket.emit('client:actualizarData', clienteMap);
     } else {

@@ -31,7 +31,7 @@ class MenuDespacho extends ConsumerWidget {
   const MenuDespacho({super.key, required this.ventaId});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ventaState = ref.watch(ventaProvider(ventaId));
+    final ventaState = ref.watch(ventaProvider(ventaId)); 
     return BodyMenuDespacho(ventaState: ventaState);
   }
 }

@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'dart:math';
+import 'dart:convert'; 
 
 import 'package:flutter/material.dart';
 import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
@@ -33,8 +32,7 @@ class _ListaTanqueScreenState extends State<ListaTanqueScreen> {
       final decodedData = json.decode(data); // Decodificar el string JSON
       if (decodedData['type'] == 'inventory_update') {
         // Procesar los datos de los tanques
-        // final List tanquesJson = decodedData['data'];
-        print(decodedData['data']);
+        // final List tanquesJson = decodedData['data']; 
         final List<Tanque> tanques =
             decodedData['data'].map<Tanque>((e) => Tanque.fromJson(e)).toList();
 

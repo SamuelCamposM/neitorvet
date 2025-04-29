@@ -153,7 +153,7 @@ class Producto {
       print('resvalorUnitario ${resvalorUnitario}');
       print('tresDecimales ${tresDecimales(resvalorUnitario)}');
       return Producto(
-        cantidad: double.parse(cantidad.toStringAsFixed(3)),
+        cantidad: double.parse(cantidad.toStringAsFixed(4)),
         codigo: codigo,
         descripcion: descripcion,
         valUnitarioInterno: valUnitarioInterno,

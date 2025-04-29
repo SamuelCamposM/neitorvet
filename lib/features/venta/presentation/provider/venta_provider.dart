@@ -22,6 +22,7 @@ class VentaNotifier extends StateNotifier<VentaState> {
     required this.getSecuencia,
     required int venId,
   }) : super(VentaState(venId: venId)) {
+    print('INICIANDO NUEVO VENTA');
     loadVenta();
   }
 
@@ -120,6 +121,7 @@ class VentaNotifier extends StateNotifier<VentaState> {
   @override
   void dispose() {
     // Log para verificar que se está destruyendo
+    print('Dispose VENTA');
     super.dispose();
   }
 }

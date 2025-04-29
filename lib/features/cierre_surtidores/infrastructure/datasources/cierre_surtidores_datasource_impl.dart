@@ -115,8 +115,7 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
         uuid: 'cierreSurtidores',
         error: '',
       );
-    } catch (e) {
-      // print(e);
+    } catch (e) { 
       return ResponseGenerarCierre(
         uuid: '',
         error: ErrorApi.getErrorMessage(e, 'generarCierre'),
@@ -155,8 +154,7 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
       };
       print(
         '/picos/$manguera/preset_extendido',
-      );
-      print(data);
+      ); 
       final response = await dioZaracay.post(
         '/picos/$manguera/preset_extendido',
         data: data,

@@ -96,7 +96,6 @@ class _BodyFullScreenLoaderVentaState
     );
 
     _channelVisualizacion.stream.listen((data) {
-      print('Data: $data');
       try {
         final decodedData = json.decode(data); // Decodificar el string JSON
         if (decodedData['type'] == 'live_visualization') {
@@ -114,13 +113,10 @@ class _BodyFullScreenLoaderVentaState
             }
           });
         }
-      } catch (e) {
-        print('ERROR 1');
-      }
+      } catch (e) {}
     });
 
     _channelPabastecimientos.stream.listen((data) {
-      print('Data2: $data');
       try {
         final decodedData = json.decode(data);
         if (decodedData['type'] == "processed_dispatch") {
@@ -152,15 +148,10 @@ class _BodyFullScreenLoaderVentaState
           // final errorAgregar = ref
           //     .read(ventaFormProvider(ventaForm).notifier)
           //     .agregarProducto(null);
-          // print(errorAgregar);
         }
-      } catch (e) {
-        print(e);
-        print('Error 2');
-      }
+      } catch (e) {}
     });
     _channelAbastecimientos.stream.listen((data) async {
-      print('Data3: $data');
       try {
         final decodedData = json.decode(data);
         if (decodedData['type'] == "dispatch") {
@@ -192,7 +183,7 @@ class _BodyFullScreenLoaderVentaState
               descripcion = 'DESCONOCIDO';
               codigo = '0000';
           }
-          print('VALORRRR; $valor');
+
           ventaFormNotifier.updateState(
             monto: valor,
             ventaForm: ventaForm.copyWith(
@@ -223,15 +214,12 @@ class _BodyFullScreenLoaderVentaState
               costoProduccion: 0,
             ),
           );
-          final errorAgregar = ventaFormNotifier.agregarProducto(null);
-          print(errorAgregar);
+          ventaFormNotifier.agregarProducto(null);
+
           context.pop();
           context.pop();
         }
-      } catch (e) {
-        print(e);
-        print('Error 3');
-      }
+      } catch (e) {}
     });
   }
 

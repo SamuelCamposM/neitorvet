@@ -51,7 +51,7 @@ class CierreCaja {
         cajaNumero: json["cajaNumero"],
         cajaFecha: json["cajaFecha"],
         cajaDetalle: json["cajaDetalle"],
-        cajaIngreso: json["cajaIngreso"],
+        cajaIngreso: Parse.parseDynamicToString(json["cajaIngreso"]),
         cajaEgreso: json["cajaEgreso"],
         cajaCredito: json["cajaCredito"],
         cajaMonto: Parse.parseDynamicToDouble(json["cajaMonto"]),
