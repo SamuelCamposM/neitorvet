@@ -17,7 +17,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 final ventaFormProvider = StateNotifierProvider.family
     .autoDispose<VentaFormNotifier, VentaFormState, Venta>((ref, venta) {
   final createUpdateVenta = ref.read(ventasProvider.notifier).createUpdateVenta;
-  final formasPago = ref.watch(ventasProvider).formasPago;
+  final formasPago = ref.read(ventasProvider).formasPago;
   final user = ref.read(authProvider).user!;
   final iva = user.iva;
   final rol = user.rol;

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/router/app_router.notifier.dart';
+import 'package:neitorvet/features/administracion/presentation/screens/info_tanque.dart';
 
 import 'package:neitorvet/features/auth/auth.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
@@ -145,6 +146,12 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/admin',
         builder: (context, state) => const AdminScreens(),
+      ),
+      GoRoute(
+        path: '/info_tanque/:codigoCombustible',
+        builder: (context, state) => InfoTanque(
+          combustible: state.params['codigoCombustible'] ?? '',
+        ),
       ),
       GoRoute(
         path: '/cargando/venta',

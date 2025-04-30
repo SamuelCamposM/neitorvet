@@ -37,7 +37,7 @@ class _HomeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final turnoActivo = ref.watch(turnoProvider).turnoActivo;
-    final isAdmin = ref.watch(authProvider).isAdmin;
+    final authState = ref.watch(authProvider);
 
     final size = Responsive.of(context);
     final colors = Theme.of(context).colorScheme;
@@ -54,7 +54,7 @@ class _HomeView extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (!isAdmin)
+                  if (!authState.isAdmin && !authState.isDemo)
                     BotonTurno(
                         size: size, isBotonActivo: turnoActivo, colors: colors),
                   const SizedBox(height: 8.0),
@@ -83,13 +83,19 @@ class _HomeView extends ConsumerWidget {
                     runSpacing:
                         size.iScreen(1.0), // Espacio vertical entre las filas
                     children: appMenuItems.map((menuItem) {
-                      if (!isAdmin && menuItem.title == 'Gestión') {
+                      if (!authState.isAdmin &&
+                          menuItem.title == 'Gestión' &&
+                          !authState.isDemo) {
                         return const SizedBox.shrink(); // Ocultar el elemento
+                      }
+                      if (authState.isDemo && menuItem.link == '/admin') {
+                        return ItemMenu(
+                            size: size, menuItem: menuItem, turnoActivo: true);
                       }
                       return ItemMenu(
                           size: size,
                           menuItem: menuItem,
-                          turnoActivo: turnoActivo || isAdmin);
+                          turnoActivo: turnoActivo || authState.isAdmin);
                     }).toList(),
                   ),
                 ],
@@ -160,7 +166,7 @@ class BotonTurno extends ConsumerWidget {
       onTap: () async {
         // Aquí puedes agregar la lógica para manejar el turno activo
         final res =
-            await ref.read(cierreCajasRepositoryProvider).getNoFacturados(); 
+            await ref.read(cierreCajasRepositoryProvider).getNoFacturados();
         if (res.resultado.isNotEmpty && context.mounted && isBotonActivo) {
           NotificationsService.show(
               context, 'Hay Facturas Pendientes', SnackbarCategory.error);

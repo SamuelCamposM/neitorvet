@@ -61,6 +61,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       errorMessage: '',
       isAdmin: user.rol.any((role) =>
           role == 'ADMIN' || role == 'SUPERADMIN' || role == 'ADMINISTRADOR'),
+      isDemo: user.nombre == 'DEMO',
     );
   }
 
@@ -89,22 +90,29 @@ class AuthState {
   final User? user;
   final String? errorMessage;
   final bool isAdmin;
+  final bool isDemo;
 
-  AuthState(
-      {this.authStatus = AuthStatus.checking,
-      this.user,
-      this.errorMessage = '',
-      this.isAdmin = false});
+  AuthState({
+    this.authStatus = AuthStatus.checking,
+    this.user,
+    this.errorMessage = '',
+    this.isAdmin = false,
+    this.isDemo = false,
+  });
 
   AuthState copywith(
           {AuthStatus? authStatus,
           User? user,
           String? errorMessage,
-          bool? isAdmin}) =>
+          bool? isAdmin,
+          bool? isDemo,
+          
+          }) =>
       AuthState(
         authStatus: authStatus ?? this.authStatus,
         user: user ?? this.user,
         errorMessage: errorMessage ?? this.errorMessage,
         isAdmin: isAdmin ?? this.isAdmin,
+        isDemo: isDemo ?? this.isDemo,
       );
 }

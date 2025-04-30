@@ -1,10 +1,24 @@
-import 'dart:convert'; 
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:neitorvet/features/administracion/domain/entities/tanque.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+
+int getCodigoCombustible(int tanque) {
+  switch (tanque) {
+    case 1:
+      return 58; // GASOLINA SUPER
+    case 2:
+      return 57; // GASOLINA EXTRA
+    case 3:
+      return 59; // DIESEL PREMIUM
+    default:
+      return 0; // DESCONOCIDO
+  }
+}
 
 class ListaTanqueScreen extends StatefulWidget {
   const ListaTanqueScreen({
@@ -32,7 +46,7 @@ class _ListaTanqueScreenState extends State<ListaTanqueScreen> {
       final decodedData = json.decode(data); // Decodificar el string JSON
       if (decodedData['type'] == 'inventory_update') {
         // Procesar los datos de los tanques
-        // final List tanquesJson = decodedData['data']; 
+        // final List tanquesJson = decodedData['data'];
         final List<Tanque> tanques =
             decodedData['data'].map<Tanque>((e) => Tanque.fromJson(e)).toList();
 
@@ -56,16 +70,16 @@ class _ListaTanqueScreenState extends State<ListaTanqueScreen> {
         title: const Text('Lista Tanques'),
       ),
       body: LiquidCircularProgressIndicatorPage(
-        tanque: listaDeTanques,
+        tanques: listaDeTanques,
       ),
     );
   }
 }
 
 class LiquidCircularProgressIndicatorPage extends StatelessWidget {
-  final List<Tanque> tanque;
+  final List<Tanque> tanques;
 
-  const LiquidCircularProgressIndicatorPage({super.key, required this.tanque});
+  const LiquidCircularProgressIndicatorPage({super.key, required this.tanques});
   @override
   Widget build(BuildContext context) {
     Color getColorForProducto(int tanque) {
@@ -83,9 +97,9 @@ class LiquidCircularProgressIndicatorPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       body: ListView.builder(
-        itemCount: tanque.length,
+        itemCount: tanques.length,
         itemBuilder: (BuildContext context, int index) {
-          final itemTanque = tanque[index];
+          final itemTanque = tanques[index];
 
           return _AnimatedLiquidCircularProgressIndicator(
             targetPercentage: ((itemTanque.volumen /
@@ -153,268 +167,276 @@ class _AnimatedLiquidCircularProgressIndicatorState
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Card(
-        elevation: 5,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey,
+      child: GestureDetector(
+        onTap: () {
+          //  1 = super
+          //  2 = extra
+          //  3 = diesel
+          context
+              .push('/info_tanque/${getCodigoCombustible(combustible.tanque)}');
+        },
+        child: Card(
+          elevation: 5,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey,
+                      ),
+                      padding: const EdgeInsets.all(0.5),
+                      child: SizedBox(
+                        width: 70.0,
+                        height: 70.0,
+                        child: LiquidCircularProgressIndicator(
+                          value: _animationController.value,
+                          backgroundColor: Colors.white,
+                          valueColor: AlwaysStoppedAnimation(widget.color),
+                          center: Text(
+                            "${percentage.toStringAsFixed(0)}%",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: size.width * 0.03,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    padding: const EdgeInsets.all(0.5),
-                    child: SizedBox(
-                      width: 70.0,
-                      height: 70.0,
-                      child: LiquidCircularProgressIndicator(
-                        value: _animationController.value,
-                        backgroundColor: Colors.white,
-                        valueColor: AlwaysStoppedAnimation(widget.color),
-                        center: Text(
-                          "${percentage.toStringAsFixed(0)}%",
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Row(
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Combustible",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: size.width * 0.03,
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                      Text(
+                                        combustible.tanque == 1
+                                            ? "SUPER"
+                                            : combustible.tanque == 2
+                                                ? "EXTRA"
+                                                : "DIESEL",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: size.width * 0.04,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Vol. Actual: ',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: size.width * 0.03,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        color: widget.color),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: size.width * 0.01),
+                                    child: Text(
+                                      combustible.volumen.toStringAsFixed(2),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: size.width * 0.05,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                children: [
+                                  Text(
+                                    "Fecha",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: size.width * 0.03,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                  Text(
+                                    Format.formatFechaHora(combustible
+                                        .timestampDispositivo
+                                        .toString()),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: size.width * 0.03,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: size.height * 0.01,
+                ),
+                Container(
+                  height: 1,
+                  width: size.width * 0.8,
+                  color: Colors.grey,
+                ),
+                SizedBox(
+                  height: size.height * 0.01,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          "Temperatura",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.03,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          "${combustible.temperatura.toStringAsFixed(2)} °C",
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: size.width * 0.03,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ),
-                  Expanded(
-                    child: Column(
+                    Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Row(
-                              children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Combustible",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: size.width * 0.03,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    Text(
-                                      combustible.tanque == 1
-                                          ? "SUPER"
-                                          : combustible.tanque == 2
-                                              ? "EXTRA"
-                                              : "DIESEL",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: size.width * 0.04,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Row(
-                         
-                              children: [
-                                Text(
-                                  'Vol. Actual: ',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: size.width * 0.03,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: widget.color),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: size.width * 0.01),
-                                  child: Text(
-                                    combustible.volumen.toStringAsFixed(2),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: size.width * 0.05,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        Text(
+                          "Volumen",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.03,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              children: [
-                                Text(
-                                  "Fecha",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: size.width * 0.03,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                                Text(
-                                  Format.formatFechaHora(combustible
-                                      .timestampDispositivo
-                                      .toString()),
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: size.width * 0.03,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        Text(
+                          combustible.volumen.toStringAsFixed(2),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.03,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: size.height * 0.01,
-              ),
-              Container(
-                height: 1,
-                width: size.width * 0.8,
-                color: Colors.grey,
-              ),
-              SizedBox(
-                height: size.height * 0.01,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        "Temperatura",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.normal,
+                    Column(
+                      children: [
+                        Text(
+                          "Vacio",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.03,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
-                      ),
-                      Text(
-                        "${combustible.temperatura.toStringAsFixed(2)} °C",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          combustible.vacio.toStringAsFixed(2),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.03,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        "Volumen",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.normal,
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: size.height * 0.01,
+                ),
+                Container(
+                  height: 1,
+                  width: size.width * 0.8,
+                  color: Colors.grey,
+                ),
+                SizedBox(
+                  height: size.height * 0.01,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          "Agua",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.03,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
-                      ),
-                      Text(
-                        combustible.volumen.toStringAsFixed(2),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          combustible.agua.toString(),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.03,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        "Vacio",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.normal,
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          "Capacidad",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.03,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
-                      ),
-                      Text(
-                        combustible.vacio.toStringAsFixed(2),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          (combustible.volumen + combustible.vacio)
+                              .toStringAsFixed(2),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: size.width * 0.03,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: size.height * 0.01,
-              ),
-              Container(
-                height: 1,
-                width: size.width * 0.8,
-                color: Colors.grey,
-              ),
-              SizedBox(
-                height: size.height * 0.01,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        "Agua",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      Text(
-                        combustible.agua.toString(),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        "Capacidad",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      Text(
-                        (combustible.volumen + combustible.vacio)
-                            .toStringAsFixed(2),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: size.width * 0.03,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
