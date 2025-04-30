@@ -67,9 +67,7 @@ final goRouterProvider = Provider((ref) {
       ),
       GoRoute(
         path: '/venta/:id',
-        builder: (context, state) => VentaScreen(
-          ventaId: int.tryParse(state.params['id'].toString()) ?? 0,
-        ),
+        builder: (context, state) => VentaTabsScreen(),
       ),
       GoRoute(
         path: '/cierre_turno',

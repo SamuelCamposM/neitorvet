@@ -152,10 +152,11 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
         'tipo_preset': tipoPreset,
         'nivel_precio': nivelPrecio,
       };
-      print(
-        '/picos/$manguera/preset_extendido',
-      ); 
-      final response = await dioZaracay.post(
+      // print(
+      //   '/picos/$manguera/preset_extendido',
+      // ); 
+      // final response = 
+      await dioZaracay.post(
         '/picos/$manguera/preset_extendido',
         data: data,
       );

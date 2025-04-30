@@ -78,7 +78,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   }
 
   void _onActualizadoExitoso(dynamic data) {
-    print('actualizado exitoso: ');
     try {
       if (data['tabla'] == 'proveedor') {
         // Edita de la lista de clientes
@@ -103,19 +102,16 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
         }
       }
     } catch (e) {
-      print('hola');
       // print('Error handling server:actualizadoExitoso: $e');
     }
   }
 
   void _onGuardadoExitoso(dynamic data) {
-    print('Guardado exitoso: ');
     try {
       if (data['tabla'] == 'proveedor') {
         // Agrega a la lista de clientes
         final newCliente = Cliente.fromJson(data);
         if (newCliente.perUser == usuario) {
-          print(state.ventaForm.venProductos);
           updateState(
               permitirCredito: newCliente.perCredito == 'SI',
               placasData: newCliente.perOtros,
