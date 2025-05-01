@@ -24,6 +24,7 @@ import '../../../auth/domain/domain.dart';
 Future<void> printTicket(
   Venta info,
   User? user,
+  String nombreUsuario,
 ) async {
   await SunmiPrinter.initPrinter();
   await SunmiPrinter.startTransactionPrint(true);
@@ -68,7 +69,8 @@ Future<void> printTicket(
   await SunmiPrinter.printText('Cliente: ${info.venNomCliente}');
   await SunmiPrinter.printText('Ruc: ${info.venRucCliente}');
   await SunmiPrinter.printText('Factura: ${info.venNumFactura}');
-  await SunmiPrinter.printText('Fecha: ${Format.formatFechaHora(info.venFechaFactura)}');
+  await SunmiPrinter.printText(
+      'Fecha: ${Format.formatFechaHora(info.venFechaFactura)}');
   await SunmiPrinter.printText('Placa: ${info.venOtrosDetalles}');
   await SunmiPrinter.printText(info.venEmailCliente.isNotEmpty
       ? 'Email: ${info.venEmailCliente[0]}'
@@ -110,7 +112,7 @@ Future<void> printTicket(
     await SunmiPrinter.printText('No hay productos para mostrar.');
   }
 
-  await SunmiPrinter.line(); 
+  await SunmiPrinter.line();
   await SunmiPrinter.printRow(cols: [
     ColumnMaker(text: 'SubTotal', width: 20, align: SunmiPrintAlign.LEFT),
     ColumnMaker(
@@ -143,6 +145,7 @@ Future<void> printTicket(
   await SunmiPrinter.printText('\$0.81 : valor total sin subsidio',
       style: SunmiStyle(fontSize: SunmiFontSize.SM));
   await SunmiPrinter.printText('Usuario: ${user.usuario}');
+  await SunmiPrinter.printText(nombreUsuario);
   await SunmiPrinter.lineWrap(4);
   await SunmiPrinter.exitTransactionPrint(true);
 }
@@ -224,6 +227,7 @@ Future<void> printTicketBusqueda(
 Future<void> printTicketDesdeLista(
   CierreCaja info,
   User user,
+  String nombreUsuario,
 ) async {
   // Imprime el logo (si existe)
   if (user.logo.isNotEmpty) {
@@ -268,7 +272,7 @@ Future<void> printTicketDesdeLista(
       'Documento: ${validarCampo(info.cajaTipoDocumento)}');
   await SunmiPrinter.line();
   await SunmiPrinter.printText(
-      'Fecha: ${Format.formatFechaHora(info.cajaFecha)}'); // O utiliza formattedDate si corresponde
+      'Fecha: ${Format.formatFechaHora(info.cajaFecReg)}'); // O utiliza formattedDate si corresponde
   await SunmiPrinter.line();
   await SunmiPrinter.printText('Ingreso: ${validarCampo(info.cajaIngreso)}');
   await SunmiPrinter.printText('Egreso: ${validarCampo(info.cajaEgreso)}');
@@ -279,6 +283,7 @@ Future<void> printTicketDesdeLista(
       'Autorización: ${validarCampo(info.cajaAutorizacion)}');
   await SunmiPrinter.printText('Detalle: ${validarCampo(info.cajaDetalle)}');
   await SunmiPrinter.printText('Usuario: ${user.usuario}');
+  await SunmiPrinter.printText(nombreUsuario);
   await SunmiPrinter.line();
   await SunmiPrinter.lineWrap(2);
   await SunmiPrinter.exitTransactionPrint(true);

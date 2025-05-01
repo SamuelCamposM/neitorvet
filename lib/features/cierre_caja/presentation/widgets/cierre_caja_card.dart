@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_mar_pad.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_container.dart';
@@ -165,8 +166,17 @@ class CierreCajaCard extends ConsumerWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {
-                          printTicketDesdeLista(cierreCaja, user!);
+                        onPressed: () async {
+                          final res = await ref
+                              .read(authProvider.notifier)
+                              .getUsuarioNombre(cierreCaja.cajaUser);
+
+                          if (res.error.isNotEmpty && context.mounted) {
+                            NotificationsService.show(
+                                context, res.error, SnackbarCategory.error);
+                            return;
+                          }
+                          printTicketDesdeLista(cierreCaja, user!, res.nombre);
                         },
                         icon: const Icon(
                           Icons.print_outlined,

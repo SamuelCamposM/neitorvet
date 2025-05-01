@@ -109,10 +109,13 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
       if (mounted) {
         if (data['tabla'] == 'caja' && data['rucempresa'] == user.rucempresa) {
           final newCierreCaja = CierreCaja.fromJson(data);
-          state = state.copyWith(cierreCajas: [
-            newCierreCaja,
-            ...state.cierreCajas,
-          ]);
+          if (isAdmin || newCierreCaja.cajaUser == user.usuario) {
+            state = state.copyWith(cierreCajas: [
+              newCierreCaja,
+              ...state.cierreCajas,
+            ]);
+          }
+
           // final pdfUrl =
           //     '${Environment.serverPhpUrl}reportes/facturaticket.php?codigo=${newCierreCaja.cajaId}&empresa=${newCierreCaja.venEmpresa}';
           // downloadPDF(null, pdfUrl);

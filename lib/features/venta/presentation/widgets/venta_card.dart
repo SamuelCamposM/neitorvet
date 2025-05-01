@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:neitorvet/config/config.dart';
 import 'package:neitorvet/features/auth/domain/domain.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
+import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_container.dart';
@@ -192,11 +194,16 @@ class VentaCard extends ConsumerWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {
-                          printTicket(
-                            venta,
-                            user,
-                          );
+                        onPressed: () async {
+                          final res = await ref
+                              .read(authProvider.notifier)
+                              .getUsuarioNombre(venta.venUser); 
+                          if (res.error.isNotEmpty && context.mounted) {
+                            NotificationsService.show(
+                                context, res.error, SnackbarCategory.error);
+                            return;
+                          }
+                          printTicket(venta, user, res.nombre);
                         },
                         icon: Icon(Icons.print, color: colors.secondary),
                       ),

@@ -3,9 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/config/config.dart';
 import 'package:neitorvet/features/auth/domain/domain.dart';
 import 'package:neitorvet/features/auth/infrastructure/infrastructure.dart';
+import 'package:neitorvet/features/shared/errors/error_api.dart';
 import 'package:neitorvet/features/shared/infrastructure/services/key_value_storage_impl.dart';
 
 enum AuthStatus { checking, authenticated, noAuthenticated }
+
+class UsuarioNombreResponse {
+  final String nombre;
+  final String error;
+  UsuarioNombreResponse({
+    required this.nombre,
+    required this.error,
+  });
+}
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authRepository = AuthRepositoryImpl();
@@ -65,6 +75,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
+  Future<UsuarioNombreResponse> getUsuarioNombre(String documento) async {
+    try {
+      final res = await dio.get(
+        '/proveedores/usuario/$documento',
+      );
+      return UsuarioNombreResponse(
+          nombre: res.data["data"]["nombre"], error: '');
+    } catch (e) {
+      return UsuarioNombreResponse(
+          nombre: '', error: ErrorApi.getErrorMessage(e, 'getUsuarioNombre'));
+    }
+  }
+
   Future<void> logout({String? errorMessage}) async {
     await keyValueStorage.removeKey('token');
     dio.options.headers.remove('x-auth-token');
@@ -100,14 +123,13 @@ class AuthState {
     this.isDemo = false,
   });
 
-  AuthState copywith(
-          {AuthStatus? authStatus,
-          User? user,
-          String? errorMessage,
-          bool? isAdmin,
-          bool? isDemo,
-          
-          }) =>
+  AuthState copywith({
+    AuthStatus? authStatus,
+    User? user,
+    String? errorMessage,
+    bool? isAdmin,
+    bool? isDemo,
+  }) =>
       AuthState(
         authStatus: authStatus ?? this.authStatus,
         user: user ?? this.user,
