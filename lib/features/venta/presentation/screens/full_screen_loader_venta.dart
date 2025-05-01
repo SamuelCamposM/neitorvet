@@ -10,7 +10,6 @@ import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_socket.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
-import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class FullScreenLoaderVenta extends ConsumerStatefulWidget {
@@ -31,24 +30,13 @@ class FullScreenLoaderVentaState extends ConsumerState<FullScreenLoaderVenta> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final ventaState =
-        ref.watch(ventaProvider(Parse.parseDynamicToInt(widget.venId)));
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Despachando Combustible'),
-        backgroundColor: colors.primary,
-        elevation: 0,
-      ),
-      body: ventaState.isLoading
-          ? const FullScreenLoader()
-          : BodyFullScreenLoaderVenta(
-              colors: colors,
-              widget: widget,
-              venId: Parse.parseDynamicToInt(widget.venId),
-              manguera: widget.manguera,
-              venta: ventaState.venta!,
-            ),
-    );
+        appBar: AppBar(
+          title: const Text('Despachando Combustible'),
+          backgroundColor: colors.primary,
+          elevation: 0,
+        ),
+        body: const FullScreenLoader());
   }
 }
 
@@ -82,8 +70,6 @@ class _BodyFullScreenLoaderVentaState
   @override
   void initState() {
     super.initState();
-    ventaForm = ref.read(ventaFormProvider(widget.venta)).ventaForm;
-    ventaFormNotifier = ref.read(ventaFormProvider(widget.venta).notifier);
 
     _channelVisualizacion = WebSocketChannel.connect(
       Uri.parse('wss://zaracayapi.neitor.com/ws/despachos_visualizacion'),
@@ -233,7 +219,6 @@ class _BodyFullScreenLoaderVentaState
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(ventaFormProvider(widget.venta));
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(

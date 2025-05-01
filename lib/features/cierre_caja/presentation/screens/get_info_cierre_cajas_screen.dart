@@ -8,10 +8,8 @@ import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
-import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
-import 'package:neitorvet/features/venta/domain/entities/venta.dart';
-import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
-import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
+import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart'; 
+import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart'; 
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
@@ -92,10 +90,14 @@ class _GetInfoCierreCajasScreenState
     );
 
     // Validar si hay una venta
-    final venta = ref.watch(ventaProvider(0));
+    final ventaFormProviderParams =
+        VentaFormProviderParams(editar: false, id: 0);
+    final ventaFState = ref.watch(ventaFormProvider(ventaFormProviderParams));
+    final ventaFNotifier =
+        ref.watch(ventaFormProvider(ventaFormProviderParams).notifier);
     final surtidoresData = ref.watch(ventasProvider).surtidoresData;
-    final getInfoState = ref.watch(getInfoCierreCajaProvider); 
-    return venta.isLoading
+    final getInfoState = ref.watch(getInfoCierreCajaProvider);
+    return ventaFState.isLoading
         ? Scaffold(
             appBar: AppBar(
               title: const Text('Cargando'),
@@ -107,11 +109,13 @@ class _GetInfoCierreCajasScreenState
               ),
             ),
           )
-        : _BodyInfoCierreCajas(
-            venta: venta.venta!,
+        : _BodyInfoCierreCajas( 
             searchController: searchController,
             surtidoresData: surtidoresData,
-            getInfoState: getInfoState);
+            getInfoState: getInfoState,
+            ventaFState: ventaFState,
+            ventaFNotifier: ventaFNotifier,
+          );
   }
 }
 // Column(
@@ -119,15 +123,17 @@ class _GetInfoCierreCajasScreenState
 // child: ListView.builder(
 
 class _BodyInfoCierreCajas extends ConsumerWidget {
-  final Venta venta;
+  final VentaFormState ventaFState;
+  final VentaFormNotifier ventaFNotifier;
   final TextEditingController searchController;
   final List<Surtidor> surtidoresData;
   final GenInfoCierreCajaState getInfoState;
   const _BodyInfoCierreCajas({
-    required this.venta,
     required this.searchController,
     required this.surtidoresData,
     required this.getInfoState,
+    required this.ventaFState,
+    required this.ventaFNotifier,
   });
 
   @override
@@ -139,8 +145,7 @@ class _BodyInfoCierreCajas extends ConsumerWidget {
         ref.read(getInfoCierreCajaProvider.notifier).getNoFacturados;
     final size = Responsive.of(context);
     final isAdmin = !ref.read(authProvider).isAdmin;
-    final ventaFState = ref.watch(ventaFormProvider(venta));
-    final ventaFormNotifier = ref.watch(ventaFormProvider(venta).notifier);
+    final venta = ventaFState.ventaForm;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -332,7 +337,7 @@ class _BodyInfoCierreCajas extends ConsumerWidget {
                       redirect: true,
                       venta: venta,
                       ventaFState: ventaFState,
-                      ventaFormNotifier: ventaFormNotifier,
+                      ventaFormNotifier: ventaFNotifier,
                     );
                   },
                 ),

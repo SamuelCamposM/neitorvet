@@ -8,27 +8,43 @@ import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/form/email_list.dart';
 import 'package:neitorvet/features/shared/widgets/modal/cupertino_modal.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
-import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
-import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
+
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
-class VentaTabsScreen extends StatefulWidget {
+class TabItem {
+  final int id;
+  final String label;
+
+  TabItem({required this.id, required this.label});
+}
+
+class VentaTabsScreen extends ConsumerStatefulWidget {
   const VentaTabsScreen({Key? key}) : super(key: key);
 
   @override
-  State<VentaTabsScreen> createState() => _VentaTabsScreenState();
+  VentaTabsScreenState createState() => VentaTabsScreenState();
 }
 
-class _VentaTabsScreenState extends State<VentaTabsScreen> {
+class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController(initialPage: 0);
 
-  // Lista dinámica de tabs
-  final List<Map<String, dynamic>> _tabs = [
-    {'id': 0, 'label': 'Factura 1'},
+  // Lista dinámica de tabs usando la clase TabItem
+  final List<TabItem> _tabs = [
+    TabItem(id: 0, label: 'Factura 1'),
   ];
+
+  // Mapa para almacenar los estados de los tabs
+  final Map<int, VentaFormProviderParams> _tabParams = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializar el mapa con el primer tab
+    _tabParams[0] = VentaFormProviderParams(editar: false, id: 0);
+  }
 
   void _onPageChanged(int index) {
     setState(() {
@@ -50,14 +66,17 @@ class _VentaTabsScreenState extends State<VentaTabsScreen> {
   void _addTab() {
     setState(() {
       final newIndex = _tabs.length;
-      _tabs.add({'id': newIndex, 'label': 'Factura ${newIndex + 1}'});
+      _tabs.add(TabItem(id: newIndex, label: 'Factura ${newIndex + 1}'));
+      _tabParams[newIndex] =
+          VentaFormProviderParams(editar: false, id: newIndex);
     });
   }
 
   void _removeTab() {
     if (_tabs.length > 1) {
       setState(() {
-        _tabs.removeLast();
+        final removedTab = _tabs.removeLast();
+        _tabParams.remove(removedTab.id);
         if (_selectedIndex >= _tabs.length) {
           _selectedIndex = _tabs.length - 1;
           _pageController.jumpToPage(_selectedIndex);
@@ -74,6 +93,21 @@ class _VentaTabsScreenState extends State<VentaTabsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Escuchar los cambios en los providers de los tabs
+    _tabParams.forEach((id, params) {
+      ref.listen<VentaFormState>(
+        ventaFormProvider(params),
+        (_, next) {
+          if (next.error.isNotEmpty) {
+            NotificationsService.show(
+              context,
+              next.error,
+              SnackbarCategory.error,
+            );
+          }
+        },
+      );
+    }); 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Facturación'),
@@ -95,7 +129,8 @@ class _VentaTabsScreenState extends State<VentaTabsScreen> {
         itemCount: _tabs.length,
         itemBuilder: (context, index) {
           final tab = _tabs[index];
-          return VentaScreen(ventaId: tab['id']);
+          final ventaFormProviderParams = _tabParams[tab.id]!; 
+          return VentaScreen(ventaFormProviderParams: ventaFormProviderParams);
         },
       ),
       bottomNavigationBar: _tabs.length < 2
@@ -112,7 +147,7 @@ class _VentaTabsScreenState extends State<VentaTabsScreen> {
                   .map(
                     (tab) => BottomNavigationBarItem(
                       icon: const Icon(Icons.receipt),
-                      label: tab['label'],
+                      label: tab.label,
                     ),
                   )
                   .toList(),
@@ -122,56 +157,58 @@ class _VentaTabsScreenState extends State<VentaTabsScreen> {
 }
 
 class VentaScreen extends ConsumerWidget {
-  final int ventaId;
-  const VentaScreen({super.key, required this.ventaId});
+  final VentaFormProviderParams ventaFormProviderParams;
+  const VentaScreen({
+    super.key,
+    required this.ventaFormProviderParams,
+  });
   @override
   Widget build(BuildContext context, ref) {
-    print(ventaId);
-    final ventaState = ref.watch(ventaProvider(ventaId));
-    print(ventaState.isLoading);
+    final ventaFState = ref.watch(ventaFormProvider(ventaFormProviderParams)); 
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text('Nueva Venta'),
-        ),
-        body: ventaState.isLoading
+    
+        body: ventaFState.isLoading
             ? const FullScreenLoader()
-            : ventaState.venta == null
-                ? const Center(child: Text('Venta no encontrada'))
-                : _VentaForm(
-                    venta: ventaState.venta!,
-                    secuencia: ventaState.secuencia,
-                  ),
-        floatingActionButton: ventaState.isLoading
+            : _VentaForm(
+                ventaFState: ventaFState,
+                // ventaFNotifier: ventaFNotifier,
+                ventaFormProviderParams: ventaFormProviderParams,
+              ),
+        floatingActionButton: ventaFState.isLoading
             ? null
             : _FloatingButton(
-                venta: ventaState.venta!,
-              ),
+                ventaFState: ventaFState,
+                ventaFormProviderParams: ventaFormProviderParams),
       ),
     );
   }
 }
 
 class _FloatingButton extends ConsumerWidget {
-  final Venta venta;
+  final VentaFormState ventaFState;
 
-  const _FloatingButton({required this.venta});
+  final VentaFormProviderParams ventaFormProviderParams;
+  const _FloatingButton({
+    required this.ventaFState,
+    required this.ventaFormProviderParams,
+  });
 
   @override
   Widget build(BuildContext context, ref) {
-    final ventaFState = ref.watch(ventaFormProvider(venta));
     final ventasState = ref.watch(ventasProvider);
+    final ventaFNotifier =
+        ref.watch(ventaFormProvider(ventaFormProviderParams).notifier);
     return FloatingActionButton(
       onPressed: () async {
         if (ventaFState.isPosting) {
           return;
         }
-        final exitoso =
-            await ref.read(ventaFormProvider(venta).notifier).onFormSubmit();
+        final exitoso = await ventaFNotifier.onFormSubmit();
 
         if (exitoso && context.mounted) {
           context.pop();
@@ -191,34 +228,54 @@ class _FloatingButton extends ConsumerWidget {
   }
 }
 
-class _VentaForm extends ConsumerWidget {
-  final Venta venta;
-  final String secuencia;
-  final nuevoEmailController = TextEditingController();
-  final montoController = TextEditingController();
-  _VentaForm({required this.venta, required this.secuencia});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final size = Responsive.of(context);
-    final ventasState = ref.watch(ventasProvider);
-    final colors = Theme.of(context).colorScheme;
-    final ventaFState = ref.watch(ventaFormProvider(venta));
-    final updateForm = ref.read(ventaFormProvider(venta).notifier).updateState;
+class _VentaForm extends ConsumerStatefulWidget {
+  final VentaFormState ventaFState;
+  final VentaFormProviderParams ventaFormProviderParams;
 
-    ref.listen(
-      ventaFormProvider(venta),
-      (_, next) {
-        if (next.error.isEmpty) return;
-        NotificationsService.show(context, next.error, SnackbarCategory.error);
-      },
-    );
-    ref.listen(
-      ventaProvider(venta.venId),
-      (_, next) {
-        if (next.error.isEmpty) return;
-        NotificationsService.show(context, next.error, SnackbarCategory.error);
-      },
-    );
+  const _VentaForm({
+    required this.ventaFState,
+    required this.ventaFormProviderParams,
+  });
+
+  @override
+  _VentaFormState createState() => _VentaFormState();
+}
+
+class _VentaFormState extends ConsumerState<_VentaForm> {
+  late TextEditingController nuevoEmailController;
+  late TextEditingController montoController;
+
+  @override
+  void initState() {
+    super.initState();
+    nuevoEmailController = TextEditingController();
+    montoController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    nuevoEmailController.dispose();
+    montoController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = Responsive.of(context);
+    final colors = Theme.of(context).colorScheme;
+    final ventasState = ref.watch(ventasProvider);
+    final ventaFNotifier =
+        ref.read(ventaFormProvider(widget.ventaFormProviderParams).notifier);
+    final updateForm = ventaFNotifier.updateState;
+    final venta = widget.ventaFState.ventaForm;
+    final ventaFState = widget.ventaFState;
+    // ref.listen(
+    //   ventaProvider(venta.venId),
+    //   (_, next) {
+    //     if (next.error.isEmpty) return;
+    //     NotificationsService.show(context, next.error, SnackbarCategory.error);
+    //   },
+    // );
     ref.listen(
       ventasProvider,
       (_, next) {
@@ -248,7 +305,7 @@ class _VentaForm extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    secuencia,
+                    ventaFState.secuencia,
                     style: TextStyle(
                       fontSize: size.iScreen(1.8),
                       fontWeight: FontWeight.bold,
@@ -271,7 +328,7 @@ class _VentaForm extends ConsumerWidget {
                           fontWeight: FontWeight.bold),
                     ),
                   ),
-                  if (ventaFState.permitirCredito)
+                  if (widget.ventaFState.permitirCredito)
                     CustomRadioBotton(
                       size: size,
                       selectedValue: ventaFState.ventaForm.venFacturaCredito,
@@ -391,9 +448,7 @@ class _VentaForm extends ConsumerWidget {
                     size: size,
                     icon: Icons.mark_email_read,
                     onPressed: () async {
-                      ref
-                          .read(ventaFormProvider(venta).notifier)
-                          .handleOcultarEmail();
+                      ventaFNotifier.handleOcultarEmail();
                     },
                   ),
                 ],
@@ -404,22 +459,16 @@ class _VentaForm extends ConsumerWidget {
                   autofocus: true,
                   label: 'Correo',
                   onFieldSubmitted: (_) {
-                    ref
-                        .read(ventaFormProvider(venta).notifier)
-                        .agregarEmail(nuevoEmailController);
+                    ventaFNotifier.agregarEmail(nuevoEmailController);
                   },
                   controller: nuevoEmailController,
                   onChanged: (p0) {
-                    ref
-                        .read(ventaFormProvider(venta).notifier)
-                        .updateState(nuevoEmail: p0);
+                    ventaFNotifier.updateState(nuevoEmail: p0);
                   },
                   errorMessage: ventaFState.nuevoEmail.errorMessage,
                   suffixIcon: IconButton(
                       onPressed: () {
-                        ref
-                            .read(ventaFormProvider(venta).notifier)
-                            .agregarEmail(nuevoEmailController);
+                        ventaFNotifier.agregarEmail(nuevoEmailController);
                       },
                       icon: const Icon(Icons.add_circle_outline)),
                 ),
@@ -451,9 +500,7 @@ class _VentaForm extends ConsumerWidget {
                           updateForm(
                               ventaForm: ventaFState.ventaForm
                                   .copyWith(venFormaPago: value));
-                          ref
-                              .read(ventaFormProvider(venta).notifier)
-                              .setPorcentajeFormaPago(value!);
+                          ventaFNotifier.setPorcentajeFormaPago(value!);
                         }
                       },
                       options: ventasState.formasPago.map(
@@ -491,9 +538,7 @@ class _VentaForm extends ConsumerWidget {
               EmailList(
                 emails: ventaFState.ventaForm.venEmailCliente,
                 eliminarEmail: (email) {
-                  ref
-                      .read(ventaFormProvider(venta).notifier)
-                      .eliminarEmail(email);
+                  ventaFNotifier.eliminarEmail(email);
                 },
               ),
               Row(
@@ -506,7 +551,7 @@ class _VentaForm extends ConsumerWidget {
                               '9999999999999'
                           ? null
                           : () async {
-                              context.push('/seleccionSurtidor/${venta.venId}');
+                              context.push('/seleccionSurtidor/${ventaFState.ventaFormProviderParams.id}');
                               // context.push('/venta/${venta.venId}');
                               // final inventario =
                               //     await searchInventario(context: context, ref: ref);
@@ -574,21 +619,16 @@ class _VentaForm extends ConsumerWidget {
                       controller: montoController,
                       keyboardType: const TextInputType.numberWithOptions(),
                       onFieldSubmitted: (_) {
-                        ref
-                            .read(ventaFormProvider(venta).notifier)
-                            .agregarProducto(montoController);
+                        ventaFNotifier.agregarProducto(montoController);
                       },
                       onChanged: (p0) {
-                        ref
-                            .read(ventaFormProvider(venta).notifier)
-                            .updateState(monto: p0);
+                        ventaFNotifier.updateState(monto: p0);
                       },
                       suffixIcon: IconButton(
                           onPressed: ventaFState.monto == 0
                               ? null
                               : () {
-                                  ref
-                                      .read(ventaFormProvider(venta).notifier)
+                                  ventaFNotifier
                                       .agregarProducto(montoController);
                                 },
                           icon: const Icon(Icons.add_circle)),
@@ -602,9 +642,7 @@ class _VentaForm extends ConsumerWidget {
               _ProductsList(
                   size: size,
                   products: ventaFState.ventaForm.venProductosInput.value,
-                  eliminarProducto: ref
-                      .read(ventaFormProvider(venta).notifier)
-                      .eliminarProducto),
+                  eliminarProducto: ventaFNotifier.eliminarProducto),
               SizedBox(
                 height: size.wScreen(1),
               ),

@@ -12,7 +12,6 @@ import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
-import 'package:neitorvet/features/venta/presentation/provider/venta_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
 
@@ -31,17 +30,21 @@ class MenuDespacho extends ConsumerWidget {
   const MenuDespacho({super.key, required this.ventaId});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ventaState = ref.watch(ventaProvider(ventaId)); 
-    return BodyMenuDespacho(ventaState: ventaState);
+    final ventaFormProviderParams =
+        VentaFormProviderParams(editar: false, id: ventaId);
+
+    return BodyMenuDespacho(
+      ventaFormProviderParams: ventaFormProviderParams,
+    );
   }
 }
 
 class BodyMenuDespacho extends ConsumerStatefulWidget {
-  final VentaState ventaState;
+  final VentaFormProviderParams ventaFormProviderParams;
 
   const BodyMenuDespacho({
     Key? key,
-    required this.ventaState,
+    required this.ventaFormProviderParams,
   }) : super(key: key);
 
   @override
@@ -49,14 +52,12 @@ class BodyMenuDespacho extends ConsumerStatefulWidget {
 }
 
 class BodyMenuDespachoState extends ConsumerState<BodyMenuDespacho> {
-  late VentaFormState ventaFState;
   late List<Surtidor> uniqueSurtidores;
 
   @override
   void initState() {
     super.initState();
     // Inicializar los valores necesarios
-    ventaFState = ref.read(ventaFormProvider(widget.ventaState.venta!));
     uniqueSurtidores = ref.read(ventasProvider.notifier).getUniqueSurtidores();
   }
 
@@ -64,10 +65,11 @@ class BodyMenuDespachoState extends ConsumerState<BodyMenuDespacho> {
   Widget build(BuildContext context) {
     final size = Responsive.of(context);
 
-    // Escuchar cambios en los providers
-    ventaFState = ref.watch(ventaFormProvider(widget.ventaState.venta!));
     ref.watch(ventasProvider);
-
+    final ventaFState =
+        ref.watch(ventaFormProvider(widget.ventaFormProviderParams));
+    final ventaFormNotifier =
+        ref.watch(ventaFormProvider(widget.ventaFormProviderParams).notifier);
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
@@ -95,29 +97,26 @@ class BodyMenuDespachoState extends ConsumerState<BodyMenuDespacho> {
                       }
                       return;
                     }
-                    ref
-                        .read(ventaFormProvider(widget.ventaState.venta!)
-                            .notifier)
-                        .updateState(
-                            nuevoProducto: Producto(
-                          cantidad: 0,
-                          codigo: inventario.invSerie,
-                          descripcion: inventario.invNombre,
-                          valUnitarioInterno: Parse.parseDynamicToDouble(
-                              inventario.invprecios[0]),
-                          valorUnitario: Parse.parseDynamicToDouble(
-                              inventario.invprecios[0]),
-                          llevaIva: inventario.invIva,
-                          incluyeIva: inventario.invIncluyeIva,
-                          recargoPorcentaje: 0,
-                          recargo: 0,
-                          descPorcentaje:
-                              widget.ventaState.venta!.venDescPorcentaje,
-                          descuento: 0,
-                          precioSubTotalProducto: 0,
-                          valorIva: 0,
-                          costoProduccion: 0,
-                        ));
+
+                    ventaFormNotifier.updateState(
+                        nuevoProducto: Producto(
+                      cantidad: 0,
+                      codigo: inventario.invSerie,
+                      descripcion: inventario.invNombre,
+                      valUnitarioInterno:
+                          Parse.parseDynamicToDouble(inventario.invprecios[0]),
+                      valorUnitario:
+                          Parse.parseDynamicToDouble(inventario.invprecios[0]),
+                      llevaIva: inventario.invIva,
+                      incluyeIva: inventario.invIncluyeIva,
+                      recargoPorcentaje: 0,
+                      recargo: 0,
+                      descPorcentaje: ventaFState.ventaForm.venDescPorcentaje,
+                      descuento: 0,
+                      precioSubTotalProducto: 0,
+                      valorIva: 0,
+                      costoProduccion: 0,
+                    ));
                     if (context.mounted) {
                       context.pop(context);
                     }
@@ -147,7 +146,8 @@ class BodyMenuDespachoState extends ConsumerState<BodyMenuDespacho> {
                     .map((e) => _CardSurtidor(
                           size: size,
                           surtidor: e,
-                          ventaState: widget.ventaState,
+                          ventaFState: ventaFState,
+                          ventaFormNotifier: ventaFormNotifier,
                         ))
                     .toList(),
               ),
@@ -298,9 +298,14 @@ Future<void> mostrarModalCentrado(
 class _CardSurtidor extends ConsumerWidget {
   final Responsive size;
   final Surtidor surtidor;
-  final VentaState? ventaState;
-  const _CardSurtidor(
-      {required this.size, required this.surtidor, this.ventaState});
+  final VentaFormState ventaFState;
+  final VentaFormNotifier ventaFormNotifier;
+  const _CardSurtidor({
+    required this.size,
+    required this.surtidor,
+    required this.ventaFState,
+    required this.ventaFormNotifier,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -310,41 +315,39 @@ class _CardSurtidor extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () async {
-        if (ventaState == null) {
-          String? responseModal = await _cierreModal(context, size, surtidor);
-          responseModal;
-          if (responseModal == 'SI') {
-            final surtidores = getLados(surtidor.nombreSurtidor);
-            List<String> codCombustible = [];
-            List<String> pistolas = [];
-            for (var element in surtidores) {
-              final List<Estacion> estaciones = [
-                element.estacion1,
-                element.estacion2,
-                element.estacion3,
-              ]
-                  .where((estacion) => estacion?.nombreProducto != null)
-                  .cast<Estacion>()
-                  .toList();
+        String? responseModal = await _cierreModal(context, size, surtidor);
+        responseModal;
+        if (responseModal == 'SI') {
+          final surtidores = getLados(surtidor.nombreSurtidor);
+          List<String> codCombustible = [];
+          List<String> pistolas = [];
+          for (var element in surtidores) {
+            final List<Estacion> estaciones = [
+              element.estacion1,
+              element.estacion2,
+              element.estacion3,
+            ]
+                .where((estacion) => estacion?.nombreProducto != null)
+                .cast<Estacion>()
+                .toList();
 
-              for (var estacion in estaciones) {
-                pistolas.add(estacion.numeroPistola.toString());
-                if (!codCombustible
-                    .contains(estacion.codigoProducto.toString())) {
-                  codCombustible.add(estacion.codigoProducto.toString());
-                }
+            for (var estacion in estaciones) {
+              pistolas.add(estacion.numeroPistola.toString());
+              if (!codCombustible
+                  .contains(estacion.codigoProducto.toString())) {
+                codCombustible.add(estacion.codigoProducto.toString());
               }
             }
+          }
 
-            final response = await generarCierre(
-                codCombustible: codCombustible, pistolas: pistolas);
-            if (response.error.isNotEmpty && context.mounted) {
-              NotificationsService.show(
-                  context, response.error, SnackbarCategory.error);
-            } else {
-              if (context.mounted) {
-                context.push('/cierre_surtidores/${response.uuid}');
-              }
+          final response = await generarCierre(
+              codCombustible: codCombustible, pistolas: pistolas);
+          if (response.error.isNotEmpty && context.mounted) {
+            NotificationsService.show(
+                context, response.error, SnackbarCategory.error);
+          } else {
+            if (context.mounted) {
+              context.push('/cierre_surtidores/${response.uuid}');
             }
           }
         }
@@ -373,153 +376,141 @@ class _CardSurtidor extends ConsumerWidget {
                         fontSize: size.iScreen(2.0),
                         fontWeight: FontWeight.bold),
                   ),
-                  if (ventaState != null)
-                    Wrap(
-                      children:
-                          getLados(surtidor.nombreSurtidor).map((surtidor) {
-                        return Container(
-                          margin: EdgeInsets.symmetric(
-                              horizontal: size.iScreen(0.5)),
-                          padding: const EdgeInsets.all(2.0),
-                          child: TextButton(
-                            onPressed: () async {
-                              final List<Estacion> estaciones = [
-                                surtidor.estacion1,
-                                surtidor.estacion2,
-                                surtidor.estacion3,
-                              ]
-                                  .where((element) =>
-                                      element?.nombreProducto != null)
-                                  .cast<Estacion>()
-                                  .toList();
-                              if (estaciones.isEmpty) {
-                                return NotificationsService.show(
+                  Wrap(
+                    children: getLados(surtidor.nombreSurtidor).map((surtidor) {
+                      return Container(
+                        margin:
+                            EdgeInsets.symmetric(horizontal: size.iScreen(0.5)),
+                        padding: const EdgeInsets.all(2.0),
+                        child: TextButton(
+                          onPressed: () async {
+                            final List<Estacion> estaciones = [
+                              surtidor.estacion1,
+                              surtidor.estacion2,
+                              surtidor.estacion3,
+                            ]
+                                .where((element) =>
+                                    element?.nombreProducto != null)
+                                .cast<Estacion>()
+                                .toList();
+                            if (estaciones.isEmpty) {
+                              return NotificationsService.show(
+                                  context,
+                                  'Este lado no tiene productos',
+                                  SnackbarCategory.error);
+                            }
+                            ResponseModal? responseModal = await _surtidorModal(
+                                context, size, surtidor, estaciones);
+
+                            if (responseModal != null) {
+                              final res = await ref
+                                  .read(ventasRepositoryProvider)
+                                  .getInventarioByPistola(
+                                      pistola: responseModal
+                                          .estacion.numeroPistola
+                                          .toString(),
+                                      codigoCombustible: responseModal
+                                          .estacion.codigoProducto
+                                          .toString(),
+                                      numeroTanque: responseModal
+                                          .estacion.numeroTanque
+                                          .toString());
+                              if (res.error.isNotEmpty && context.mounted) {
+                                NotificationsService.show(
+                                    context, res.error, SnackbarCategory.error);
+                                return;
+                              }
+
+                              ventaFormNotifier.updateState(
+                                  monto: res.total,
+                                  ventaForm: ventaFState.ventaForm.copyWith(
+                                    idAbastecimiento: res.idAbastecimiento,
+                                    totInicio: res.totInicio,
+                                    totFinal: res.totFinal,
+                                  ),
+                                  nuevoProducto: Producto(
+                                    cantidad: 0,
+                                    codigo: res.resultado!.invSerie,
+                                    descripcion: res.resultado!.invNombre,
+                                    valUnitarioInterno: double.parse(
+                                      Parse.parseDynamicToDouble(
+                                              res.resultado!.invprecios[0])
+                                          .toStringAsFixed(3),
+                                    ),
+                                    valorUnitario: double.parse(
+                                      Parse.parseDynamicToDouble(
+                                              res.resultado!.invprecios[0])
+                                          .toStringAsFixed(3),
+                                    ),
+                                    llevaIva: res.resultado!.invIva,
+                                    incluyeIva: res.resultado!.invIncluyeIva,
+                                    recargoPorcentaje: 0,
+                                    recargo: 0,
+                                    descPorcentaje:
+                                        ventaFState.ventaForm.venDescPorcentaje,
+                                    descuento: 0,
+                                    precioSubTotalProducto: 0,
+                                    valorIva: 0,
+                                    costoProduccion: 0,
+                                  ));
+                              final responseGetStatus = await ref
+                                  .read(cierreSurtidoresRepositoryProvider)
+                                  .getStatusPicos(
+                                      manguera: responseModal
+                                          .estacion.numeroPistola
+                                          .toString());
+
+                              if (!responseGetStatus.success &&
+                                  context.mounted) {
+                                NotificationsService.show(
                                     context,
-                                    'Este lado no tiene productos',
+                                    'No se puede despachar',
                                     SnackbarCategory.error);
+                                return;
                               }
-                              ResponseModal? responseModal =
-                                  await _surtidorModal(
-                                      context, size, surtidor, estaciones);
-
-                              if (responseModal != null) {
-                                final res = await ref
-                                    .read(ventasRepositoryProvider)
-                                    .getInventarioByPistola(
-                                        pistola: responseModal
-                                            .estacion.numeroPistola
-                                            .toString(),
-                                        codigoCombustible: responseModal
-                                            .estacion.codigoProducto
-                                            .toString(),
-                                        numeroTanque: responseModal
-                                            .estacion.numeroTanque
-                                            .toString());
-                                if (res.error.isNotEmpty && context.mounted) {
-                                  NotificationsService.show(context, res.error,
-                                      SnackbarCategory.error);
-                                  return;
-                                }
-                                final venta = ref
-                                    .read(ventaFormProvider(ventaState!.venta!))
-                                    .ventaForm;
-                                ref
-                                    .read(ventaFormProvider(ventaState!.venta!)
-                                        .notifier)
-                                    .updateState(
-                                        monto: res.total,
-                                        ventaForm: venta.copyWith(
-                                          idAbastecimiento:
-                                              res.idAbastecimiento,
-                                          totInicio: res.totInicio,
-                                          totFinal: res.totFinal,
-                                        ),
-                                        nuevoProducto: Producto(
-                                          cantidad: 0,
-                                          codigo: res.resultado!.invSerie,
-                                          descripcion: res.resultado!.invNombre,
-                                          valUnitarioInterno: double.parse(
-                                            Parse.parseDynamicToDouble(res
-                                                    .resultado!.invprecios[0])
-                                                .toStringAsFixed(3),
-                                          ),
-                                          valorUnitario: double.parse(
-                                            Parse.parseDynamicToDouble(res
-                                                    .resultado!.invprecios[0])
-                                                .toStringAsFixed(3),
-                                          ),
-                                          llevaIva: res.resultado!.invIva,
-                                          incluyeIva:
-                                              res.resultado!.invIncluyeIva,
-                                          recargoPorcentaje: 0,
-                                          recargo: 0,
-                                          descPorcentaje:
-                                              venta.venDescPorcentaje,
-                                          descuento: 0,
-                                          precioSubTotalProducto: 0,
-                                          valorIva: 0,
-                                          costoProduccion: 0,
-                                        ));
-                                // final responseGetStatus = await ref
-                                //     .read(cierreSurtidoresRepositoryProvider)
-                                //     .getStatusPicos(
-                                //         manguera: responseModal
-                                //             .estacion.numeroPistola
-                                //             .toString());
-
-                                // if (!responseGetStatus.success &&
-                                //     context.mounted) {
-                                //   NotificationsService.show(
-                                //       context,
-                                //       'No se puede despachar',
-                                //       SnackbarCategory.error);
-                                //   return;
-                                // }
-                                // if (context.mounted) {
-                                //   mostrarModalCentrado(
-                                //     context: context,
-                                //     numeroPistola: responseModal
-                                //         .estacion.numeroPistola
-                                //         .toString(),
-                                //     presetExtendido: ref
-                                //         .read(
-                                //             cierreSurtidoresRepositoryProvider)
-                                //         .presetExtendido,
-                                //     venId: ventaState!.venta!.venId,
-                                //   );
-                                // }
-                                final errorAgregar = ref
-                                    .read(ventaFormProvider(ventaState!.venta!)
-                                        .notifier)
-                                    .agregarProducto(null);
-
-                                if (context.mounted && !errorAgregar) {
-                                  context.pop(context);
-                                }
+                              if (context.mounted) {
+                                mostrarModalCentrado(
+                                  context: context,
+                                  numeroPistola: responseModal
+                                      .estacion.numeroPistola
+                                      .toString(),
+                                  presetExtendido: ref
+                                      .read(
+                                          cierreSurtidoresRepositoryProvider)
+                                      .presetExtendido,
+                                  venId: ventaFState.ventaForm.venId,
+                                );
                               }
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor:
-                                  Theme.of(context).textTheme.bodyLarge?.color,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: size.iScreen(2.0), vertical: 1.0),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              // final errorAgregar =
+                              //     ventaFormNotifier.agregarProducto(null);
+
+                              // if (context.mounted && !errorAgregar) {
+                              //   context.pop(context);
+                              // }
+                            }
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor:
+                                Theme.of(context).textTheme.bodyLarge?.color,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
                             ),
-                            child: Text(
-                              surtidor.lado,
-                              style: TextStyle(
-                                  fontSize: size.iScreen(3.0),
-                                  fontWeight: FontWeight.normal),
-                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: size.iScreen(2.0), vertical: 1.0),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                        );
-                      }).toList(),
-                    )
+                          child: Text(
+                            surtidor.lado,
+                            style: TextStyle(
+                                fontSize: size.iScreen(3.0),
+                                fontWeight: FontWeight.normal),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  )
                 ],
               ))),
     );

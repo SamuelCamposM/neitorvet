@@ -4,6 +4,7 @@ import 'package:formz/formz.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/shared/provider/socket.dart';
+import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
@@ -14,9 +15,32 @@ import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.d
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
+class VentaFormProviderParams {
+  final bool editar;
+  final int id;
+
+  VentaFormProviderParams({
+    required this.editar,
+    required this.id,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is VentaFormProviderParams &&
+        other.editar == editar &&
+        other.id == id;
+  }
+
+  @override
+  int get hashCode => editar.hashCode ^ id.hashCode;
+}
+
 final ventaFormProvider = StateNotifierProvider.family
-    .autoDispose<VentaFormNotifier, VentaFormState, Venta>((ref, venta) {
-  final createUpdateVenta = ref.read(ventasProvider.notifier).createUpdateVenta;
+    .autoDispose<VentaFormNotifier, VentaFormState, VentaFormProviderParams>(
+        (ref, params) {
+  final ventasProviderNotifier = ref.read(ventasProvider.notifier);
   final formasPago = ref.read(ventasProvider).formasPago;
   final user = ref.read(authProvider).user!;
   final iva = user.iva;
@@ -24,10 +48,14 @@ final ventaFormProvider = StateNotifierProvider.family
   final rucempresa = user.rucempresa;
   final usuario = user.usuario;
   final socket = ref.read(socketProvider);
+  print(params.editar);
+  print(params.id);
   return VentaFormNotifier(
     socket: socket,
-    venta: venta,
-    createUpdateVenta: createUpdateVenta,
+    ventaFormProviderParams: params,
+    createUpdateVenta: ventasProviderNotifier.createUpdateVenta,
+    getSecuencia: ventasProviderNotifier.getSecuencia,
+    getVentaById: ventasProviderNotifier.getVentaById,
     iva: iva,
     formasPago: formasPago,
     rol: rol,
@@ -44,8 +72,13 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   final String rucempresa;
   final String usuario;
   final io.Socket socket;
+  final Future<ResponseSecuencia> Function() getSecuencia;
+  final Future<GetVentaResponse> Function(int venId) getVentaById;
+
   VentaFormNotifier({
-    required Venta venta,
+    required this.getSecuencia,
+    required this.getVentaById,
+    required ventaFormProviderParams,
     required this.createUpdateVenta,
     required this.formasPago,
     required this.socket,
@@ -54,14 +87,36 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     required this.rucempresa,
     required this.usuario,
   }) : super(VentaFormState(
-          ventaForm: VentaForm.fromVenta(venta),
-          placasData: [venta.venOtrosDetalles],
-        )) {
+            ventaForm: VentaForm.fromVenta(Venta.defaultVenta()),
+            ventaFormProviderParams: ventaFormProviderParams
+            // placasData: [venta.venOtrosDetalles],
+            )) {
     print('INICIANDO NUEVO VENTA FORM');
 
     _initializeSocketListeners();
-    setPorcentajeFormaPago(venta.venFormaPago);
+    loadVenta();
   }
+
+  void loadVenta() async {
+    if (!state.ventaFormProviderParams.editar) {
+      getSecuencia().then((value) {
+        if (value.error.isNotEmpty) {
+          state = state.copyWith(error: value.error);
+          return;
+        }
+        state = state.copyWith(
+            isLoading: false,
+            secuencia: value.resultado,
+            ventaForm: state.ventaForm.copyWith(
+              venNumFactura: value.resultado,
+            ));
+      });
+    }
+    state = state.copyWith(
+      isLoading: false,
+    );
+  }
+
   void _initializeSocketListeners() {
     socket.on('connect', _onConnect);
     socket.on('disconnect', _onDisconnect);
@@ -403,6 +458,12 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
 }
 
 class VentaFormState {
+  // final Venta venta;
+  final VentaFormProviderParams ventaFormProviderParams;
+  final bool isLoading;
+  final String error;
+  final String secuencia;
+
   final bool isFormValid;
   final bool isPosted;
   final bool isPosting;
@@ -415,8 +476,15 @@ class VentaFormState {
   final String productoSearch;
   final VentaForm ventaForm;
   final bool permitirCredito;
-  final String error;
   VentaFormState({
+// //* VENTA
+    required this.ventaFormProviderParams,
+    // required this.venta,
+    this.isLoading = true,
+    this.error = '',
+    this.secuencia = '',
+//* VENTA-FORM
+
     this.nuevoEmail = const Email.pure(),
     this.nuevoProducto = const ProductoInput.pure(),
     this.isFormValid = false,
@@ -428,26 +496,33 @@ class VentaFormState {
     this.ocultarEmail = true,
     this.productoSearch = '',
     this.permitirCredito = false,
-    this.error = '',
     required this.ventaForm,
     // Make this parameter optional
   }); // Provide default value here
 
-  VentaFormState copyWith(
-      {Email? nuevoEmail,
-      bool? isFormValid,
-      bool? isPosted,
-      bool? isPosting,
-      double? monto,
-      double? porcentajeFormaPago,
-      List<String>? placasData,
-      bool? ocultarEmail,
-      String? productoSearch,
-      ProductoInput? nuevoProducto,
-      VentaForm? ventaForm,
-      bool? permitirCredito,
-      String? error}) {
+  VentaFormState copyWith({
+    VentaFormProviderParams? ventaFormProviderParams,
+    bool? isLoading,
+    String? secuencia,
+    Email? nuevoEmail,
+    bool? isFormValid,
+    bool? isPosted,
+    bool? isPosting,
+    double? monto,
+    double? porcentajeFormaPago,
+    List<String>? placasData,
+    bool? ocultarEmail,
+    String? productoSearch,
+    ProductoInput? nuevoProducto,
+    VentaForm? ventaForm,
+    bool? permitirCredito,
+    String? error,
+  }) {
     return VentaFormState(
+      ventaFormProviderParams:
+          ventaFormProviderParams ?? this.ventaFormProviderParams,
+      isLoading: isLoading ?? this.isLoading,
+      secuencia: secuencia ?? this.secuencia,
       isFormValid: isFormValid ?? this.isFormValid,
       isPosted: isPosted ?? this.isPosted,
       isPosting: isPosting ?? this.isPosting,

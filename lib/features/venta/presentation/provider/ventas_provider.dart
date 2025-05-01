@@ -39,18 +39,21 @@ final ventasProvider =
     StateNotifierProvider.autoDispose<VentasNotifier, VentasState>(
   (ref) {
     final authState = ref.watch(authProvider);
+    final getUsuarioNombre = ref.watch(authProvider.notifier).getUsuarioNombre;
     final ventasRepository = ref.watch(ventasRepositoryProvider);
     final cierreSurtidoresRepository =
         ref.watch(cierreSurtidoresRepositoryProvider);
     final socket = ref.watch(socketProvider);
     final downloadPDF = ref.watch(downloadPdfProvider.notifier).downloadPDF;
     return VentasNotifier(
-        socket: socket,
-        ventasRepository: ventasRepository,
-        downloadPDF: downloadPDF,
-        user: authState.user!,
-        isAdmin: authState.isAdmin,
-        cierreSurtidoresRepository: cierreSurtidoresRepository);
+      socket: socket,
+      ventasRepository: ventasRepository,
+      downloadPDF: downloadPDF,
+      user: authState.user!,
+      isAdmin: authState.isAdmin,
+      cierreSurtidoresRepository: cierreSurtidoresRepository,
+      getUsuarioNombre: getUsuarioNombre,
+    );
   },
 );
 
@@ -62,6 +65,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
   final bool isAdmin;
   final Future<void> Function(BuildContext? context, String infoPdf)
       downloadPDF;
+  final Future<UsuarioNombreResponse> Function(String) getUsuarioNombre;
   VentasNotifier({
     required this.ventasRepository,
     required this.socket,
@@ -69,6 +73,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     required this.downloadPDF,
     required this.cierreSurtidoresRepository,
     required this.isAdmin,
+    required this.getUsuarioNombre,
   }) : super(VentasState()) {
     _initializeSocketListeners();
     loadNextPage();
@@ -94,22 +99,25 @@ class VentasNotifier extends StateNotifier<VentasState> {
       }
     });
 
-    socket.on("server:guardadoExitoso", (data) {
+    socket.on("server:guardadoExitoso", (data) async {
       if (mounted) {
         if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Agrega a la lista de ventas
 
           final newVenta = Venta.fromJson(data);
-          if (newVenta.venUser == user.usuario) {
-            printTicket(
+          if (isAdmin || newVenta.venUser == user.usuario) {
+            if (newVenta.venUser == user.usuario) {
+              printTicket(
+                newVenta,
+                user,
+                user.nombre 
+              );
+            }
+            state = state.copyWith(ventas: [
               newVenta,
-              user,
-            );
+              ...state.ventas,
+            ]);
           }
-          state = state.copyWith(ventas: [
-            newVenta,
-            ...state.ventas,
-          ]);
         }
       }
     });
@@ -326,7 +334,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
         );
       } else {
         // Emitir evento al servidor si no han pasado más de 3 días
- 
+
         socket.emit("client:guardarData", {
           ...venta.toJson(), // Incluye los datos de la venta
           "venOption": "3",
@@ -420,7 +428,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
     socket.off("server:guardadoExitoso");
     socket.off("server:error");
     socket.off("connect");
-    socket.off("disconnect"); 
+    socket.off("disconnect");
     super.dispose();
   }
 }
