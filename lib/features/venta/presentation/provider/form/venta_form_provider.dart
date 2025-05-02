@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
+import 'package:neitorvet/features/administracion/domain/entities/manguera_status.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/shared/provider/socket.dart';
@@ -11,6 +12,7 @@ import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/min_value_cliente.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/producto_input.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/productos.dart';
+import 'package:neitorvet/features/venta/presentation/provider/venta_abastecimiento_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -18,11 +20,9 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 class VentaFormProviderParams {
   final bool editar;
   final int id;
-
-  VentaFormProviderParams({
-    required this.editar,
-    required this.id,
-  });
+  final String manguera;
+  VentaFormProviderParams(
+      {required this.editar, required this.id, this.manguera = ''});
 
   @override
   bool operator ==(Object other) {
@@ -451,6 +451,13 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     state = state.copyWith(valor: valor);
   }
 
+  void setNombreCombustible(String? nombreCombustible) {
+    state = state.copyWith(nombreCombustible: nombreCombustible);
+  }
+  void setEstadoManguera(Datum? estadoManguera) {
+    state = state.copyWith(estadoManguera: estadoManguera);
+  }
+
   @override
   void dispose() {
     socket.off('connect', _onConnect);
@@ -486,33 +493,37 @@ class VentaFormState {
   final VentaForm ventaForm;
   final bool permitirCredito;
   //* MANGUERA
+  final String nombreCombustible;
   final String manguera;
   final double? valor;
-  VentaFormState(
-      {
+  final Datum estadoManguera;
+  VentaFormState({
 // //* VENTA
-      required this.ventaFormProviderParams,
+    required this.ventaFormProviderParams,
 
-      // required this.venta,
-      this.isLoading = true,
-      this.error = '',
-      this.secuencia = '',
+    // required this.venta,
+    this.isLoading = true,
+    this.error = '',
+    this.secuencia = '',
 //* VENTA-FORM
-      required this.ventaForm,
-      this.nuevoEmail = const Email.pure(),
-      this.nuevoProducto = const ProductoInput.pure(),
-      this.isFormValid = false,
-      this.isPosted = false,
-      this.isPosting = false,
-      this.monto = 0,
-      this.porcentajeFormaPago = 0,
-      this.placasData = const [],
-      this.ocultarEmail = true,
-      this.productoSearch = '',
-      this.permitirCredito = false,
-      // Make this parameter optional
-      this.manguera = '', // Provide default value here
-      this.valor }); // Provide default value here
+    required this.ventaForm,
+    this.nuevoEmail = const Email.pure(),
+    this.nuevoProducto = const ProductoInput.pure(),
+    this.isFormValid = false,
+    this.isPosted = false,
+    this.isPosting = false,
+    this.monto = 0,
+    this.porcentajeFormaPago = 0,
+    this.placasData = const [],
+    this.ocultarEmail = true,
+    this.productoSearch = '',
+    this.permitirCredito = false,
+    // Make this parameter optional
+    this.manguera = '', // Provide default value here
+    this.nombreCombustible = '', // Provide default value here
+    this.valor,
+    this.estadoManguera = Datum.L, // Provide default value here
+  }); // Provide default value here
 
   VentaFormState copyWith({
     VentaFormProviderParams? ventaFormProviderParams,
@@ -532,7 +543,9 @@ class VentaFormState {
     bool? permitirCredito,
     String? error,
     String? manguera,
+    String? nombreCombustible,
     double? valor,
+    Datum? estadoManguera,
   }) {
     return VentaFormState(
       ventaFormProviderParams:
@@ -553,7 +566,9 @@ class VentaFormState {
       permitirCredito: permitirCredito ?? this.permitirCredito,
       error: error ?? this.error,
       manguera: manguera ?? this.manguera,
+      nombreCombustible: nombreCombustible ?? this.nombreCombustible,
       valor: valor ?? this.valor,
+      estadoManguera: estadoManguera ?? this.estadoManguera,
     );
   }
 }

@@ -1,10 +1,10 @@
-import 'dart:convert';
-
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
+import 'package:neitorvet/features/administracion/presentation/widgets/estacion_card.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
@@ -12,20 +12,11 @@ import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/form/email_list.dart';
 import 'package:neitorvet/features/shared/widgets/modal/cupertino_modal.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
-import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_socket.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/venta_abastecimiento_provider.dart';
 
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-
-class TabItem {
-  final int id;
-  final String label;
-
-  TabItem({required this.id, required this.label});
-}
 
 class VentaTabsScreen extends ConsumerStatefulWidget {
   const VentaTabsScreen({Key? key}) : super(key: key);
@@ -35,63 +26,7 @@ class VentaTabsScreen extends ConsumerStatefulWidget {
 }
 
 class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
-  int _selectedIndex = 0;
   final PageController _pageController = PageController(initialPage: 0);
-
-  // Lista dinámica de tabs usando la clase TabItem
-  final List<TabItem> _tabs = [
-    TabItem(id: 0, label: 'Factura 1'),
-  ];
-
-  // Mapa para almacenar los estados de los tabs
-  final Map<int, VentaFormProviderParams> _tabParams = {};
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Inicializar el mapa con el primer tab
-    _tabParams[0] = VentaFormProviderParams(editar: false, id: 0);
-  }
-
-  void _onPageChanged(int index) {
-    setState(() {
-      _selectedIndex = index;
-      _pageController.animateToPage(
-        index,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    });
-  }
-
-  void _onPageViewChanged(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  void _addTab() {
-    setState(() {
-      final newIndex = _tabs.length;
-      _tabs.add(TabItem(id: newIndex, label: 'Factura ${newIndex + 1}'));
-      _tabParams[newIndex] =
-          VentaFormProviderParams(editar: false, id: newIndex);
-    });
-  }
-
-  void _removeTab() {
-    if (_tabs.length > 1) {
-      setState(() {
-        final removedTab = _tabs.removeLast();
-        _tabParams.remove(removedTab.id);
-        if (_selectedIndex >= _tabs.length) {
-          _selectedIndex = _tabs.length - 1;
-          _pageController.jumpToPage(_selectedIndex);
-        }
-      });
-    }
-  }
 
   @override
   void dispose() {
@@ -101,94 +36,51 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(ventaAbastecimientoProvider);
-    // Escuchar los cambios en los providers de los tabs
-    _tabParams.forEach((id, params) {
-      ref.listen<VentaFormState>(
-        ventaFormProvider(params),
-        (_, next) {
-          if (next.error.isNotEmpty) {
-            NotificationsService.show(
-              context,
-              next.error,
-              SnackbarCategory.error,
-            );
-          }
-        },
-      );
-    });
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Facturación'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _addTab,
-          ),
-          IconButton(
-            icon: const Icon(Icons.remove),
-            onPressed: _removeTab,
-          ),
-        ],
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        onPageChanged: _onPageViewChanged,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: _tabs.length,
-        itemBuilder: (context, index) {
-          final tab = _tabs[index];
-          final ventaFormProviderParams = _tabParams[tab.id]!;
-          return VentaScreen(
-            ventaFormProviderParams: ventaFormProviderParams,
-          );
-        },
-      ),
-      bottomNavigationBar: _tabs.length < 2
-          ? const SizedBox.shrink()
-          : BottomNavigationBar(
-              currentIndex: _selectedIndex,
-              onTap: _onPageChanged,
-              backgroundColor: Colors.white,
-              elevation: 0,
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: const Color(0xFF38B6FF),
-              items: _tabs
-                  .map(
-                    (tab) => BottomNavigationBarItem(
-                      icon: const Icon(Icons.receipt),
-                      label: tab.label,
-                    ),
-                  )
-                  .toList(),
-            ),
-    );
-  }
-}
-
-class VentaScreen extends ConsumerWidget {
-  final VentaFormProviderParams ventaFormProviderParams;
-  const VentaScreen({
-    super.key,
-    required this.ventaFormProviderParams,
-  });
-  @override
-  Widget build(BuildContext context, ref) {
-    final ventaFState = ref.watch(ventaFormProvider(ventaFormProviderParams));
-    final ventaFNotifier =
-        ref.watch(ventaFormProvider(ventaFormProviderParams).notifier);
+    final tabsState = ref.watch(ventaAbastecimientoProvider);
+    final tabsNotifier = ref.read(ventaAbastecimientoProvider.notifier);
     ref.listen<VentaAbastecimientoState>(
       ventaAbastecimientoProvider,
       (_, next) {
         //* CON EL VALOR DE LA MANGUERA QUE VIENE TENGO QUE ENCONTRAR ESE NOTIFIER
-        try {
-          final matchingElement = next.valores.firstWhere(
-            (element) =>
-                element.pico == 15,
+
+        for (var valor in next.valores) {
+          print('llegando valores: ${valor.pico}: ${valor.valorActual}');
+          final tabFind = tabsState.tabs.firstWhere(
+            (tab) => tab.manguera == valor.pico.toString(),
+            orElse: () => const TabItem(id: 0, label: '', manguera: ""),
           );
-          ventaFNotifier.setValor(matchingElement.valorActual);
-          if (next.abastecimientoSocket != null) {
+          if (tabFind.manguera.isNotEmpty) {
+            final ventaFormProviderParams = VentaFormProviderParams(
+              editar: false,
+              id: tabFind.id,
+            );
+            final ventaFNotifier =
+                ref.watch(ventaFormProvider(ventaFormProviderParams).notifier);
+
+            ventaFNotifier.setValor(valor.valorActual);
+            final estado =
+                next.manguerasStatus!.data[tabFind.manguera.toString()];
+            ventaFNotifier.setEstadoManguera(estado);
+            // ref.read(ventaAbastecimientoProvider.notifier).updateTabManguera(
+            //     tabFind.id, tabFind.manguera.toString(),
+            //     monto: valor.valorActual);
+          }
+        }
+        if (next.abastecimientoSocket != null) {
+          final tabFind = tabsState.tabs.firstWhere(
+            (tab) => tab.manguera == next.abastecimientoSocket?.pico.toString(),
+            orElse: () => const TabItem(id: 0, label: '', manguera: ""),
+          );
+          if (tabFind.manguera.isNotEmpty) {
+            final ventaFormProviderParams = VentaFormProviderParams(
+              editar: false,
+              id: tabFind.id,
+            );
+            final ventaFNotifier =
+                ref.watch(ventaFormProvider(ventaFormProviderParams).notifier);
+
+            final ventaFState =
+                ref.watch(ventaFormProvider(ventaFormProviderParams));
             // Variables para descripción y código según el códigoCombustible
             String descripcion = '';
             String codigo = '';
@@ -215,7 +107,8 @@ class VentaScreen extends ConsumerWidget {
             ventaFNotifier.updateState(
               monto: ventaFState.valor.toString(),
               ventaForm: ventaFState.ventaForm.copyWith(
-                idAbastecimiento: Parse.parseDynamicToInt(next.abastecimientoSocket!
+                idAbastecimiento: Parse.parseDynamicToInt(next
+                    .abastecimientoSocket!
                     .indiceMemoria), // "indice_memoria": "004429",
                 totInicio: next.abastecimientoSocket!
                     .totalizadorInicial, //"totalizador_inicial": 116.993,
@@ -243,15 +136,168 @@ class VentaScreen extends ConsumerWidget {
               ),
             );
             ventaFNotifier.agregarProducto(null);
+            tabsNotifier.clearAbastecimientoSocket();
           }
-        } catch (e) {
-     
-          print(e);
         }
-
         // ventaFNotifier.updateState();
       },
     );
+    for (var tab in tabsState.tabs) {
+      ref.listen<VentaFormState>(
+        ventaFormProvider(VentaFormProviderParams(editar: false, id: tab.id)),
+        (_, next) {
+          if (next.error.isNotEmpty) {
+            NotificationsService.show(
+              context,
+              next.error,
+              SnackbarCategory.error,
+            );
+          }
+        },
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Facturación'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: tabsNotifier.addTab,
+          ),
+          IconButton(
+            icon: const Icon(Icons.remove),
+            onPressed: tabsNotifier.removeTab,
+          ),
+        ],
+      ),
+      body: PageView.builder(
+        controller: _pageController,
+        onPageChanged: tabsNotifier.onPageChanged,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: tabsState.tabs.length,
+        itemBuilder: (context, index) {
+          final tab = tabsState.tabs[index];
+          return VentaScreen(
+            ventaFormProviderParams: VentaFormProviderParams(
+              editar: false,
+              id: tab.id,
+            ),
+          );
+        },
+      ),
+      bottomNavigationBar: tabsState.tabs.length < 2
+          ? const SizedBox.shrink()
+          : BottomNavigationBar(
+              currentIndex: tabsState.selectedIndex,
+              onTap: (index) {
+                tabsNotifier.onPageChanged(index);
+                _pageController.animateToPage(
+                  index,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+              backgroundColor: Colors.white,
+              elevation: 0,
+              type: BottomNavigationBarType.fixed,
+              selectedItemColor: const Color(0xFF38B6FF),
+              items: tabsState.tabs
+                  .map(
+                    (tab) => BottomNavigationBarItem(
+                      icon: const Icon(Icons.receipt),
+                      label: tab.manguera.isNotEmpty
+                          ? 'Manguera: ${tab.manguera}'
+                          : tab.label,
+                    ),
+                  )
+                  .toList(),
+            ),
+    );
+  }
+}
+
+class VentaScreen extends ConsumerWidget {
+  final VentaFormProviderParams ventaFormProviderParams;
+  const VentaScreen({
+    super.key,
+    required this.ventaFormProviderParams,
+  });
+  @override
+  Widget build(BuildContext context, ref) {
+    final ventaFState = ref.watch(ventaFormProvider(ventaFormProviderParams));
+    // ref.listen<VentaAbastecimientoState>(
+    //   ventaAbastecimientoProvider,
+    //   (_, next) {
+    //     //* CON EL VALOR DE LA MANGUERA QUE VIENE TENGO QUE ENCONTRAR ESE NOTIFIER
+    //     try {
+    //       final matchingElement = next.valores.firstWhere(
+    //         (element) => element.pico == 15,
+    //       );
+    //       ventaFNotifier.setValor(matchingElement.valorActual);
+    //       if (next.abastecimientoSocket != null) {
+    //         // Variables para descripción y código según el códigoCombustible
+    //         String descripcion = '';
+    //         String codigo = '';
+
+    //         // Asignar valores según el códigoCombustible
+    //         switch (next.abastecimientoSocket?.codigoCombustible) {
+    //           case 57:
+    //             descripcion = 'GASOLINA EXTRA';
+    //             codigo = '0101';
+    //             break;
+    //           case 58:
+    //             descripcion = 'GASOLINA SÚPER';
+    //             codigo = '0185';
+    //             break;
+    //           case 59:
+    //             descripcion = 'DIESEL PREMIUM';
+    //             codigo = '0121';
+    //             break;
+    //           default:
+    //             descripcion = 'DESCONOCIDO';
+    //             codigo = '0000';
+    //         }
+
+    //         ventaFNotifier.updateState(
+    //           monto: ventaFState.valor.toString(),
+    //           ventaForm: ventaFState.ventaForm.copyWith(
+    //             idAbastecimiento: Parse.parseDynamicToInt(next
+    //                 .abastecimientoSocket!
+    //                 .indiceMemoria), // "indice_memoria": "004429",
+    //             totInicio: next.abastecimientoSocket!
+    //                 .totalizadorInicial, //"totalizador_inicial": 116.993,
+    //             totFinal: next.abastecimientoSocket!
+    //                 .totalizadorFinal, // "totalizador_final": 117.194,
+    //           ),
+    //           nuevoProducto: Producto(
+    //             cantidad: 0,
+    //             codigo: codigo, // Código asignado según el códigoCombustible
+    //             descripcion:
+    //                 descripcion, // Descripción asignada según el códigoCombustible
+    //             valUnitarioInterno: Parse.parseDynamicToDouble(
+    //                 next.abastecimientoSocket!.precioUnitario),
+    //             valorUnitario: Parse.parseDynamicToDouble(
+    //                 next.abastecimientoSocket!.precioUnitario),
+    //             llevaIva: 'NO',
+    //             incluyeIva: 'NO',
+    //             recargoPorcentaje: 0,
+    //             recargo: 0,
+    //             descPorcentaje: ventaFState.ventaForm.venDescPorcentaje,
+    //             descuento: 0,
+    //             precioSubTotalProducto: 0,
+    //             valorIva: 0,
+    //             costoProduccion: 0,
+    //           ),
+    //         );
+    //         ventaFNotifier.agregarProducto(null);
+    //       }
+    //     } catch (e) {
+    //       // print(e);
+    //     }
+
+    //     // ventaFNotifier.updateState();
+    //   },
+    // );
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -377,32 +423,19 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
           physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
-              Row(
-                children: [
-                  Text(
-                    'Manguera #: ${ventaFState.manguera} ',
-                    style: TextStyle(
-                      fontSize: size.iScreen(1.8),
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.color, // Asegurando el color correcto
-                    ),
+              Text(ventaFState.nombreCombustible),
+              EstacionCard(
+                  estacion: Estacion(
+                    nombreProducto: ventaFState.nombreCombustible,
+                    numeroPistola:
+                        Parse.parseDynamicToInt(ventaFState.manguera),
                   ),
-                  Text(
-                    'Valor #: ${ventaFState.valor} ',
-                    style: TextStyle(
-                      fontSize: size.iScreen(1.8),
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.color, // Asegurando el color correcto
-                    ),
-                  ),
-                ],
-              ),
+                  size: size,
+                  dato: ventaFState.estadoManguera,
+                  visualization: LiveVisualization(
+                    pico: Parse.parseDynamicToInt(ventaFState.manguera),
+                    valorActual: Parse.parseDynamicToDouble(ventaFState.valor),
+                  )),
               Row(
                 children: [
                   Text(

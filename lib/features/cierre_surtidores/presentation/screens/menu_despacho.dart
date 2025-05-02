@@ -12,6 +12,7 @@ import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/venta_abastecimiento_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
 class ResponseModal {
@@ -281,13 +282,13 @@ class _CardSurtidor extends ConsumerWidget {
                                         .estacion.numeroPistola
                                         .toString());
 
-                            if (!responseGetStatus.success && context.mounted) {
-                              NotificationsService.show(
-                                  context,
-                                  'No se puede despachar',
-                                  SnackbarCategory.error);
-                              return;
-                            }
+                            // if (!responseGetStatus.success && context.mounted) {
+                            //   NotificationsService.show(
+                            //       context,
+                            //       'No se puede despachar',
+                            //       SnackbarCategory.error);
+                            //   return;
+                            // }
                             // if (context.mounted) {
                             //   mostrarModalCentrado(
                             //     context: context,
@@ -300,9 +301,27 @@ class _CardSurtidor extends ConsumerWidget {
                             //     venId: ventaFState.ventaForm.venId,
                             //   );
                             // }
+
+                            //* ESTADO DEL FORM
                             ventaFormNotifier.setManguera(responseModal
                                 .estacion.numeroPistola
                                 .toString());
+                            ventaFormNotifier.setNombreCombustible(responseModal
+                                .estacion.nombreProducto
+                                .toString());
+                            //* ESTADO DEL TAB
+                            ref
+                                .read(ventaAbastecimientoProvider.notifier)
+                                .updateTabManguera(
+                                  ventaFState.ventaFormProviderParams.id,
+                                  // manguera:
+                                  responseModal.estacion.numeroPistola
+                                      .toString(),
+                                  nombreCombustible:
+                                      responseModal.estacion.nombreProducto,
+                                );
+                            // nombreCombustible:
+                            //     responseModal.estacion.nombreProducto);
                             context.pop();
                             // final errorAgregar =
                             //     ventaFormNotifier.agregarProducto(null);
@@ -355,7 +374,7 @@ Future<ResponseModal?> _surtidorModal(BuildContext context, Responsive size,
         ),
         actions: estaciones.map<CupertinoActionSheetAction>((Estacion e) {
           return CupertinoActionSheetAction(
-            child: Text(e.nombreProducto ?? ""),
+            child: Text('${e.nombreProducto ?? ""} - ${e.numeroPistola}'),
             onPressed: () {
               Navigator.pop(
                   context, ResponseModal(estacion: e, surtidor: data));
