@@ -443,6 +443,14 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     state = state.copyWith(error: '');
   }
 
+  void setManguera(String? manguera) {
+    state = state.copyWith(manguera: manguera);
+  }
+
+  void setValor(double? valor) {
+    state = state.copyWith(valor: valor);
+  }
+
   @override
   void dispose() {
     socket.off('connect', _onConnect);
@@ -464,6 +472,7 @@ class VentaFormState {
   final String error;
   final String secuencia;
 
+  //* FORMULARIO
   final bool isFormValid;
   final bool isPosted;
   final bool isPosting;
@@ -476,29 +485,34 @@ class VentaFormState {
   final String productoSearch;
   final VentaForm ventaForm;
   final bool permitirCredito;
-  VentaFormState({
+  //* MANGUERA
+  final String manguera;
+  final double? valor;
+  VentaFormState(
+      {
 // //* VENTA
-    required this.ventaFormProviderParams,
-    // required this.venta,
-    this.isLoading = true,
-    this.error = '',
-    this.secuencia = '',
-//* VENTA-FORM
+      required this.ventaFormProviderParams,
 
-    this.nuevoEmail = const Email.pure(),
-    this.nuevoProducto = const ProductoInput.pure(),
-    this.isFormValid = false,
-    this.isPosted = false,
-    this.isPosting = false,
-    this.monto = 0,
-    this.porcentajeFormaPago = 0,
-    this.placasData = const [],
-    this.ocultarEmail = true,
-    this.productoSearch = '',
-    this.permitirCredito = false,
-    required this.ventaForm,
-    // Make this parameter optional
-  }); // Provide default value here
+      // required this.venta,
+      this.isLoading = true,
+      this.error = '',
+      this.secuencia = '',
+//* VENTA-FORM
+      required this.ventaForm,
+      this.nuevoEmail = const Email.pure(),
+      this.nuevoProducto = const ProductoInput.pure(),
+      this.isFormValid = false,
+      this.isPosted = false,
+      this.isPosting = false,
+      this.monto = 0,
+      this.porcentajeFormaPago = 0,
+      this.placasData = const [],
+      this.ocultarEmail = true,
+      this.productoSearch = '',
+      this.permitirCredito = false,
+      // Make this parameter optional
+      this.manguera = '', // Provide default value here
+      this.valor }); // Provide default value here
 
   VentaFormState copyWith({
     VentaFormProviderParams? ventaFormProviderParams,
@@ -517,6 +531,8 @@ class VentaFormState {
     VentaForm? ventaForm,
     bool? permitirCredito,
     String? error,
+    String? manguera,
+    double? valor,
   }) {
     return VentaFormState(
       ventaFormProviderParams:
@@ -536,6 +552,8 @@ class VentaFormState {
       ventaForm: ventaForm ?? this.ventaForm,
       permitirCredito: permitirCredito ?? this.permitirCredito,
       error: error ?? this.error,
+      manguera: manguera ?? this.manguera,
+      valor: valor ?? this.valor,
     );
   }
 }

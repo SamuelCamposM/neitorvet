@@ -163,7 +163,7 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
       return ResponsePresetExtendido(error: '');
     } catch (e) {
       return ResponsePresetExtendido(
-        error: ErrorApi.getErrorMessage(e, 'getStatusPicos'),
+        error: ErrorApi.getErrorMessage(e, 'presetExtendido'),
       );
     }
   }

@@ -61,8 +61,7 @@ class BodyFullScreenLoaderVenta extends ConsumerStatefulWidget {
 
 class _BodyFullScreenLoaderVentaState
     extends ConsumerState<BodyFullScreenLoaderVenta> {
-  late WebSocketChannel _channelVisualizacion;
-  late WebSocketChannel _channelPabastecimientos;
+  late WebSocketChannel _channelVisualizacion; 
   late WebSocketChannel _channelAbastecimientos;
   String valor = '0.00';
   late VentaForm ventaForm;
@@ -74,9 +73,7 @@ class _BodyFullScreenLoaderVentaState
     _channelVisualizacion = WebSocketChannel.connect(
       Uri.parse('wss://zaracayapi.neitor.com/ws/despachos_visualizacion'),
     );
-    _channelPabastecimientos = WebSocketChannel.connect(
-      Uri.parse('wss://zaracayapi.neitor.com/ws/processed_abastecimientos'),
-    );
+ 
     _channelAbastecimientos = WebSocketChannel.connect(
       Uri.parse('wss://zaracayapi.neitor.com/ws/abastecimientos'),
     );
@@ -102,41 +99,6 @@ class _BodyFullScreenLoaderVentaState
       } catch (e) {}
     });
 
-    _channelPabastecimientos.stream.listen((data) {
-      try {
-        final decodedData = json.decode(data);
-        if (decodedData['type'] == "processed_dispatch") {
-          // final processedDispatch = ProcessedDispatch.fromJson(decodedData);
-          // updateFVenta(
-          //   ventaForm: ventaForm.copyWith(
-          //     idAbastecimiento:
-          //         processedDispatch.abastecimiento.idAbastecimiento,
-          //   ),
-          //   nuevoProducto: Producto(
-          //     cantidad: 0,
-          //     codigo: processedDispatch.producto.invSerie,
-          //     descripcion: processedDispatch.producto.invNombre,
-          //     valUnitarioInterno: Parse.parseDynamicToDouble(
-          //         processedDispatch.producto.invprecios[0]),
-          //     valorUnitario: Parse.parseDynamicToDouble(
-          //         processedDispatch.producto.invprecios[0]),
-          //     llevaIva: 'NO',
-          //     incluyeIva: 'NO',
-          //     recargoPorcentaje: 0,
-          //     recargo: 0,
-          //     descPorcentaje: ventaForm.venDescPorcentaje,
-          //     descuento: 0,
-          //     precioSubTotalProducto: 0,
-          //     valorIva: 0,
-          //     costoProduccion: 0,
-          //   ),
-          // );
-          // final errorAgregar = ref
-          //     .read(ventaFormProvider(ventaForm).notifier)
-          //     .agregarProducto(null);
-        }
-      } catch (e) {}
-    });
     _channelAbastecimientos.stream.listen((data) async {
       try {
         final decodedData = json.decode(data);
@@ -211,8 +173,7 @@ class _BodyFullScreenLoaderVentaState
 
   @override
   void dispose() {
-    _channelVisualizacion.sink.close();
-    _channelPabastecimientos.sink.close();
+    _channelVisualizacion.sink.close(); 
     _channelAbastecimientos.sink.close();
     super.dispose();
   }

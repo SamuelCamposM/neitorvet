@@ -1,17 +1,24 @@
+import 'dart:convert';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
+import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/form/email_list.dart';
 import 'package:neitorvet/features/shared/widgets/modal/cupertino_modal.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
+import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_socket.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/venta_abastecimiento_provider.dart';
 
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class TabItem {
   final int id;
@@ -42,6 +49,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
   @override
   void initState() {
     super.initState();
+
     // Inicializar el mapa con el primer tab
     _tabParams[0] = VentaFormProviderParams(editar: false, id: 0);
   }
@@ -93,6 +101,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(ventaAbastecimientoProvider);
     // Escuchar los cambios en los providers de los tabs
     _tabParams.forEach((id, params) {
       ref.listen<VentaFormState>(
@@ -107,7 +116,8 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
           }
         },
       );
-    }); 
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Facturación'),
@@ -129,13 +139,14 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
         itemCount: _tabs.length,
         itemBuilder: (context, index) {
           final tab = _tabs[index];
-          final ventaFormProviderParams = _tabParams[tab.id]!; 
-          return VentaScreen(ventaFormProviderParams: ventaFormProviderParams);
+          final ventaFormProviderParams = _tabParams[tab.id]!;
+          return VentaScreen(
+            ventaFormProviderParams: ventaFormProviderParams,
+          );
         },
       ),
       bottomNavigationBar: _tabs.length < 2
-          ? const SizedBox
-              .shrink() // Oculta el BottomNavigationBar si hay menos de 2 tabs
+          ? const SizedBox.shrink()
           : BottomNavigationBar(
               currentIndex: _selectedIndex,
               onTap: _onPageChanged,
@@ -164,14 +175,89 @@ class VentaScreen extends ConsumerWidget {
   });
   @override
   Widget build(BuildContext context, ref) {
-    final ventaFState = ref.watch(ventaFormProvider(ventaFormProviderParams)); 
+    final ventaFState = ref.watch(ventaFormProvider(ventaFormProviderParams));
+    final ventaFNotifier =
+        ref.watch(ventaFormProvider(ventaFormProviderParams).notifier);
+    ref.listen<VentaAbastecimientoState>(
+      ventaAbastecimientoProvider,
+      (_, next) {
+        //* CON EL VALOR DE LA MANGUERA QUE VIENE TENGO QUE ENCONTRAR ESE NOTIFIER
+        try {
+          final matchingElement = next.valores.firstWhere(
+            (element) =>
+                element.pico == 15,
+          );
+          ventaFNotifier.setValor(matchingElement.valorActual);
+          if (next.abastecimientoSocket != null) {
+            // Variables para descripción y código según el códigoCombustible
+            String descripcion = '';
+            String codigo = '';
+
+            // Asignar valores según el códigoCombustible
+            switch (next.abastecimientoSocket?.codigoCombustible) {
+              case 57:
+                descripcion = 'GASOLINA EXTRA';
+                codigo = '0101';
+                break;
+              case 58:
+                descripcion = 'GASOLINA SÚPER';
+                codigo = '0185';
+                break;
+              case 59:
+                descripcion = 'DIESEL PREMIUM';
+                codigo = '0121';
+                break;
+              default:
+                descripcion = 'DESCONOCIDO';
+                codigo = '0000';
+            }
+
+            ventaFNotifier.updateState(
+              monto: ventaFState.valor.toString(),
+              ventaForm: ventaFState.ventaForm.copyWith(
+                idAbastecimiento: Parse.parseDynamicToInt(next.abastecimientoSocket!
+                    .indiceMemoria), // "indice_memoria": "004429",
+                totInicio: next.abastecimientoSocket!
+                    .totalizadorInicial, //"totalizador_inicial": 116.993,
+                totFinal: next.abastecimientoSocket!
+                    .totalizadorFinal, // "totalizador_final": 117.194,
+              ),
+              nuevoProducto: Producto(
+                cantidad: 0,
+                codigo: codigo, // Código asignado según el códigoCombustible
+                descripcion:
+                    descripcion, // Descripción asignada según el códigoCombustible
+                valUnitarioInterno: Parse.parseDynamicToDouble(
+                    next.abastecimientoSocket!.precioUnitario),
+                valorUnitario: Parse.parseDynamicToDouble(
+                    next.abastecimientoSocket!.precioUnitario),
+                llevaIva: 'NO',
+                incluyeIva: 'NO',
+                recargoPorcentaje: 0,
+                recargo: 0,
+                descPorcentaje: ventaFState.ventaForm.venDescPorcentaje,
+                descuento: 0,
+                precioSubTotalProducto: 0,
+                valorIva: 0,
+                costoProduccion: 0,
+              ),
+            );
+            ventaFNotifier.agregarProducto(null);
+          }
+        } catch (e) {
+     
+          print(e);
+        }
+
+        // ventaFNotifier.updateState();
+      },
+    );
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-    
         body: ventaFState.isLoading
             ? const FullScreenLoader()
             : _VentaForm(
@@ -294,7 +380,33 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
               Row(
                 children: [
                   Text(
-                    'Factura #: ',
+                    'Manguera #: ${ventaFState.manguera} ',
+                    style: TextStyle(
+                      fontSize: size.iScreen(1.8),
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.color, // Asegurando el color correcto
+                    ),
+                  ),
+                  Text(
+                    'Valor #: ${ventaFState.valor} ',
+                    style: TextStyle(
+                      fontSize: size.iScreen(1.8),
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.color, // Asegurando el color correcto
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    'Factura #:  ',
                     style: TextStyle(
                       fontSize: size.iScreen(1.8),
                       fontWeight: FontWeight.normal,
@@ -547,50 +659,51 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                   SizedBox(
                     width: size.wScreen(50.0),
                     child: OutlinedButton.icon(
-                      onPressed: ventaFState.ventaForm.venRucCliente ==
-                              '9999999999999'
-                          ? null
-                          : () async {
-                              context.push('/seleccionSurtidor/${ventaFState.ventaFormProviderParams.id}');
-                              // context.push('/venta/${venta.venId}');
-                              // final inventario =
-                              //     await searchInventario(context: context, ref: ref);
-                              // if (inventario != null) {
-                              //   final exist = ventaFState
-                              //       .ventaForm.venProductosInput.value
-                              //       .any((e) => e.codigo == inventario.invSerie);
-                              //   if (exist) {
-                              //     if (context.mounted) {
-                              //       NotificationsService.show(
-                              //           context,
-                              //           'Este Producto ya se encuentra en la lista',
-                              //           SnackbarCategory.error);
-                              //     }
-                              //     return;
-                              //   }
-                              //   ref
-                              //       .read(ventaFormProvider(venta).notifier)
-                              //       .updateState(
-                              //           nuevoProducto: Producto(
-                              //         cantidad: 0,
-                              //         codigo: inventario.invSerie,
-                              //         descripcion: inventario.invNombre,
-                              //         valUnitarioInterno: Parse.parseDynamicToDouble(
-                              //             inventario.invprecios[0]),
-                              //         valorUnitario: Parse.parseDynamicToDouble(
-                              //             inventario.invprecios[0]),
-                              //         llevaIva: inventario.invIva,
-                              //         incluyeIva: inventario.invIncluyeIva,
-                              //         recargoPorcentaje: 0,
-                              //         recargo: 0,
-                              //         descPorcentaje: venta.venDescPorcentaje,
-                              //         descuento: 0,
-                              //         precioSubTotalProducto: 0,
-                              //         valorIva: 0,
-                              //         costoProduccion: 0,
-                              //       ));
-                              // }
-                            },
+                      onPressed:
+                          ventaFState.ventaForm.venRucCliente == '9999999999999'
+                              ? null
+                              : () async {
+                                  context.push(
+                                      '/seleccionSurtidor/${ventaFState.ventaFormProviderParams.id}');
+                                  // context.push('/venta/${venta.venId}');
+                                  // final inventario =
+                                  //     await searchInventario(context: context, ref: ref);
+                                  // if (inventario != null) {
+                                  //   final exist = ventaFState
+                                  //       .ventaForm.venProductosInput.value
+                                  //       .any((e) => e.codigo == inventario.invSerie);
+                                  //   if (exist) {
+                                  //     if (context.mounted) {
+                                  //       NotificationsService.show(
+                                  //           context,
+                                  //           'Este Producto ya se encuentra en la lista',
+                                  //           SnackbarCategory.error);
+                                  //     }
+                                  //     return;
+                                  //   }
+                                  //   ref
+                                  //       .read(ventaFormProvider(venta).notifier)
+                                  //       .updateState(
+                                  //           nuevoProducto: Producto(
+                                  //         cantidad: 0,
+                                  //         codigo: inventario.invSerie,
+                                  //         descripcion: inventario.invNombre,
+                                  //         valUnitarioInterno: Parse.parseDynamicToDouble(
+                                  //             inventario.invprecios[0]),
+                                  //         valorUnitario: Parse.parseDynamicToDouble(
+                                  //             inventario.invprecios[0]),
+                                  //         llevaIva: inventario.invIva,
+                                  //         incluyeIva: inventario.invIncluyeIva,
+                                  //         recargoPorcentaje: 0,
+                                  //         recargo: 0,
+                                  //         descPorcentaje: venta.venDescPorcentaje,
+                                  //         descuento: 0,
+                                  //         precioSubTotalProducto: 0,
+                                  //         valorIva: 0,
+                                  //         costoProduccion: 0,
+                                  //       ));
+                                  // }
+                                },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
                             color:
