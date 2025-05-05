@@ -72,7 +72,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
     );
     ref.listen<VentaAbastecimientoState>(
       ventaAbastecimientoProvider,
-      (_, next) {
+      (_, next) async {
         if (next.abastecimientoSocket != null) {
           final tabFind = tabsState.tabs.firstWhere(
             (tab) => tab.manguera == next.abastecimientoSocket?.pico.toString(),
@@ -123,7 +123,8 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
                       next.abastecimientoSocket!.indiceMemoria, //indice_memoria
                   pistola: next.abastecimientoSocket!.pico, //pico
                   numeroTanque: next.abastecimientoSocket!.tanque, //tanque
-                  codigoCombustible: next.abastecimientoSocket!.codigoCombustible, //tanque
+                  codigoCombustible:
+                      next.abastecimientoSocket!.codigoCombustible, //tanque
                   valorTotal: next.abastecimientoSocket!.total, //total
                   volTotal: next.abastecimientoSocket!.volumen, //volumen
                   precioUnitario: next.abastecimientoSocket!.precioUnitario,
@@ -168,7 +169,10 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
               ),
             );
             ventaFNotifier.agregarProducto(null, sinAlerta: true);
-            ventaFNotifier.onFormSubmit();
+            final volver = await ventaFNotifier.onFormSubmit();
+            if (volver && context.mounted) {
+              context.pop();
+            }
           }
         }
       },

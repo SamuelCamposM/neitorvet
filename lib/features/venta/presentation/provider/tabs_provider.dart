@@ -77,7 +77,12 @@ class TabsNotifier extends StateNotifier<TabsState> {
     }
   }
 
-  void removeTabById(int id) {
+  bool removeTabById(int id) {
+    if (state.tabs.length == 1) {
+      // Si solo hay un tab, devolver true
+      return true;
+    }
+
     if (state.tabs.length > 1) {
       // Crear una nueva lista sin el tab con el id especificado
       final updatedTabs = state.tabs.where((tab) => tab.id != id).toList();
@@ -90,21 +95,31 @@ class TabsNotifier extends StateNotifier<TabsState> {
       // Actualizar el estado con los tabs modificados y el nuevo índice seleccionado
       state = state.copyWith(tabs: updatedTabs, selectedIndex: newIndex);
     }
+
+    return false; // Devolver false si no hay solo un tab
   }
 
-  void updateTabManguera(
+  bool updateTabManguera(
     int id, {
     String? manguera,
     String? nombreCombustible,
     double? monto,
   }) {
+    // Verificar si ya existe un tab con la misma manguera
+    if (manguera != null &&
+        state.tabs.any((tab) => tab.manguera == manguera && tab.id != id)) {
+      print('Error: Ya existe un TabItem con la manguera $manguera');
+      return true; // Devolver true si hay un error
+    }
+
     final tabExists = state.tabs.any((tab) => tab.id == id);
 
     if (!tabExists) {
       print('Error: No se encontró un TabItem con id $id');
-      return;
+      return true; // Devolver true si hay un error
     }
 
+    // Actualizar los tabs
     final updatedTabs = state.tabs.map((tab) {
       if (tab.id == id) {
         return tab.copyWith(
@@ -117,6 +132,7 @@ class TabsNotifier extends StateNotifier<TabsState> {
     }).toList();
 
     state = state.copyWith(tabs: updatedTabs);
+    return false; // Devolver false si no hay error
   }
 }
 

@@ -12,8 +12,7 @@ import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
-import 'package:neitorvet/features/venta/presentation/provider/tabs_provider.dart';
-import 'package:neitorvet/features/venta/presentation/provider/venta_abastecimiento_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/tabs_provider.dart'; 
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
 class ResponseModal {
@@ -79,7 +78,9 @@ class BodyMenuDespachoState extends ConsumerState<BodyMenuDespacho> {
       body: SingleChildScrollView(
         child: Container(
           width: size.wScreen(100.0),
-          padding: EdgeInsets.only(top: size.iScreen(1.0)),
+          padding: EdgeInsets.only(
+            top: size.iScreen(1.0),
+          ),
           child: Column(
             children: [
               OutlinedButton.icon(
@@ -143,14 +144,19 @@ class BodyMenuDespachoState extends ConsumerState<BodyMenuDespacho> {
               ),
               Wrap(
                 alignment: WrapAlignment.center,
-                children: uniqueSurtidores
-                    .map((e) => _CardSurtidor(
-                          size: size,
-                          surtidor: e,
-                          ventaFState: ventaFState,
-                          ventaFormNotifier: ventaFormNotifier,
-                        ))
-                    .toList(),
+                children: [
+                  ...uniqueSurtidores
+                      .map((e) => _CardSurtidor(
+                            size: size,
+                            surtidor: e,
+                            ventaFState: ventaFState,
+                            ventaFormNotifier: ventaFormNotifier,
+                          ))
+                      .toList(),
+                  SizedBox(
+                    height: size.iScreen(35),
+                  ),
+                ],
               ),
             ],
           ),
@@ -298,6 +304,24 @@ class _CardSurtidor extends ConsumerWidget {
 
                               return;
                             }
+                            final error = ref
+                                .read(tabsProvider.notifier)
+                                .updateTabManguera(
+                                  ventaFState.ventaFormProviderParams.id,
+                                  manguera: responseModal.estacion.numeroPistola
+                                      .toString(),
+                                  nombreCombustible:
+                                      responseModal.estacion.nombreProducto,
+                                );
+
+                            if (error && context.mounted) {
+                              NotificationsService.show(
+                                context,
+                                'Error: La manguera ya está asignada a otro tab.',
+                                SnackbarCategory.error,
+                              );
+                              return; // Detener la ejecución si hay un error
+                            }
                             if (context.mounted) {
                               final res = await mostrarModalCentrado(
                                 context: context,
@@ -314,6 +338,7 @@ class _CardSurtidor extends ConsumerWidget {
                                 return;
                               }
                             }
+
                             ref
                                 .read(cierreSurtidoresRepositoryProvider)
                                 .setModoManguera(
@@ -492,7 +517,7 @@ Future<String?> mostrarModalCentrado({
                     width: double.infinity, // Ocupa todo el ancho disponible
                     child: ElevatedButton(
                       onPressed: () async {
-                        if (valorController.text.isEmpty ||
+                        if (valorController.text.isEmpty &&
                             galonesController.text.isEmpty) {
                           context
                               .pop("no cerrar"); // Devuelve "cerrar" al cerrar

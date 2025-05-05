@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -16,7 +18,7 @@ import 'package:neitorvet/features/venta/infrastructure/input/producto_input.dar
 import 'package:neitorvet/features/venta/infrastructure/input/productos.dart';
 import 'package:neitorvet/features/venta/presentation/provider/tabs_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
-import 'package:neitorvet/features/shared/shared.dart'; 
+import 'package:neitorvet/features/shared/shared.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class VentaFormProviderParams {
@@ -43,7 +45,7 @@ final ventaFormProvider = StateNotifierProvider.family
     .autoDispose<VentaFormNotifier, VentaFormState, VentaFormProviderParams>(
         (ref, params) {
   final ventasProviderNotifier = ref.read(ventasProvider.notifier);
-  final removeTabById = ref.read(tabsProvider.notifier).removeTabById;
+  final removeTabById = ref.watch(tabsProvider.notifier).removeTabById;
   final setModoManguera =
       ref.read(cierreSurtidoresRepositoryProvider).setModoManguera;
   final formasPago = ref.read(ventasProvider).formasPago;
@@ -358,21 +360,21 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     ));
   }
 
-  // void printLargeMap(Map<String, dynamic> map, {int chunkSize = 20}) {
-  //   final entries = map.entries.toList();
-  //   final totalChunks = (entries.length / chunkSize).ceil();
+  void printLargeMap(Map<String, dynamic> map, {int chunkSize = 20}) {
+    final entries = map.entries.toList();
+    final totalChunks = (entries.length / chunkSize).ceil();
 
-  //   for (int i = 0; i < totalChunks; i++) {
-  //     final start = i * chunkSize;
-  //     final end = start + chunkSize;
-  //     final chunk =
-  //         entries.sublist(start, end > entries.length ? entries.length : end);
+    for (int i = 0; i < totalChunks; i++) {
+      final start = i * chunkSize;
+      final end = start + chunkSize;
+      final chunk =
+          entries.sublist(start, end > entries.length ? entries.length : end);
 
-  //     final chunkMap =
-  //         Map.fromEntries(chunk); // Convertir el fragmento en un mapa
-  //     print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
-  //   }
-  // }
+      final chunkMap =
+          Map.fromEntries(chunk); // Convertir el fragmento en un mapa
+      print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
+    }
+  }
 
   Future<bool> onFormSubmit() async {
     // Marcar todos los campos como tocados
@@ -410,16 +412,14 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       };
 
       // print(ventaMap);
-      // printLargeMap(ventaMap);
-      const result = true;
+      printLargeMap(ventaMap);
       createUpdateVenta(ventaMap);
-      setModoManguera(
-          manguera: state.manguera, modo: '03');
-      removeTabById(state.ventaFormProviderParams.id);
+      setModoManguera(manguera: state.manguera, modo: '03');
+      final volver = removeTabById(state.ventaFormProviderParams.id);
 
       // Actualizar el estado para indicar que ya no se está posteando
       state = state.copyWith(isPosting: false, saved: true);
-      return result;
+      return volver;
     } catch (e) {
       // Actualizar el estado para indicar que ya no se está posteando
       state = state.copyWith(isPosting: false);
