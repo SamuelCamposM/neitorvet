@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:neitorvet/features/shared/shared.dart';
+import 'package:neitorvet/features/venta/domain/entities/abastecimiento.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/min_value_cliente.dart';
@@ -68,6 +69,7 @@ class Venta {
   final int? idAbastecimiento;
   final double? totInicio;
   final double? totFinal;
+  final Abastecimiento? abastecimiento;
   Venta({
     this.venOtros,
     required this.venId,
@@ -126,6 +128,7 @@ class Venta {
     this.idAbastecimiento,
     this.totInicio,
     this.totFinal,
+    this.abastecimiento,
   });
   static Venta defaultVenta() {
     return Venta(
@@ -249,6 +252,7 @@ class Venta {
         idAbastecimiento: Parse.parseDynamicToInt(json['idAbastecimiento']),
         totInicio: Parse.parseDynamicToDouble(json['totInicio']),
         totFinal: Parse.parseDynamicToDouble(json['totFinal']),
+        abastecimiento: json['abastecimiento'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -309,6 +313,7 @@ class Venta {
         "idAbastecimiento": idAbastecimiento,
         "totInicio": totInicio,
         "totFinal": totFinal,
+        "abastecimiento": abastecimiento?.toJson(),
       };
   static double cincoDecimales(double numero) {
     return double.parse(numero.toStringAsFixed(7));
@@ -462,6 +467,7 @@ class VentaForm extends Venta {
     super.idAbastecimiento,
     super.totInicio,
     super.totFinal,
+    super.abastecimiento,
   });
 
   VentaForm copyWith({
@@ -526,6 +532,7 @@ class VentaForm extends Venta {
     int? idAbastecimiento,
     double? totInicio,
     double? totFinal,
+    Abastecimiento? abastecimiento,
   }) {
     final venRucClienteInput = venRucCliente != null
         ? GenericRequiredInput.dirty(venRucCliente)
@@ -606,6 +613,7 @@ class VentaForm extends Venta {
       idAbastecimiento: idAbastecimiento ?? this.idAbastecimiento,
       totInicio: totInicio ?? this.totInicio,
       totFinal: totFinal ?? this.totFinal,
+      abastecimiento: abastecimiento ?? this.abastecimiento,
     );
   }
 
@@ -667,7 +675,9 @@ class VentaForm extends Venta {
       venOtros: venOtros,
       idAbastecimiento: idAbastecimiento,
       totInicio: totInicio,
-      totFinal: totFinal);
+      totFinal: totFinal,
+      abastecimiento: abastecimiento,
+      );
 
   factory VentaForm.fromVenta(Venta venta) {
     return venta.venId == 0
@@ -732,6 +742,7 @@ class VentaForm extends Venta {
             idAbastecimiento: venta.idAbastecimiento,
             totInicio: venta.totInicio,
             totFinal: venta.totFinal,
+            abastecimiento: venta.abastecimiento,
           )
         : VentaForm(
             venTotalInput: MinValueCliente.dirty(venta.venTotal,
@@ -795,6 +806,7 @@ class VentaForm extends Venta {
             idAbastecimiento: venta.idAbastecimiento,
             totInicio: venta.totInicio,
             totFinal: venta.totFinal,
+            abastecimiento: venta.abastecimiento,
           );
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 import 'package:neitorvet/features/administracion/domain/entities/manguera_status.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/cierre_surtidores/domain/datasources/cierre_surtidores_datasource.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_repository_provider.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
@@ -12,9 +14,9 @@ import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/min_value_cliente.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/producto_input.dart';
 import 'package:neitorvet/features/venta/infrastructure/input/productos.dart';
-import 'package:neitorvet/features/venta/presentation/provider/venta_abastecimiento_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/tabs_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
-import 'package:neitorvet/features/shared/shared.dart';
+import 'package:neitorvet/features/shared/shared.dart'; 
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class VentaFormProviderParams {
@@ -41,6 +43,9 @@ final ventaFormProvider = StateNotifierProvider.family
     .autoDispose<VentaFormNotifier, VentaFormState, VentaFormProviderParams>(
         (ref, params) {
   final ventasProviderNotifier = ref.read(ventasProvider.notifier);
+  final removeTabById = ref.read(tabsProvider.notifier).removeTabById;
+  final setModoManguera =
+      ref.read(cierreSurtidoresRepositoryProvider).setModoManguera;
   final formasPago = ref.read(ventasProvider).formasPago;
   final user = ref.read(authProvider).user!;
   final iva = user.iva;
@@ -48,12 +53,12 @@ final ventaFormProvider = StateNotifierProvider.family
   final rucempresa = user.rucempresa;
   final usuario = user.usuario;
   final socket = ref.read(socketProvider);
-  print(params.editar);
-  print(params.id);
   return VentaFormNotifier(
     socket: socket,
-    ventaFormProviderParams: params,
     createUpdateVenta: ventasProviderNotifier.createUpdateVenta,
+    setModoManguera: setModoManguera,
+    ventaFormProviderParams: params,
+    removeTabById: removeTabById,
     getSecuencia: ventasProviderNotifier.getSecuencia,
     getVentaById: ventasProviderNotifier.getVentaById,
     iva: iva,
@@ -66,6 +71,9 @@ final ventaFormProvider = StateNotifierProvider.family
 
 class VentaFormNotifier extends StateNotifier<VentaFormState> {
   final Future<void> Function(Map<String, dynamic> ventaMap) createUpdateVenta;
+  Future<ResponseModoManguera> Function(
+      {required String manguera, required String modo}) setModoManguera;
+  final Function(int id) removeTabById;
   final int iva;
   final List<FormaPago> formasPago;
   final List<String> rol;
@@ -77,6 +85,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
 
   VentaFormNotifier({
     required this.getSecuencia,
+    required this.setModoManguera,
+    required this.removeTabById,
     required this.getVentaById,
     required ventaFormProviderParams,
     required this.createUpdateVenta,
@@ -282,7 +292,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
   }
 
-  bool agregarProducto(TextEditingController? controller) {
+  bool agregarProducto(TextEditingController? controller,
+      {bool sinAlerta = false}) {
     const restrictedCodes = ['0101', '0185', '0121'];
 
     if (state.nuevoProducto.isNotValid) {
@@ -298,7 +309,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     if (productoExistente) {
       // Mostrar un mensaje o manejar el caso donde el producto ya existe
       state = state.copyWith(
-        error: 'El producto ya existe en la lista',
+        error: sinAlerta ? "" : 'El producto ya existe en la lista',
       );
       _resetError();
       return true; // Devuelve true si hay un error
@@ -402,9 +413,12 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       // printLargeMap(ventaMap);
       const result = true;
       createUpdateVenta(ventaMap);
+      setModoManguera(
+          manguera: state.manguera, modo: '03');
+      removeTabById(state.ventaFormProviderParams.id);
 
       // Actualizar el estado para indicar que ya no se está posteando
-      state = state.copyWith(isPosting: false);
+      state = state.copyWith(isPosting: false, saved: true);
       return result;
     } catch (e) {
       // Actualizar el estado para indicar que ya no se está posteando
@@ -454,6 +468,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   void setNombreCombustible(String? nombreCombustible) {
     state = state.copyWith(nombreCombustible: nombreCombustible);
   }
+
   void setEstadoManguera(Datum? estadoManguera) {
     state = state.copyWith(estadoManguera: estadoManguera);
   }
@@ -497,6 +512,7 @@ class VentaFormState {
   final String manguera;
   final double? valor;
   final Datum estadoManguera;
+  final bool saved;
   VentaFormState({
 // //* VENTA
     required this.ventaFormProviderParams,
@@ -523,30 +539,31 @@ class VentaFormState {
     this.nombreCombustible = '', // Provide default value here
     this.valor,
     this.estadoManguera = Datum.L, // Provide default value here
+    this.saved = false,
   }); // Provide default value here
 
-  VentaFormState copyWith({
-    VentaFormProviderParams? ventaFormProviderParams,
-    bool? isLoading,
-    String? secuencia,
-    Email? nuevoEmail,
-    bool? isFormValid,
-    bool? isPosted,
-    bool? isPosting,
-    double? monto,
-    double? porcentajeFormaPago,
-    List<String>? placasData,
-    bool? ocultarEmail,
-    String? productoSearch,
-    ProductoInput? nuevoProducto,
-    VentaForm? ventaForm,
-    bool? permitirCredito,
-    String? error,
-    String? manguera,
-    String? nombreCombustible,
-    double? valor,
-    Datum? estadoManguera,
-  }) {
+  VentaFormState copyWith(
+      {VentaFormProviderParams? ventaFormProviderParams,
+      bool? isLoading,
+      String? secuencia,
+      Email? nuevoEmail,
+      bool? isFormValid,
+      bool? isPosted,
+      bool? isPosting,
+      double? monto,
+      double? porcentajeFormaPago,
+      List<String>? placasData,
+      bool? ocultarEmail,
+      String? productoSearch,
+      ProductoInput? nuevoProducto,
+      VentaForm? ventaForm,
+      bool? permitirCredito,
+      String? error,
+      String? manguera,
+      String? nombreCombustible,
+      double? valor,
+      Datum? estadoManguera,
+      bool? saved}) {
     return VentaFormState(
       ventaFormProviderParams:
           ventaFormProviderParams ?? this.ventaFormProviderParams,
@@ -569,6 +586,7 @@ class VentaFormState {
       nombreCombustible: nombreCombustible ?? this.nombreCombustible,
       valor: valor ?? this.valor,
       estadoManguera: estadoManguera ?? this.estadoManguera,
+      saved: saved ?? this.saved,
     );
   }
 }

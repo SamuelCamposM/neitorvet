@@ -12,6 +12,7 @@ import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
+import 'package:neitorvet/features/venta/presentation/provider/tabs_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/venta_abastecimiento_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
@@ -282,25 +283,44 @@ class _CardSurtidor extends ConsumerWidget {
                                         .estacion.numeroPistola
                                         .toString());
 
-                            // if (!responseGetStatus.success && context.mounted) {
-                            //   NotificationsService.show(
-                            //       context,
-                            //       'No se puede despachar',
-                            //       SnackbarCategory.error);
-                            //   return;
-                            // }
-                            // if (context.mounted) {
-                            //   mostrarModalCentrado(
-                            //     context: context,
-                            //     numeroPistola: responseModal
-                            //         .estacion.numeroPistola
-                            //         .toString(),
-                            //     presetExtendido: ref
-                            //         .read(cierreSurtidoresRepositoryProvider)
-                            //         .presetExtendido,
-                            //     venId: ventaFState.ventaForm.venId,
-                            //   );
-                            // }
+                            if (!responseGetStatus.success && context.mounted) {
+                              ref
+                                  .read(cierreSurtidoresRepositoryProvider)
+                                  .setModoManguera(
+                                      manguera: responseModal
+                                          .estacion.numeroPistola
+                                          .toString(),
+                                      modo: '03');
+                              NotificationsService.show(
+                                  context,
+                                  'No se puede despachar',
+                                  SnackbarCategory.error);
+
+                              return;
+                            }
+                            if (context.mounted) {
+                              final res = await mostrarModalCentrado(
+                                context: context,
+                                numeroPistola: responseModal
+                                    .estacion.numeroPistola
+                                    .toString(),
+                                presetExtendido: ref
+                                    .read(cierreSurtidoresRepositoryProvider)
+                                    .presetExtendido,
+                                venId: ventaFState.ventaForm.venId,
+                              );
+
+                              if (res == 'cerrar') {
+                                return;
+                              }
+                            }
+                            ref
+                                .read(cierreSurtidoresRepositoryProvider)
+                                .setModoManguera(
+                                    manguera: responseModal
+                                        .estacion.numeroPistola
+                                        .toString(),
+                                    modo: '01');
 
                             //* ESTADO DEL FORM
                             ventaFormNotifier.setManguera(responseModal
@@ -310,19 +330,18 @@ class _CardSurtidor extends ConsumerWidget {
                                 .estacion.nombreProducto
                                 .toString());
                             //* ESTADO DEL TAB
-                            ref
-                                .read(ventaAbastecimientoProvider.notifier)
-                                .updateTabManguera(
+                            ref.read(tabsProvider.notifier).updateTabManguera(
                                   ventaFState.ventaFormProviderParams.id,
-                                  // manguera:
-                                  responseModal.estacion.numeroPistola
+                                  manguera: responseModal.estacion.numeroPistola
                                       .toString(),
                                   nombreCombustible:
                                       responseModal.estacion.nombreProducto,
                                 );
                             // nombreCombustible:
                             //     responseModal.estacion.nombreProducto);
-                            context.pop();
+                            if (context.mounted) {
+                              context.pop();
+                            }
                             // final errorAgregar =
                             //     ventaFormNotifier.agregarProducto(null);
 
@@ -393,20 +412,21 @@ Future<ResponseModal?> _surtidorModal(BuildContext context, Responsive size,
   );
 }
 
-Future<void> mostrarModalCentrado(
-    {required BuildContext context,
-    required String numeroPistola,
-    required int venId,
-    required Future<ResponsePresetExtendido> Function({
-      required String manguera,
-      required String valorPreset,
-      required String tipoPreset,
-      required String nivelPrecio,
-    }) presetExtendido}) async {
+Future<String?> mostrarModalCentrado({
+  required BuildContext context,
+  required String numeroPistola,
+  required int venId,
+  required Future<ResponsePresetExtendido> Function({
+    required String manguera,
+    required String valorPreset,
+    required String tipoPreset,
+    required String nivelPrecio,
+  }) presetExtendido,
+}) async {
   final TextEditingController valorController = TextEditingController();
   final TextEditingController galonesController = TextEditingController();
 
-  await showDialog(
+  return await showDialog<String>(
     context: context,
     barrierDismissible: false, // Evita que se cierre al tocar fuera del modal
     builder: (BuildContext context) {
@@ -472,7 +492,12 @@ Future<void> mostrarModalCentrado(
                     width: double.infinity, // Ocupa todo el ancho disponible
                     child: ElevatedButton(
                       onPressed: () async {
-                        // Lógica para manejar el envío
+                        if (valorController.text.isEmpty ||
+                            galonesController.text.isEmpty) {
+                          context
+                              .pop("no cerrar"); // Devuelve "cerrar" al cerrar
+                          return;
+                        }
                         presetExtendido(
                             manguera: numeroPistola,
                             valorPreset: valorController.text != ''
@@ -480,14 +505,13 @@ Future<void> mostrarModalCentrado(
                                 : galonesController.text,
                             tipoPreset: valorController.text != '' ? '0' : '1',
                             nivelPrecio: '0');
-                        // final int valor =
-                        //     int.tryParse(valorController.text) ?? 0;
-                        // final int galones =
-                        //     int.tryParse(galonesController.text) ?? 0;
-                        // print("Valor: $valor, Galones: $galones");
-                        Navigator.of(context).pop(); // Cierra el modal
-                        context.push(
-                            '/cargando/venta?numeroPistola=$numeroPistola&venId=$venId');
+                        final int valor =
+                            int.tryParse(valorController.text) ?? 0;
+                        final int galones =
+                            int.tryParse(galonesController.text) ?? 0;
+                        print("Valor: $valor, Galones: $galones");
+
+                        context.pop("no cerrar"); // Devuelve "cerrar" al cerrar
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
@@ -514,7 +538,8 @@ Future<void> mostrarModalCentrado(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop(); // Cierra el modal
+                        Navigator.of(context)
+                            .pop("cerrar"); // Devuelve "cerrar"
                       },
                       child: const Text("Cerrar"),
                     ),

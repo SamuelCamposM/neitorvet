@@ -18,8 +18,9 @@ class VentaAbastecimientoNotifier
 
   VentaAbastecimientoNotifier()
       : super(VentaAbastecimientoState(
-          selectedIndex: 0,
-          tabs: [const TabItem(id: 0, label: 'Factura 1')],
+          valores: [],
+          abastecimientoSocket: null,
+          manguerasStatus: null,
         )) {
     print('CONECTA VentaAbastecimientoNotifier');
 
@@ -38,6 +39,7 @@ class VentaAbastecimientoNotifier
 
     // Escuchar mensajes del WebSocket de visualización
     _channelVisualizacion.stream.listen((data) {
+      print('Mensaje recibido del WebSocket de visualización: $data');
       try {
         final decodedData = json.decode(data); // Decodificar el string JSON
         if (decodedData['type'] == 'live_visualization') {
@@ -58,12 +60,14 @@ class VentaAbastecimientoNotifier
     _channelAbastecimientos.stream.listen((data) async {
       try {
         final decodedData = json.decode(data);
+        print('Decoded data: $decodedData'); // Imprimir el JSON decodificado
         if (decodedData['type'] == "dispatch") {
           final abastecimientoSocket =
               AbastecimientoSocket.fromJson(decodedData['data']);
 
           // Actualizar el estado con el nuevo abastecimiento
           state = state.copyWith(abastecimientoSocket: abastecimientoSocket);
+          state = state.copyWith(clearAbastecimientoSocket: true);
         }
       } catch (e) {
         print('Error en abastecimientos: $e');
@@ -91,122 +95,44 @@ class VentaAbastecimientoNotifier
     });
   }
 
-  void onPageChanged(int index) {
-    state = state.copyWith(selectedIndex: index);
-  }
-
-  void addTab() {
-    final newIndex = state.tabs.length;
-    final newTab = TabItem(id: newIndex, label: 'Factura ${newIndex + 1}');
-    state = state.copyWith(tabs: [...state.tabs, newTab]);
-  }
-
-  void removeTab() {
-    if (state.tabs.length > 1) {
-      final updatedTabs = [...state.tabs]..removeLast();
-      final newIndex = state.selectedIndex >= updatedTabs.length
-          ? updatedTabs.length - 1
-          : state.selectedIndex;
-      state = state.copyWith(tabs: updatedTabs, selectedIndex: newIndex);
-    }
-  }
-
-  // Método para actualizar la manguera de un TabItem por su id
-  void updateTabManguera(
-    int id,
-    String manguera, {
-    String? nombreCombustible,
-    double? monto,
-  }) {
-    // Verificar si el TabItem con el id proporcionado existe
-    final tabExists = state.tabs.any((tab) => tab.id == id);
-
-    if (!tabExists) {
-      print('Error: No se encontró un TabItem con id $id');
-      return; // Salir si no se encuentra el TabItem
-    }
-
-    // Actualizar el TabItem correspondiente
-    final updatedTabs = state.tabs.map((tab) {
-      if (tab.id == id) {
-        return tab.copyWith(
-          manguera: manguera,
-          nombreCombustible: nombreCombustible,
-          monto: monto,
-        );
-      }
-      return tab;
-    }).toList();
-
-    // Actualizar el estado con los tabs modificados
-    state = state.copyWith(tabs: updatedTabs);
-  }
-
   void clearAbastecimientoSocket() {
-    state = state.copyWith(abastecimientoSocket: null); 
+    state = state.copyWith(abastecimientoSocket: null);
+  }
+
+  @override
+  void dispose() {
+    // Cerrar las conexiones de WebSocket al eliminar el provider
+    _channelVisualizacion.sink.close();
+    _channelAbastecimientos.sink.close(); // Cerrar _channelAbastecimientos
+    _channelStatus.sink.close();
+    print('Dispose VentaAbastecimientoNotifier');
+    super.dispose();
   }
 }
 
 class VentaAbastecimientoState {
   final List<LiveVisualization> valores;
   final AbastecimientoSocket? abastecimientoSocket;
-  final List<TabItem> tabs;
-  final int selectedIndex;
   final MangueraStatus? manguerasStatus;
 
   VentaAbastecimientoState({
     this.valores = const [],
     this.abastecimientoSocket,
-    List<TabItem>? tabs,
-    this.selectedIndex = 0,
     this.manguerasStatus,
-  }) : tabs = tabs ?? const [TabItem(id: 0, label: 'Factura 1')];
+  });
 
   VentaAbastecimientoState copyWith({
     List<LiveVisualization>? valores,
     AbastecimientoSocket? abastecimientoSocket,
-    List<TabItem>? tabs,
-    int? selectedIndex,
     MangueraStatus? manguerasStatus,
+    bool? clearAbastecimientoSocket, // Nuevo parámetro para forzar null
   }) {
     return VentaAbastecimientoState(
       valores: valores ?? this.valores,
-      abastecimientoSocket: abastecimientoSocket ?? this.abastecimientoSocket,
-      tabs: tabs ?? this.tabs,
-      selectedIndex: selectedIndex ?? this.selectedIndex,
+      abastecimientoSocket: clearAbastecimientoSocket == true
+          ? null
+          : abastecimientoSocket ?? this.abastecimientoSocket,
       manguerasStatus: manguerasStatus ?? this.manguerasStatus,
-    );
-  }
-}
-
-class TabItem {
-  final int id;
-  final String label;
-  final String manguera;
-  final String nombreCombustible;
-  final double monto;
-
-  const TabItem({
-    required this.id,
-    required this.label,
-    this.manguera = '',
-    this.nombreCombustible = '',
-    this.monto = 0.0,
-  });
-
-  TabItem copyWith({
-    int? id,
-    String? label,
-    String? manguera,
-    String? nombreCombustible,
-    double? monto,
-  }) {
-    return TabItem(
-      id: id ?? this.id,
-      label: label ?? this.label,
-      manguera: manguera ?? this.manguera,
-      nombreCombustible: nombreCombustible ?? this.nombreCombustible,
-      monto: monto ?? this.monto,
     );
   }
 }

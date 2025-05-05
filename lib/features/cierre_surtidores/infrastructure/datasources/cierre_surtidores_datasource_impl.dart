@@ -115,7 +115,7 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
         uuid: 'cierreSurtidores',
         error: '',
       );
-    } catch (e) { 
+    } catch (e) {
       return ResponseGenerarCierre(
         uuid: '',
         error: ErrorApi.getErrorMessage(e, 'generarCierre'),
@@ -154,8 +154,8 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
       };
       // print(
       //   '/picos/$manguera/preset_extendido',
-      // ); 
-      // final response = 
+      // );
+      // final response =
       await dioZaracay.post(
         '/picos/$manguera/preset_extendido',
         data: data,
@@ -164,6 +164,27 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
     } catch (e) {
       return ResponsePresetExtendido(
         error: ErrorApi.getErrorMessage(e, 'presetExtendido'),
+      );
+    }
+  }
+
+  @override
+  Future<ResponseModoManguera> setModoManguera({
+    required String manguera,
+    required String modo,
+  }) async {
+    try {
+      final data = {
+        'modo': modo, // "01", DESBLOQUEA   "02", '03' BLOQUEA
+      };
+      await dioZaracay.put(
+        '/picos/$manguera/modo',
+        data: data,
+      );
+      return ResponseModoManguera(error: '');
+    } catch (e) {
+      return ResponseModoManguera(
+        error: ErrorApi.getErrorMessage(e, 'setModoManguera'),
       );
     }
   }

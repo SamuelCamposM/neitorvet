@@ -166,6 +166,12 @@ class VentaCard extends ConsumerWidget {
                           fontSize: size.iScreen(1.5),
                         ),
                       ),
+                      // Text(
+                      //   venta.venFecReg,
+                      //   style: TextStyle(
+                      //     fontSize: size.iScreen(1.5),
+                      //   ),
+                      // ),
                       Text(
                         "Usuario: ${venta.venUser}",
                         style: TextStyle(
@@ -197,7 +203,7 @@ class VentaCard extends ConsumerWidget {
                         onPressed: () async {
                           final res = await ref
                               .read(authProvider.notifier)
-                              .getUsuarioNombre(venta.venUser); 
+                              .getUsuarioNombre(venta.venUser);
                           if (res.error.isNotEmpty && context.mounted) {
                             NotificationsService.show(
                                 context, res.error, SnackbarCategory.error);

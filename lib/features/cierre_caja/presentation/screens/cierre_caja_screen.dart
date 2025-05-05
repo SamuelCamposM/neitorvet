@@ -5,7 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_caja_provider.dart';
+import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/form/cierre_caja_form_provider.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
+import 'package:neitorvet/features/shared/helpers/get_date.dart';
 
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
@@ -59,10 +62,24 @@ class _FloatingButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final ventaState = ref.watch(cierreCajaFormProvider(cierreCaja));
+    final cierreCajaFState = ref.watch(cierreCajaFormProvider(cierreCaja));
+    final cierreCajasState = ref.watch(cierreCajasProvider);
     return FloatingActionButton(
       onPressed: () async {
-        if (ventaState.isPosting) {
+        await ref
+            .read(cierreCajasProvider.notifier)
+            .setSumaIEC(fecha: GetDate.today);
+        final suma = Format.roundToTwoDecimals(
+            cierreCajasState.sumaIEC.ingreso + cierreCajasState.sumaIEC.egreso);
+        if (cierreCajaFState.cierreCajaForm.cajaMonto > suma &&
+            cierreCajaFState.cierreCajaForm.cajaTipoDocumento == 'EGRESO') {
+          NotificationsService.show(
+              context,
+              'El monto de la caja es mayor a la suma de ingresos y egresos',
+              SnackbarCategory.error);
+          return;
+        }
+        if (cierreCajaFState.isPosting) {
           return;
         }
         final exitoso = await ref
@@ -71,11 +88,13 @@ class _FloatingButton extends ConsumerWidget {
 
         if (exitoso && context.mounted) {
           context.pop();
-          NotificationsService.show(context,
-              ventaState.cierreCajaForm.cajaDetalle, SnackbarCategory.success);
+          NotificationsService.show(
+              context,
+              cierreCajaFState.cierreCajaForm.cajaDetalle,
+              SnackbarCategory.success);
         }
       },
-      child: ventaState.isPosting
+      child: cierreCajaFState.isPosting
           ? SpinPerfect(
               duration: const Duration(seconds: 1),
               spins: 10,
@@ -128,6 +147,7 @@ class _CierreCajaFormState extends ConsumerState<_CierreCajaForm> {
         .updateState;
     final cierreCajaFormCopyWith = cierreCajaFState.cierreCajaForm.copyWith;
     final isAdmin = ref.watch(authProvider).isAdmin;
+    final cierreCajasState = ref.watch(cierreCajasProvider);
     final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -242,7 +262,9 @@ class _CierreCajaFormState extends ConsumerState<_CierreCajaForm> {
 // cajaAutorizacion
 // cajaDetalle
             CustomInputField(
-              label: 'Monto',
+              label:
+                  'Monto${cierreCajaFState.cierreCajaForm.cajaTipoDocumento == 'EGRESO' ? ' Maximo: \$${Format.roundToTwoDecimals(cierreCajasState.sumaIEC.ingreso + cierreCajasState.sumaIEC.egreso)}' : ""}',
+
               errorMessage:
                   cierreCajaFState.cierreCajaForm.cajaMontoInput.errorMessage,
               keyboardType: TextInputType.number,

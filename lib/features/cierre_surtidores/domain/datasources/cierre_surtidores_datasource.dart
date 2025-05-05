@@ -46,6 +46,13 @@ class ResponsePresetExtendido {
   });
 }
 
+class ResponseModoManguera {
+  final String error;
+  ResponseModoManguera({
+    required this.error,
+  });
+}
+
 abstract class CierreSurtidoresDatasource {
   Future<ResponseCierreSurtidores> getCierreSurtidoresByPage(
       {required int cantidad,
@@ -76,5 +83,9 @@ abstract class CierreSurtidoresDatasource {
     required String valorPreset, // valor_preset
     required String tipoPreset, // tipo_preset
     required String nivelPrecio, // nivel_precio
+  });
+  Future<ResponseModoManguera> setModoManguera({
+    required String manguera,
+    required String modo,
   });
 }

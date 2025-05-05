@@ -50,7 +50,7 @@ class EstacionCard extends ConsumerWidget {
   }
 
   // Nueva función para obtener el color según el producto y el dato
-  Color _getColorForProducto(String nombreProducto, Datum? dato) {
+  Color getColorForProducto(String nombreProducto, Datum? dato) {
     if (nombreProducto == 'DIESEL PREMIUN' &&
         (dato == Datum.L || dato == Datum.B)) {
       return Colors.yellow.shade300;
@@ -89,7 +89,7 @@ class EstacionCard extends ConsumerWidget {
             child: Container(
               decoration: BoxDecoration(
                 color:
-                    _getColorForProducto(estacion.nombreProducto ?? '', dato),
+                    getColorForProducto(estacion.nombreProducto ?? '', dato),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(

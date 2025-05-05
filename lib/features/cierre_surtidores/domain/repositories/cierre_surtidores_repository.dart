@@ -26,4 +26,8 @@ abstract class CierreSurtidoresRepository {
     required String tipoPreset, // tipo_preset
     required String nivelPrecio, // nivel_precio
   });
+  Future<ResponseModoManguera> setModoManguera({
+    required String manguera,
+    required String modo,
+  });
 }

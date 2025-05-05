@@ -63,4 +63,12 @@ class CierreSurtidoresRepositoryImpl extends CierreSurtidoresRepository {
         tipoPreset: tipoPreset,
         nivelPrecio: nivelPrecio);
   }
+
+  @override
+  Future<ResponseModoManguera> setModoManguera({
+    required String manguera,
+    required String modo,
+  }) {
+    return datasource.setModoManguera(manguera: manguera, modo: modo);
+  }
 }

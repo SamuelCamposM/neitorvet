@@ -39,7 +39,7 @@ class CierreCajaNotifier extends StateNotifier<CierreCajaState> {
       cajaNumero: "",
       cajaProcedencia: "",
       cajaTipoCaja: "EFECTIVO",
-      cajaTipoDocumento: "INGRESO",
+      cajaTipoDocumento: "EGRESO",
       cajaUser: "",
       todos: "",
     );

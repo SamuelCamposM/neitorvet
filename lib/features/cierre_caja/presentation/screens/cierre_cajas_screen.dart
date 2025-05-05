@@ -472,12 +472,14 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            context.push('/cierre_cajas/0');
-          },
-          child: const Icon(Icons.add),
-        ),
+        floatingActionButton: cierreCajasState.estado != CierreCajaEstado.diaria
+            ? null
+            : FloatingActionButton(
+                onPressed: () {
+                  context.push('/cierre_cajas/0');
+                },
+                child: const Icon(Icons.add),
+              ),
       ),
     );
   }

@@ -80,10 +80,11 @@ class NoFacturadoCard extends ConsumerWidget {
                   ventaFormNotifier.updateState(
                       monto: res.total,
                       ventaForm: ventaResponse.copyWith(
-                          idAbastecimiento: res.idAbastecimiento,
-                          totInicio: res.totInicio,
-                          totFinal: res.totFinal,
-                          venProductos: []),
+                        idAbastecimiento: res.idAbastecimiento,
+                        totInicio: res.totInicio,
+                        totFinal: res.totFinal,
+                        venProductos: [],
+                      ),
                       nuevoProducto: Producto(
                         cantidad: 0,
                         codigo: res.resultado!.invSerie,

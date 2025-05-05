@@ -269,12 +269,12 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
       return;
     }
     state = state.copyWith(isLoading: true);
-
+    final resEstado = estado?.value ?? state.estado.value;
     final cierreCajas = await cierreCajasRepository.getCierreCajasByPage(
       cantidad: state.cantidad,
       page: 0,
       search: search ?? state.search,
-      estado: estado?.value ?? state.estado.value,
+      estado: resEstado,
       input: input ?? state.input,
       orden: orden ?? state.orden,
       busquedaCierreCaja: busquedaCierreCaja ?? state.busquedaCierreCaja,
@@ -285,7 +285,10 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
       return;
     }
     if (state.estado != estado) {
-      setSumaIEC(fecha: estado == CierreCajaEstado.diaria ? GetDate.today : "");
+      setSumaIEC(
+          fecha: (estado ?? state.estado) == CierreCajaEstado.diaria
+              ? GetDate.today
+              : "");
     }
 
     state = state.copyWith(
@@ -343,7 +346,7 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
     state = state.copyWith(error: '');
   }
 
-  void setSumaIEC({required String fecha}) async {
+  Future<void> setSumaIEC({required String fecha}) async {
     final res = await cierreCajasRepository.getSumaIEC(
         fecha: fecha, search: isAdmin ? state.search : user.usuario);
     if (res.error.isNotEmpty) {
