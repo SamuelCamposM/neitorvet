@@ -8,7 +8,10 @@ final socketProvider = Provider<io.Socket>((ref) {
     'autoConnect': false,
   });
 
-  socket.connect();
+  // Solo conectar si no está ya conectado o conectando
+  if (socket.disconnected) {
+    socket.connect();
+  }
 
   ref.onDispose(() {
     socket.dispose();

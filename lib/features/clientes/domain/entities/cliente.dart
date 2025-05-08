@@ -43,7 +43,7 @@ class Cliente {
   final String perFecReg;
   final String perFecUpd;
   final PerPermisos? perPermisos;
-  final int? ventaTab;
+  final String? ventaTab;
 
   Cliente({
     required this.perNombreComercial,
@@ -131,9 +131,7 @@ class Cliente {
         perFecReg: json["perFecReg"] ?? '',
         perFecUpd: json["perFecUpd"] ?? '',
         perPermisos: PerPermisos.fromJson(json["perPermisos"]),
-        ventaTab: json["ventaTab"] != null
-            ? Parse.parseDynamicToInt(json["ventaTab"])
-            : null,
+        ventaTab: json["ventaTab"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -327,7 +325,7 @@ class ClienteForm extends Cliente {
     String? perFecReg,
     String? perFecUpd,
     PerPermisos? perPermisos,
-    int? ventaTab,
+    String? ventaTab,
   }) {
     final perDocTipoInput = perDocTipo != null
         ? GenericRequiredInput.dirty(perDocTipo)

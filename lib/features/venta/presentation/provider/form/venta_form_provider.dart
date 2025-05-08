@@ -52,7 +52,7 @@ final ventaFormProvider = StateNotifierProvider.family
   final rol = user.rol;
   final rucempresa = user.rucempresa;
   final usuario = user.usuario;
-  final socket = ref.read(socketProvider);
+  final socket = ref.watch(socketProvider);
   return VentaFormNotifier(
     socket: socket,
     createUpdateVenta: ventasProviderNotifier.createUpdateVenta,
@@ -126,10 +126,13 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   }
 
   void _initializeSocketListeners() {
+    print("server:guardadoExitoso.${state.ventaFormProviderParams.id}");
     socket.on('connect', _onConnect);
     socket.on('disconnect', _onDisconnect);
-    socket.on("server:actualizadoExitoso", _onActualizadoExitoso);
-    socket.on("server:guardadoExitoso", _onGuardadoExitoso);
+    socket.on("server:actualizado_exitoso.${state.ventaFormProviderParams.id}",
+        _onActualizadoExitoso);
+    socket.on("server:guardado_exitoso.${state.ventaFormProviderParams.id}",
+        _onGuardadoExitoso);
   }
 
   void _onConnect(dynamic data) {
@@ -174,8 +177,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     try {
       if (data['tabla'] == 'proveedor') {
         final newCliente = Cliente.fromJson(data);
-        if (newCliente.perUser == usuario &&
-            newCliente.ventaTab == state.ventaFormProviderParams.id) {
+        if (newCliente.perUser == usuario) {
           updateState(
               permitirCredito: newCliente.perCredito == 'SI',
               placasData: newCliente.perOtros,
@@ -469,13 +471,15 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     state = state.copyWith(estadoManguera: estadoManguera);
   }
 
+ 
   @override
   void dispose() {
     socket.off('connect', _onConnect);
     socket.off('disconnect', _onDisconnect);
-    socket.off('server:actualizadoExitoso', _onActualizadoExitoso);
-    socket.off('server:guardadoExitoso', _onGuardadoExitoso);
-
+    socket.off("server:actualizado_exitoso.${state.ventaFormProviderParams.id}",
+        _onActualizadoExitoso);
+    socket.off("server:guardado_exitoso.${state.ventaFormProviderParams.id}",
+        _onGuardadoExitoso);
     // Log for debugging
 
     print('Dispose VENTA FORM');
@@ -508,7 +512,7 @@ class VentaFormState {
   final String manguera;
   final double? valor;
   final Datum estadoManguera;
-  final bool saved;
+  final bool saved; 
   VentaFormState({
 // //* VENTA
     required this.ventaFormProviderParams,
@@ -535,31 +539,32 @@ class VentaFormState {
     this.nombreCombustible = '', // Provide default value here
     this.valor,
     this.estadoManguera = Datum.L, // Provide default value here
-    this.saved = false,
+    this.saved = false, 
   }); // Provide default value here
 
-  VentaFormState copyWith(
-      {VentaFormProviderParams? ventaFormProviderParams,
-      bool? isLoading,
-      String? secuencia,
-      Email? nuevoEmail,
-      bool? isFormValid,
-      bool? isPosted,
-      bool? isPosting,
-      double? monto,
-      double? porcentajeFormaPago,
-      List<String>? placasData,
-      bool? ocultarEmail,
-      String? productoSearch,
-      ProductoInput? nuevoProducto,
-      VentaForm? ventaForm,
-      bool? permitirCredito,
-      String? error,
-      String? manguera,
-      String? nombreCombustible,
-      double? valor,
-      Datum? estadoManguera,
-      bool? saved}) {
+  VentaFormState copyWith({
+    VentaFormProviderParams? ventaFormProviderParams,
+    bool? isLoading,
+    String? secuencia,
+    Email? nuevoEmail,
+    bool? isFormValid,
+    bool? isPosted,
+    bool? isPosting,
+    double? monto,
+    double? porcentajeFormaPago,
+    List<String>? placasData,
+    bool? ocultarEmail,
+    String? productoSearch,
+    ProductoInput? nuevoProducto,
+    VentaForm? ventaForm,
+    bool? permitirCredito,
+    String? error,
+    String? manguera,
+    String? nombreCombustible,
+    double? valor,
+    Datum? estadoManguera,
+    bool? saved, 
+  }) {
     return VentaFormState(
       ventaFormProviderParams:
           ventaFormProviderParams ?? this.ventaFormProviderParams,
@@ -582,7 +587,7 @@ class VentaFormState {
       nombreCombustible: nombreCombustible ?? this.nombreCombustible,
       valor: valor ?? this.valor,
       estadoManguera: estadoManguera ?? this.estadoManguera,
-      saved: saved ?? this.saved,
+      saved: saved ?? this.saved, 
     );
   }
 }

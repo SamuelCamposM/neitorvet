@@ -41,12 +41,10 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     socket.on("server:error", _onError);
   }
 
-  void _onConnect(dynamic data) {
-    print('Socket conectado clientes');
+  void _onConnect(dynamic data) { 
   }
 
-  void _onDisconnect(dynamic data) {
-    print('Socket desconectado');
+  void _onDisconnect(dynamic data) { 
   }
 
   void _onActualizadoExitoso(dynamic data) {

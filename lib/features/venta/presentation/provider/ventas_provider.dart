@@ -382,17 +382,14 @@ class VentasNotifier extends StateNotifier<VentasState> {
     socket.on("server:error", _onError);
   }
 
-  void _onConnect(dynamic data) {
-    print('Socket conectado ventas');
+  void _onConnect(dynamic data) { 
   }
 
-  void _onDisconnect(dynamic data) {
-    print('Socket desconectado');
+  void _onDisconnect(dynamic data) { 
   }
 
   void _onActualizadoExitoso(dynamic data) {
-    try {
-      print('HOLA EDITANDO');
+    try { 
       if (mounted) {
         if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Edita de la lista de ventas
@@ -403,15 +400,13 @@ class VentasNotifier extends StateNotifier<VentasState> {
           state = state.copyWith(ventas: updatedVentasList);
         }
       }
-    } catch (e) {
-      print('Error en _onActualizadoExitoso: $e');
+    } catch (e) { 
     }
   }
 
   void _onGuardadoExitoso(dynamic data) async {
     try {
-      if (mounted) {
-        print('LLEGANDO DATA ${data['tabla']}');
+      if (mounted) { 
         if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Agrega a la lista de ventas
           final newVenta = Venta.fromJson(data);
@@ -426,8 +421,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
           }
         }
       }
-    } catch (e) {
-      print('Error en _onGuardadoExitoso: $e');
+    } catch (e) { 
     }
   }
 
@@ -437,8 +431,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
         state = state.copyWith(
             error: data['msg'] ?? "Hubo un error ${data['tabla']}");
       }
-    } catch (e) {
-      print('Error en _onError: $e');
+    } catch (e) { 
     }
   }
 

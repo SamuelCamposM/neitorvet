@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/delegate/generic_delegate.dart';
 import 'package:neitorvet/features/shared/delegate/item_generic_search.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente_foreign.dart';
 import 'package:neitorvet/features/clientes/presentation/provider/clientes_repository_provider.dart';
+import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/venta/domain/entities/inventario.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
@@ -13,15 +15,29 @@ import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.d
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/venta_card.dart';
 
-Future<ClienteForeign?> searchClienteResult(
-    {required BuildContext context,
-    required WidgetRef ref,
-    Widget? customWidget}) async {
+Future<ClienteForeign?> searchClienteResult({
+  required BuildContext context,
+  required WidgetRef ref, 
+  required String query,
+  required Responsive size,
+  required String ventaTab,
+}) async {
+  String queryUpdated = '';
   final res = await showSearch(
-    query: '',
+    query: query,
     context: context,
     delegate: GenericDelegate(
-      customWidget: customWidget,
+      customWidget: CustomButtonModal(
+        size: size,
+        icon: Icons.add,
+        onPressed: () {
+          print(queryUpdated);
+          context.pop();
+          context.push(
+            '/cliente/0?ventaTab=$ventaTab&search=$queryUpdated',
+          );
+        },
+      ),
       itemWidgetBuilder: (clienteItem, onItemSelected) => ItemGenericSearch(
         item: clienteItem,
         title:
@@ -29,6 +45,7 @@ Future<ClienteForeign?> searchClienteResult(
         onItemSelected: onItemSelected,
       ),
       searchItems: ({search = ''}) async {
+        print('HOLA');
         final res = await ref
             .read(clientesRepositoryProvider)
             .getClientesByQueryInVentas(search);
@@ -41,7 +58,9 @@ Future<ClienteForeign?> searchClienteResult(
         }
         return res.resultado;
       },
-      setSearch: (_) => {},
+      setSearch: (arg) {
+        queryUpdated = arg;
+      },
       initialItems: <ClienteForeign>[],
     ),
   );

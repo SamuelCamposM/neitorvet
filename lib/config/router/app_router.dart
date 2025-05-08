@@ -12,8 +12,7 @@ import 'package:neitorvet/features/cierre_surtidores/presentation/screens/cierre
 import 'package:neitorvet/features/cierre_surtidores/presentation/screens/cierre_surtidores_screen.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/screens/menu_despacho.dart';
 import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
-import 'package:neitorvet/features/home/presentation/screens/cierre_turno_screen.dart';
-import 'package:neitorvet/features/shared/helpers/parse.dart';
+import 'package:neitorvet/features/home/presentation/screens/cierre_turno_screen.dart'; 
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/shared/screen/send_email.dart';
 import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
@@ -60,9 +59,8 @@ final goRouterProvider = Provider((ref) {
         path: '/cliente/:id',
         builder: (context, state) => ClienteScreen(
           clienteId: int.tryParse(state.params['id'].toString()) ?? 0,
-          ventaTab: state.queryParams['ventaTab'] != null
-              ? Parse.parseDynamicToInt(state.queryParams['ventaTab'])
-              : null, // Nuevo parámetro
+          ventaTab: state.queryParams['ventaTab'],
+          search: state.queryParams['search'] ?? '',
         ),
       ),
       GoRoute(

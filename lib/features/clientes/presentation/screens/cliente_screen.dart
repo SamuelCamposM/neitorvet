@@ -19,12 +19,13 @@ import 'package:neitorvet/features/shared/widgets/form/custom_expandable_placa_l
 
 class ClienteScreen extends ConsumerWidget {
   final int clienteId;
-  final int? ventaTab; // Nuevo parámetro
-
+  final String? ventaTab; // Nuevo parámetro
+  final String? search; // Nuevo parámetro
   const ClienteScreen({
     Key? key,
     required this.clienteId,
     this.ventaTab, // Valor predeterminado
+    this.search, // Valor predeterminado
   }) : super(key: key);
 
   @override
@@ -55,13 +56,14 @@ class ClienteScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(clienteState.cliente?.perId == 0
-              ? 'Nuevo Cliente'
-              : 'Editar Cliente'),
+              ? 'Nuevo Cliente ${ventaTab}'
+              : 'Editar Cliente ${ventaTab}'),
         ),
         body: clienteState.isLoading
             ? const FullScreenLoader()
             : _ClienteForm(
                 cliente: clienteState.cliente!,
+                search: search, // Pasar el parámetro search
               ),
         floatingActionButton: clienteState.isLoading
             ? null
@@ -76,7 +78,7 @@ class ClienteScreen extends ConsumerWidget {
 
 class _FloatingButton extends ConsumerWidget {
   final Cliente cliente;
-  final int? ventaTab; // Nuevo parámetro
+  final String? ventaTab; // Nuevo parámetro
 
   const _FloatingButton({required this.cliente, this.ventaTab});
 
@@ -114,8 +116,12 @@ class _FloatingButton extends ConsumerWidget {
 
 class _ClienteForm extends ConsumerStatefulWidget {
   final Cliente cliente;
+  final String? search; // Nuevo parámetro
 
-  const _ClienteForm({required this.cliente});
+  const _ClienteForm({
+    required this.cliente,
+    this.search, // Valor predeterminado
+  });
 
   @override
   _ClienteFormState createState() => _ClienteFormState();
@@ -125,7 +131,7 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
   late TextEditingController docController = TextEditingController();
   late TextEditingController nombreController = TextEditingController();
   late TextEditingController dirController = TextEditingController();
-  TextEditingController searchController = TextEditingController();
+  late TextEditingController searchController = TextEditingController();
   bool isLoading = false;
   @override
   void initState() {
@@ -133,6 +139,7 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
     docController = TextEditingController(text: widget.cliente.perDocNumero);
     nombreController = TextEditingController(text: widget.cliente.perNombre);
     dirController = TextEditingController(text: widget.cliente.perDireccion);
+    searchController = TextEditingController(text: widget.search ?? '');
   }
 
   @override
@@ -140,6 +147,7 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
     docController.dispose();
     nombreController.dispose();
     dirController.dispose();
+    searchController.dispose();
     super.dispose();
   }
 

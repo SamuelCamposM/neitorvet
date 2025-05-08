@@ -73,7 +73,6 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
       ventaAbastecimientoProvider,
       (_, next) async {
         if (next.abastecimientoSocket != null) {
-          print(next.abastecimientoSocket!.pico);
           final tabFind = tabsState.tabs.firstWhere(
             (tab) => tab.manguera == next.abastecimientoSocket?.pico.toString(),
             orElse: () => const TabItem(id: 0, label: '', manguera: ""),
@@ -169,7 +168,6 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
               ),
             );
             ventaFNotifier.agregarProducto(null, sinAlerta: true);
-            print('SUBMIT VENTA');
             final volver = await ventaFNotifier.onFormSubmit();
             if (volver && context.mounted) {
               context.pop();
@@ -521,18 +519,16 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                     icon: Icons.search,
                     onPressed: () async {
                       final cliente = await searchClienteResult(
-                          context: context,
-                          ref: ref,
-                          customWidget: CustomButtonModal(
-                            size: size,
-                            icon: Icons.add,
-                            onPressed: () {
-                              context.pop();
-                              context.push(
-                                '/cliente/0?ventaTab=${ventaFState.ventaFormProviderParams.id}',
-                              );
-                            },
-                          ));
+                        context: context,
+                        query: ventaFState.ventaForm.venRucCliente ==
+                                '9999999999999'
+                            ? ''
+                            : ventaFState.ventaForm.venRucCliente,
+                        size: size,
+                        ref: ref,
+                        ventaTab:
+                            ventaFState.ventaFormProviderParams.id.toString(),
+                      );
                       if (cliente != null) {
                         updateForm(
                             permitirCredito: cliente.perCredito == 'SI',
