@@ -136,7 +136,6 @@ class VentasDatasourceImpl extends VentasDatasource {
       required String numeroTanque,
       int? idRegistroNoFacturado}) async {
     try {
- 
       final data = {
         // "pistola": 5,
         // "codigoCombustible": "0101",
@@ -146,7 +145,7 @@ class VentasDatasourceImpl extends VentasDatasource {
         "codigoCombustible": codigoCombustible,
         "numeroTanque": numeroTanque,
         'idRegistro': idRegistroNoFacturado
-      }; 
+      };
       final response =
           await dio.post('/abastecimientos/obtener_item', data: data);
 
@@ -182,19 +181,7 @@ class VentasDatasourceImpl extends VentasDatasource {
   Future<ResponseInventarioIndividual> getLastInventarioByPistola(
       {required String pistola}) async {
     try {
-      // final data = {
-      //   // "pistola": 5,
-      //   // "codigoCombustible": "0101",
-      //   // "numeroTanque": 2
-
-      //   "pistola": pistola,
-      //   "codigoCombustible": codigoCombustible,
-      //   "numeroTanque": numeroTanque,
-      //   'idRegistro': idRegistroNoFacturado
-      // };
-      // print(data);
-      final response =
-          await dio.get('/abastecimientos/$pistola/last_dispatch');
+      final response = await dio.get('/abastecimientos/$pistola/last_dispatch');
 
       // final Inventario inventario =
       //     Inventario.fromJson(response.data['producto']);

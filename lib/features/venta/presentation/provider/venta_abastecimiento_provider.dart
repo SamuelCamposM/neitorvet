@@ -22,8 +22,6 @@ class VentaAbastecimientoNotifier
           abastecimientoSocket: null,
           manguerasStatus: null,
         )) {
-    print('CONECTA VentaAbastecimientoNotifier');
-
     // Conectar a los WebSockets
     _channelVisualizacion = WebSocketChannel.connect(
       Uri.parse('wss://zaracayapi.neitor.com/ws/despachos_visualizacion'),
@@ -39,7 +37,6 @@ class VentaAbastecimientoNotifier
 
     // Escuchar mensajes del WebSocket de visualización
     _channelVisualizacion.stream.listen((data) {
-      print('Mensaje recibido del WebSocket de visualización: $data');
       try {
         final decodedData = json.decode(data); // Decodificar el string JSON
         if (decodedData['type'] == 'live_visualization') {
@@ -52,7 +49,7 @@ class VentaAbastecimientoNotifier
           state = state.copyWith(valores: liveVisualizationListData);
         }
       } catch (e) {
-        print('Error en visualización: $e');
+        e;
       }
     });
 
@@ -60,7 +57,6 @@ class VentaAbastecimientoNotifier
     _channelAbastecimientos.stream.listen((data) async {
       try {
         final decodedData = json.decode(data);
-        print('Decoded data: $decodedData'); // Imprimir el JSON decodificado
         if (decodedData['type'] == "dispatch") {
           final abastecimientoSocket =
               AbastecimientoSocket.fromJson(decodedData['data']);
@@ -70,7 +66,7 @@ class VentaAbastecimientoNotifier
           state = state.copyWith(clearAbastecimientoSocket: true);
         }
       } catch (e) {
-        print('Error en abastecimientos: $e');
+        e;
       }
     });
 
@@ -90,7 +86,7 @@ class VentaAbastecimientoNotifier
               state.copyWith(manguerasStatus: MangueraStatus(data: parsedData));
         }
       } catch (e) {
-        print('Error en estado de mangueras: $e');
+        e;
       }
     });
   }
@@ -105,7 +101,6 @@ class VentaAbastecimientoNotifier
     _channelVisualizacion.sink.close();
     _channelAbastecimientos.sink.close(); // Cerrar _channelAbastecimientos
     _channelStatus.sink.close();
-    print('Dispose VentaAbastecimientoNotifier');
     super.dispose();
   }
 }

@@ -139,19 +139,7 @@ class Producto {
       double resvalorIva = 0;
       if (llevaIva == "SI") {
         resvalorIva = (resprecioSubTotalProducto * (iva / 100));
-      }
-      // print({
-      //   'valorUnitario': dosDecimales(resvalorUnitario),
-      //   'descuento': dosDecimales(resdescuento),
-      //   'precioSubTotalProducto': dosDecimales(resprecioSubTotalProducto),
-      //   'valorIva': dosDecimales(resvalorIva),
-      //   'recargoPorcentaje': dosDecimales(formPorcentaje),
-      //   'costoProduccion': dosDecimales(resvalorUnitario),
-      //   'recargo': dosDecimales(resrecargo),
-      // });
-      print('valUnitarioInterno ${valUnitarioInterno}');
-      print('resvalorUnitario ${resvalorUnitario}');
-      print('tresDecimales ${tresDecimales(resvalorUnitario)}');
+      } 
       return Producto(
         cantidad: double.parse(cantidad.toStringAsFixed(4)),
         codigo: codigo,

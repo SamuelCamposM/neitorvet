@@ -75,58 +75,11 @@ class VentasNotifier extends StateNotifier<VentasState> {
     required this.isAdmin,
     required this.getUsuarioNombre,
   }) : super(VentasState()) {
+    print('INIT VENTAS PROVIDER');
     _initializeSocketListeners();
     loadNextPage();
     _setFormasPago();
     _setSurtidores();
-  }
-
-  void _initializeSocketListeners() {
-    socket.on('disconnect', (_) {});
-
-    socket.on('connect', (_) {});
-
-    socket.on("server:actualizadoExitoso", (data) {
-      if (mounted) {
-        if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
-          // Edita de la lista de ventas
-          final updatedVenta = Venta.fromJson(data);
-          final updatedVentasList = state.ventas.map((venta) {
-            return venta.venId == updatedVenta.venId ? updatedVenta : venta;
-          }).toList();
-          state = state.copyWith(ventas: updatedVentasList);
-        }
-      }
-    });
-
-    socket.on("server:guardadoExitoso", (data) async {
-      if (mounted) {
-        if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
-          // Agrega a la lista de ventas
-
-          final newVenta = Venta.fromJson(data);
-          if (isAdmin || newVenta.venUser == user.usuario) {
-            if (newVenta.venUser == user.usuario) {
-              printTicket(
-                newVenta,
-                user,
-                user.nombre 
-              );
-            }
-            state = state.copyWith(ventas: [
-              newVenta,
-              ...state.ventas,
-            ]);
-          }
-        }
-      }
-    });
-    socket.on("server:error", (data) {
-      if (mounted) {
-        state = state.copyWith(
-            error: data['msg'] ?? "Hubo un error ${data['tabla']}");
-      }
-    });
   }
 
   void resetImprimirFactura() {
@@ -421,14 +374,84 @@ class VentasNotifier extends StateNotifier<VentasState> {
     state = state.copyWith(error: '');
   }
 
+  void _initializeSocketListeners() {
+    socket.on('connect', _onConnect);
+    socket.on('disconnect', _onDisconnect);
+    socket.on("server:actualizadoExitoso", _onActualizadoExitoso);
+    socket.on("server:guardadoExitoso", _onGuardadoExitoso);
+    socket.on("server:error", _onError);
+  }
+
+  void _onConnect(dynamic data) {
+    print('Socket conectado ventas');
+  }
+
+  void _onDisconnect(dynamic data) {
+    print('Socket desconectado');
+  }
+
+  void _onActualizadoExitoso(dynamic data) {
+    try {
+      print('HOLA EDITANDO');
+      if (mounted) {
+        if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
+          // Edita de la lista de ventas
+          final updatedVenta = Venta.fromJson(data);
+          final updatedVentasList = state.ventas.map((venta) {
+            return venta.venId == updatedVenta.venId ? updatedVenta : venta;
+          }).toList();
+          state = state.copyWith(ventas: updatedVentasList);
+        }
+      }
+    } catch (e) {
+      print('Error en _onActualizadoExitoso: $e');
+    }
+  }
+
+  void _onGuardadoExitoso(dynamic data) async {
+    try {
+      if (mounted) {
+        print('LLEGANDO DATA ${data['tabla']}');
+        if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
+          // Agrega a la lista de ventas
+          final newVenta = Venta.fromJson(data);
+          if (isAdmin || newVenta.venUser == user.usuario) {
+            if (newVenta.venUser == user.usuario) {
+              printTicket(newVenta, user, user.nombre);
+            }
+            state = state.copyWith(ventas: [
+              newVenta,
+              ...state.ventas,
+            ]);
+          }
+        }
+      }
+    } catch (e) {
+      print('Error en _onGuardadoExitoso: $e');
+    }
+  }
+
+  void _onError(dynamic data) {
+    try {
+      if (mounted) {
+        state = state.copyWith(
+            error: data['msg'] ?? "Hubo un error ${data['tabla']}");
+      }
+    } catch (e) {
+      print('Error en _onError: $e');
+    }
+  }
+
   @override
   void dispose() {
     // Limpia los listeners del socket
-    socket.off("server:actualizadoExitoso");
-    socket.off("server:guardadoExitoso");
-    socket.off("server:error");
-    socket.off("connect");
-    socket.off("disconnect");
+    socket.off('connect', _onConnect);
+    socket.off('disconnect', _onDisconnect);
+    socket.off("server:actualizadoExitoso", _onActualizadoExitoso);
+    socket.off("server:guardadoExitoso", _onGuardadoExitoso);
+    socket.off("server:error", _onError);
+
+    print('Dispose VENTAS PROVIDER');
     super.dispose();
   }
 }

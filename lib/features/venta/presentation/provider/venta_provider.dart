@@ -21,8 +21,7 @@
 //     required this.getVentaById,
 //     required this.getSecuencia,
 //     required int venId,
-//   }) : super(VentaState(venId: venId, venta: Venta)) {
-//     print('INICIANDO NUEVO VENTA');
+//   }) : super(VentaState(venId: venId, venta: Venta)) { 
 //     loadVenta();
 //   }
 
@@ -57,9 +56,7 @@
 //   }
 
 //   @override
-//   void dispose() {
-//     // Log para verificar que se está destruyendo
-//     print('Dispose VENTA');
+//   void dispose() { 
 //     super.dispose();
 //   }
 // }

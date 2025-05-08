@@ -33,9 +33,11 @@ class ResponseGenerarCierre {
 class ResponseStatusPicos {
   final String error;
   final bool success;
+  final String status;
   ResponseStatusPicos({
     required this.error,
     required this.success,
+    required this.status,
   });
 }
 

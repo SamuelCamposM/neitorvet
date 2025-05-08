@@ -136,7 +136,7 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
 
               state = state.copyWith(cierreCajas: updatedCierreCajas);
             } catch (e) {
-              // print(e);
+              e;
             }
           }
         }
@@ -328,12 +328,7 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
   }
 
   void deleteCierreCaja(int cajaId) async {
-    print({
-      'tabla': "caja",
-      'rucempresa': user.rucempresa,
-      'rol': user.rol,
-      'cajaId': cajaId,
-    });
+ 
     socket.emit('client:eliminarData', {
       'tabla': "caja",
       'rucempresa': user.rucempresa,

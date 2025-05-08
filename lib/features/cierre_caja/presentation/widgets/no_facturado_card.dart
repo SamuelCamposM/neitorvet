@@ -64,13 +64,7 @@ class NoFacturadoCard extends ConsumerWidget {
                             noFacturado.numeroTanque,
                           ),
                           idRegistroNoFacturado: noFacturado.idRegistro);
-                  print(
-                      'Total: ${res.total}, Serie: ${res.resultado!.invSerie}, Nombre: ${res.resultado!.invNombre}, Precio: ${res.resultado!.invprecios[0]}, IVA: ${res.resultado!.invIva}, Incluye IVA: ${res.resultado!.invIncluyeIva}');
 
-                  // print(
-                  //     "Pistola: ${Parse.parseDynamicToString(noFacturado.pistola)}");
-                  // print("Tipo Combustible: ${noFacturado.tipoCombustible[0]}");
-                  // print("Número Tanque: ${noFacturado.numeroTanque}");
                   if (res.error.isNotEmpty && context.mounted) {
                     NotificationsService.show(
                         context, res.error, SnackbarCategory.error);

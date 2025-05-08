@@ -132,10 +132,13 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
       return ResponseStatusPicos(
           error: '',
           success:
-              response.data[manguera] == 'B' || response.data[manguera] == 'L');
+              response.data[manguera] == 'B' || response.data[manguera] == 'L',
+          status: response.data[manguera]);
     } catch (e) {
       return ResponseStatusPicos(
-          error: ErrorApi.getErrorMessage(e, 'getStatusPicos'), success: false);
+          error: ErrorApi.getErrorMessage(e, 'getStatusPicos'),
+          success: false,
+          status: '');
     }
   }
 

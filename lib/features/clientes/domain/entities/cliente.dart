@@ -43,6 +43,7 @@ class Cliente {
   final String perFecReg;
   final String perFecUpd;
   final PerPermisos? perPermisos;
+  final int? ventaTab;
 
   Cliente({
     required this.perNombreComercial,
@@ -85,6 +86,7 @@ class Cliente {
     required this.perFecReg,
     required this.perFecUpd,
     this.perPermisos,
+    this.ventaTab,
   });
 
   factory Cliente.fromJson(Map<String, dynamic> json) => Cliente(
@@ -129,6 +131,9 @@ class Cliente {
         perFecReg: json["perFecReg"] ?? '',
         perFecUpd: json["perFecUpd"] ?? '',
         perPermisos: PerPermisos.fromJson(json["perPermisos"]),
+        ventaTab: json["ventaTab"] != null
+            ? Parse.parseDynamicToInt(json["ventaTab"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -172,6 +177,7 @@ class Cliente {
         "perFecReg": perFecReg,
         "perFecUpd": perFecUpd,
         "perPermisos": perPermisos?.toJson(),
+        "ventaTab": ventaTab,
       };
 }
 
@@ -267,6 +273,7 @@ class ClienteForm extends Cliente {
     required super.perSaldo,
     required super.perFecReg,
     required super.perFecUpd,
+    required super.ventaTab,
   });
 
   ClienteForm copyWith({
@@ -320,6 +327,7 @@ class ClienteForm extends Cliente {
     String? perFecReg,
     String? perFecUpd,
     PerPermisos? perPermisos,
+    int? ventaTab,
   }) {
     final perDocTipoInput = perDocTipo != null
         ? GenericRequiredInput.dirty(perDocTipo)
@@ -386,6 +394,7 @@ class ClienteForm extends Cliente {
       perSaldo: perSaldo ?? this.perSaldo,
       perFecReg: perFecReg ?? this.perFecReg,
       perFecUpd: perFecUpd ?? this.perFecUpd,
+      ventaTab: ventaTab ?? this.ventaTab,
       // perPermisos: perPermisos ?? this.perPermisos,
     );
   }
@@ -438,6 +447,7 @@ class ClienteForm extends Cliente {
         perUbicacion: perUbicacion,
         perUser: perUser,
         perUsuario: perUsuario,
+        ventaTab: ventaTab,
       );
 
   factory ClienteForm.fromCliente(Cliente cliente) {
@@ -489,6 +499,7 @@ class ClienteForm extends Cliente {
             perSaldo: cliente.perSaldo,
             perFecReg: cliente.perFecReg,
             perFecUpd: cliente.perFecUpd,
+            ventaTab: cliente.ventaTab,
           )
         : ClienteForm(
             perDocTipoInput: GenericRequiredInput.dirty(cliente.perDocTipo),
@@ -538,6 +549,7 @@ class ClienteForm extends Cliente {
             perSaldo: cliente.perSaldo,
             perFecReg: cliente.perFecReg,
             perFecUpd: cliente.perFecUpd,
+            ventaTab: cliente.ventaTab,
           );
   }
 }

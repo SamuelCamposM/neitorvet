@@ -12,7 +12,7 @@ import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delegates.dart';
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
-import 'package:neitorvet/features/venta/presentation/provider/tabs_provider.dart'; 
+import 'package:neitorvet/features/venta/presentation/provider/tabs_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
 class ResponseModal {
@@ -290,19 +290,38 @@ class _CardSurtidor extends ConsumerWidget {
                                         .toString());
 
                             if (!responseGetStatus.success && context.mounted) {
-                              ref
-                                  .read(cierreSurtidoresRepositoryProvider)
-                                  .setModoManguera(
-                                      manguera: responseModal
-                                          .estacion.numeroPistola
-                                          .toString(),
-                                      modo: '03');
+                              if (responseGetStatus.status != 'A') {
+                                ref
+                                    .read(cierreSurtidoresRepositoryProvider)
+                                    .setModoManguera(
+                                        manguera: responseModal
+                                            .estacion.numeroPistola
+                                            .toString(),
+                                        modo: '03');
+                              }
                               NotificationsService.show(
                                   context,
                                   'No se puede despachar',
                                   SnackbarCategory.error);
 
                               return;
+                            }
+
+                            if (context.mounted) {
+                              final res = await mostrarModalCentrado(
+                                context: context,
+                                numeroPistola: responseModal
+                                    .estacion.numeroPistola
+                                    .toString(),
+                                presetExtendido: ref
+                                    .read(cierreSurtidoresRepositoryProvider)
+                                    .presetExtendido,
+                                venId: ventaFState.ventaForm.venId,
+                              );
+
+                              if (res == 'cerrar') {
+                                return;
+                              }
                             }
                             final error = ref
                                 .read(tabsProvider.notifier)
@@ -322,23 +341,6 @@ class _CardSurtidor extends ConsumerWidget {
                               );
                               return; // Detener la ejecución si hay un error
                             }
-                            if (context.mounted) {
-                              final res = await mostrarModalCentrado(
-                                context: context,
-                                numeroPistola: responseModal
-                                    .estacion.numeroPistola
-                                    .toString(),
-                                presetExtendido: ref
-                                    .read(cierreSurtidoresRepositoryProvider)
-                                    .presetExtendido,
-                                venId: ventaFState.ventaForm.venId,
-                              );
-
-                              if (res == 'cerrar') {
-                                return;
-                              }
-                            }
-
                             ref
                                 .read(cierreSurtidoresRepositoryProvider)
                                 .setModoManguera(
@@ -530,11 +532,10 @@ Future<String?> mostrarModalCentrado({
                                 : galonesController.text,
                             tipoPreset: valorController.text != '' ? '0' : '1',
                             nivelPrecio: '0');
-                        final int valor =
-                            int.tryParse(valorController.text) ?? 0;
-                        final int galones =
-                            int.tryParse(galonesController.text) ?? 0;
-                        print("Valor: $valor, Galones: $galones");
+
+                        int.tryParse(valorController.text) ?? 0;
+
+                        int.tryParse(galonesController.text) ?? 0;
 
                         context.pop("no cerrar"); // Devuelve "cerrar" al cerrar
                       },

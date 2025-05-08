@@ -47,7 +47,6 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
       ventaAbastecimientoProvider,
       (_, next) {
         for (var valor in next.valores) {
-          print('llegando valores: ${valor.pico}: ${valor.valorActual}');
           final tabFind = tabsState.tabs.firstWhere(
             (tab) => tab.manguera == valor.pico.toString(),
             orElse: () => const TabItem(id: 0, label: '', manguera: ""),
@@ -74,6 +73,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
       ventaAbastecimientoProvider,
       (_, next) async {
         if (next.abastecimientoSocket != null) {
+          print(next.abastecimientoSocket!.pico);
           final tabFind = tabsState.tabs.firstWhere(
             (tab) => tab.manguera == next.abastecimientoSocket?.pico.toString(),
             orElse: () => const TabItem(id: 0, label: '', manguera: ""),
@@ -169,6 +169,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
               ),
             );
             ventaFNotifier.agregarProducto(null, sinAlerta: true);
+            print('SUBMIT VENTA');
             final volver = await ventaFNotifier.onFormSubmit();
             if (volver && context.mounted) {
               context.pop();
@@ -527,7 +528,9 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                             icon: Icons.add,
                             onPressed: () {
                               context.pop();
-                              context.push('/cliente/0');
+                              context.push(
+                                '/cliente/0?ventaTab=${ventaFState.ventaFormProviderParams.id}',
+                              );
                             },
                           ));
                       if (cliente != null) {

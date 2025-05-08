@@ -108,14 +108,12 @@ class TabsNotifier extends StateNotifier<TabsState> {
     // Verificar si ya existe un tab con la misma manguera
     if (manguera != null &&
         state.tabs.any((tab) => tab.manguera == manguera && tab.id != id)) {
-      print('Error: Ya existe un TabItem con la manguera $manguera');
       return true; // Devolver true si hay un error
     }
 
     final tabExists = state.tabs.any((tab) => tab.id == id);
 
     if (!tabExists) {
-      print('Error: No se encontró un TabItem con id $id');
       return true; // Devolver true si hay un error
     }
 

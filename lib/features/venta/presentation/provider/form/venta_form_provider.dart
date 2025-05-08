@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -103,8 +101,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
             ventaFormProviderParams: ventaFormProviderParams
             // placasData: [venta.venOtrosDetalles],
             )) {
-    print('INICIANDO NUEVO VENTA FORM');
-
     _initializeSocketListeners();
     loadVenta();
   }
@@ -149,7 +145,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       if (data['tabla'] == 'proveedor') {
         // Edita de la lista de clientes
         final updatedCliente = Cliente.fromJson(data);
-        if (updatedCliente.perUser == usuario) {
+        if (updatedCliente.perUser == usuario &&
+            updatedCliente.ventaTab == state.ventaFormProviderParams.id) {
           updateState(
               permitirCredito: updatedCliente.perCredito == 'SI',
               placasData: updatedCliente.perOtros,
@@ -169,16 +166,16 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
         }
       }
     } catch (e) {
-      // print('Error handling server:actualizadoExitoso: $e');
+      e;
     }
   }
 
   void _onGuardadoExitoso(dynamic data) {
     try {
       if (data['tabla'] == 'proveedor') {
-        // Agrega a la lista de clientes
         final newCliente = Cliente.fromJson(data);
-        if (newCliente.perUser == usuario) {
+        if (newCliente.perUser == usuario &&
+            newCliente.ventaTab == state.ventaFormProviderParams.id) {
           updateState(
               permitirCredito: newCliente.perCredito == 'SI',
               placasData: newCliente.perOtros,
@@ -197,7 +194,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
         }
       }
     } catch (e) {
-      // print('Error handling server:actualizadoExitoso: $e');
+      e;
     }
   }
 
@@ -334,7 +331,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
       }
     }
     final cantidad = state.monto / state.nuevoProducto.value.valorUnitario;
-    print(cantidad);
     final producto = state.nuevoProducto.value.copyWith(
       cantidad: cantidad,
     );
@@ -365,14 +361,14 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     final totalChunks = (entries.length / chunkSize).ceil();
 
     for (int i = 0; i < totalChunks; i++) {
-      final start = i * chunkSize;
-      final end = start + chunkSize;
-      final chunk =
-          entries.sublist(start, end > entries.length ? entries.length : end);
+      // final start = i * chunkSize;
+      // final end = start + chunkSize;
+      // final chunk =
+      //     entries.sublist(start, end > entries.length ? entries.length : end);
 
-      final chunkMap =
-          Map.fromEntries(chunk); // Convertir el fragmento en un mapa
-      print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
+      // final chunkMap = Map.fromEntries(chunk);
+      // Convertir el fragmento en un mapa
+      // print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
     }
   }
 

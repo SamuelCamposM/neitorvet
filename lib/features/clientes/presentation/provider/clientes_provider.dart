@@ -33,45 +33,55 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
     _initializeSocketListeners();
     loadNextPage();
   }
-
   void _initializeSocketListeners() {
-    socket.on('connect', (a) {});
+    socket.on('connect', _onConnect);
+    socket.on('disconnect', _onDisconnect);
+    socket.on("server:actualizadoExitoso", _onActualizadoExitoso);
+    socket.on("server:guardadoExitoso", _onGuardadoExitoso);
+    socket.on("server:error", _onError);
+  }
 
-    socket.on('disconnect', (_) {});
+  void _onConnect(dynamic data) {
+    print('Socket conectado clientes');
+  }
 
-    socket.on("server:actualizadoExitoso", (data) {
-      if (mounted) {
-        if (data['tabla'] == 'proveedor') {
-          // Edita de la lista de clientes
-          final updatedCliente = Cliente.fromJson(data);
-          final updatedClientesList = state.clientes.map((cliente) {
-            return cliente.perId == updatedCliente.perId
-                ? updatedCliente
-                : cliente;
-          }).toList();
-          state = state.copyWith(clientes: updatedClientesList);
-        }
-      }
-    });
+  void _onDisconnect(dynamic data) {
+    print('Socket desconectado');
+  }
 
-    socket.on("server:guardadoExitoso", (data) {
-      if (mounted) {
-        if (data['tabla'] == 'proveedor') {
-          // Agrega a la lista de clientes
-          final newCliente = Cliente.fromJson(data);
-          state = state.copyWith(clientes: [
-            newCliente,
-            ...state.clientes,
-          ]);
-        }
+  void _onActualizadoExitoso(dynamic data) {
+    if (mounted) {
+      if (data['tabla'] == 'proveedor') {
+        // Edita de la lista de clientes
+        final updatedCliente = Cliente.fromJson(data);
+        final updatedClientesList = state.clientes.map((cliente) {
+          return cliente.perId == updatedCliente.perId
+              ? updatedCliente
+              : cliente;
+        }).toList();
+        state = state.copyWith(clientes: updatedClientesList);
       }
-    });
-    socket.on("server:error", (data) {
-      if (mounted) {
-        state = state.copyWith(
-            error: data['msg'] ?? "Hubo un error ${data['tabla']}");
+    }
+  }
+
+  void _onGuardadoExitoso(dynamic data) {
+    if (mounted) {
+      if (data['tabla'] == 'proveedor') {
+        // Agrega a la lista de clientes
+        final newCliente = Cliente.fromJson(data);
+        state = state.copyWith(clientes: [
+          newCliente,
+          ...state.clientes,
+        ]);
       }
-    });
+    }
+  }
+
+  void _onError(dynamic data) {
+    if (mounted) {
+      state = state.copyWith(
+          error: data['msg'] ?? "Hubo un error ${data['tabla']}");
+    }
   }
 
   Future loadNextPage() async {
@@ -221,7 +231,7 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
   }
 
   Future<void> createUpdateCliente(
-      Map<String, dynamic> clienteMap, bool editando) async { 
+      Map<String, dynamic> clienteMap, bool editando) async {
     if (editando) {
       socket.emit('client:actualizarData', clienteMap);
     } else {
@@ -232,12 +242,13 @@ class ClientesNotifier extends StateNotifier<ClientesState> {
   @override
   void dispose() {
     // Eliminar los listeners del socket
-    socket.off('connect');
-    socket.off('disconnect');
-    socket.off('server:actualizadoExitoso');
-    socket.off('server:guardadoExitoso');
-    socket.off('server:error');
+    socket.off('connect', _onConnect);
+    socket.off('disconnect', _onDisconnect);
+    socket.off('server:actualizadoExitoso', _onActualizadoExitoso);
+    socket.off('server:guardadoExitoso', _onGuardadoExitoso);
+    socket.off('server:error', _onError);
 
+    print('Dispose CLIENTES PROVIDER');
     super.dispose();
   }
 }

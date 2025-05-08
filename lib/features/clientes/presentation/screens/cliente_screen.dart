@@ -19,7 +19,14 @@ import 'package:neitorvet/features/shared/widgets/form/custom_expandable_placa_l
 
 class ClienteScreen extends ConsumerWidget {
   final int clienteId;
-  const ClienteScreen({super.key, required this.clienteId});
+  final int? ventaTab; // Nuevo parámetro
+
+  const ClienteScreen({
+    Key? key,
+    required this.clienteId,
+    this.ventaTab, // Valor predeterminado
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context, ref) {
     // WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -53,11 +60,14 @@ class ClienteScreen extends ConsumerWidget {
         ),
         body: clienteState.isLoading
             ? const FullScreenLoader()
-            : _ClienteForm(cliente: clienteState.cliente!),
+            : _ClienteForm(
+                cliente: clienteState.cliente!,
+              ),
         floatingActionButton: clienteState.isLoading
             ? null
             : _FloatingButton(
                 cliente: clienteState.cliente!,
+                ventaTab: ventaTab,
               ),
       ),
     );
@@ -66,15 +76,18 @@ class ClienteScreen extends ConsumerWidget {
 
 class _FloatingButton extends ConsumerWidget {
   final Cliente cliente;
+  final int? ventaTab; // Nuevo parámetro
 
-  const _FloatingButton({required this.cliente});
+  const _FloatingButton({required this.cliente, this.ventaTab});
 
   @override
   Widget build(BuildContext context, ref) {
-    final ventaState = ref.watch(clienteFormProvider(cliente));
+    final clienteState = ref.watch(clienteFormProvider(cliente));
     return FloatingActionButton(
       onPressed: () async {
-        if (ventaState.isPosting) {
+        ref.read(clienteFormProvider(cliente).notifier).updateState(
+            clienteForm: clienteState.clienteForm.copyWith(ventaTab: ventaTab));
+        if (clienteState.isPosting) {
           return;
         }
         final exitoso = await ref
@@ -83,11 +96,11 @@ class _FloatingButton extends ConsumerWidget {
 
         if (exitoso && context.mounted) {
           context.pop();
-          NotificationsService.show(context, ventaState.clienteForm.perNombre,
+          NotificationsService.show(context, clienteState.clienteForm.perNombre,
               SnackbarCategory.success);
         }
       },
-      child: ventaState.isPosting
+      child: clienteState.isPosting
           ? SpinPerfect(
               duration: const Duration(seconds: 1),
               spins: 10,

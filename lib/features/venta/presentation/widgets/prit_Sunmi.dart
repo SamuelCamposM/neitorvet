@@ -70,7 +70,7 @@ Future<void> printTicket(
   await SunmiPrinter.printText('Ruc: ${info.venRucCliente}');
   await SunmiPrinter.printText('Factura: ${info.venNumFactura}');
   await SunmiPrinter.printText(
-      'Fecha: ${Format.formatFechaHora(info.venFechaFactura)}');
+      'Fecha: ${Format.formatFechaHora(info.venFecReg)}');
   await SunmiPrinter.printText('Placa: ${info.venOtrosDetalles}');
   await SunmiPrinter.printText(info.venEmailCliente.isNotEmpty
       ? 'Email: ${info.venEmailCliente[0]}'

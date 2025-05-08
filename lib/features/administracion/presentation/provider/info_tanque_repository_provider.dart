@@ -24,8 +24,7 @@ class TotalesRepository {
     try {
       final response = await dio
           .get('/abastecimientos/totales_anual_mensual_semanal_diara');
-      final res = Totalestanque.fromJson(response.data);
-      print(res);
+      final res = Totalestanque.fromJson(response.data); 
       return ResponseTotalesTanque(
         error: '',
         totales: res,
