@@ -321,11 +321,48 @@ class VentasViewState extends ConsumerState<VentasScreen> {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push('/venta/0');
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(
+              left: size.iScreen(3.0),
+            ),
+            child: ClipOval(
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle, // Hace que el contenedor sea circular
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2), // Sombra opcional
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: FloatingActionButton(
+                  heroTag: 'uniqueHeroTag1', // Tag único para este botón
+                  onPressed: () {
+                    context.push('/get_info_cierre_cajas');
+                  },
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/letter-p.png', // Ruta de la imagen en tu proyecto
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          FloatingActionButton(
+            heroTag: 'uniqueHeroTag2', // Tag único para este botón
+            onPressed: () {
+              context.push('/venta/0');
+            },
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }

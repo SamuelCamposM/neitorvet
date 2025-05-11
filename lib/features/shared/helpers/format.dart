@@ -27,10 +27,18 @@ class Format {
   }
 
   static String formatValorPreset(String valorPreset) {
-    // Convierte el valor a un entero y multiplica por 100 si es necesario
-    final intValue = int.parse(valorPreset) * 100;
+    try {
+      // Convierte el valor a un número de punto flotante
+      final doubleValue = double.parse(valorPreset);
 
-    // Devuelve el valor como una cadena con ceros a la izquierda (mínimo 9 caracteres)
-    return intValue.toString().padLeft(8, '0');
+      // Multiplica por 100 y convierte a entero
+      final intValue = (doubleValue * 100).round();
+
+      // Devuelve el valor como una cadena con ceros a la izquierda (mínimo 8 caracteres)
+      return intValue.toString().padLeft(8, '0');
+    } catch (e) {
+      // Manejo de errores en caso de que el valor no sea válido
+      throw FormatException('Invalid valorPreset: $valorPreset');
+    }
   }
 }

@@ -47,6 +47,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
       ventaAbastecimientoProvider,
       (_, next) {
         for (var valor in next.valores) {
+          print('Manguera ${valor.pico} : ${valor.valorActual}');
           final tabFind = tabsState.tabs.firstWhere(
             (tab) => tab.manguera == valor.pico.toString(),
             orElse: () => const TabItem(id: 0, label: '', manguera: ""),

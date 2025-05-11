@@ -152,7 +152,7 @@ class _BodyInfoCierreCajas extends ConsumerWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Buscar Información'),
+          title: const Text('Facturas Pendientes'),
         ),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),

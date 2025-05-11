@@ -479,17 +479,14 @@ Future<String?> mostrarModalCentrado({
                   const SizedBox(height: 16.0),
                   CustomInputField(
                     controller: valorController,
-                    maxDigits: 3,
-                    onlyInt: true,
+                    maxDigits: 4,
                     keyboardType: TextInputType.number,
                     label: 'Valor \$',
                     onChanged: (p0) {
                       // Borra el valor de galones y actualiza el estado
-                      setState(() {
-                        final int? parsedValue = int.tryParse(p0);
+                      setState(() { 
                         valorController.value = TextEditingValue(
-                          text:
-                              parsedValue != null ? parsedValue.toString() : '',
+                          text: p0,
                         );
                         galonesController.clear();
                       });
