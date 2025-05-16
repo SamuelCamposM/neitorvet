@@ -7,7 +7,10 @@ class NotificationsService {
       GlobalKey<ScaffoldMessengerState>();
 
   static void show(
-      BuildContext context, String message, SnackbarCategory category) {
+      BuildContext? context, String message, SnackbarCategory category) {
+    if (context == null) {
+      return;
+    }
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(

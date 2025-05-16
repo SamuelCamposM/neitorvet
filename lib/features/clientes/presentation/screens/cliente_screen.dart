@@ -163,7 +163,17 @@ class _ClienteFormState extends ConsumerState<_ClienteForm> {
       setState(() {
         isLoading = true;
       });
-      final res = clienteFState.clienteForm.perDocTipo == 'PLACA'
+
+      updateForm(
+        clienteForm: clienteFState.clienteForm.copyWith(
+            perDocTipo: (search.length < 10)
+                ? "PLACA"
+                : (search.length == 10)
+                    ? "CEDULA"
+                    : "RUC"),
+      );
+      print(clienteFState.clienteForm.perDocTipo);
+      final res = search.length < 10
           ? await ref
               .read(clientesRepositoryProvider)
               .getNewClienteByPlaca(search)

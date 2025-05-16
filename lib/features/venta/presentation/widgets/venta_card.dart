@@ -183,23 +183,12 @@ class VentaCard extends ConsumerWidget {
                 ),
                 Expanded(
                   flex: 2, // 25% del ancho 1/4
+
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        "Total",
-                        style: TextStyle(
-                          fontSize: size.iScreen(1.5),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "\$${venta.venTotal.toStringAsFixed(2)}",
-                        style: TextStyle(
-                          fontSize: size.iScreen(1.7),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                       IconButton(
+                        padding: EdgeInsets.zero,
                         onPressed: () async {
                           final res = await ref
                               .read(authProvider.notifier)
@@ -212,6 +201,20 @@ class VentaCard extends ConsumerWidget {
                           printTicket(venta, user, res.nombre);
                         },
                         icon: Icon(Icons.print, color: colors.secondary),
+                      ),
+                      Text(
+                        venta.venFormaPago,
+                        style: TextStyle(
+                          fontSize: size.iScreen(1.5),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "\$${venta.venTotal.toStringAsFixed(2)}",
+                        style: TextStyle(
+                          fontSize: size.iScreen(1.7),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,

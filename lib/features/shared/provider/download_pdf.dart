@@ -45,8 +45,10 @@ class PdfDownloadNotifier extends StateNotifier<PdfDownloadState> {
         }
         newPath = "$newPath/Download";
         dir = Directory(newPath);
-
-        String filePath = '${dir.path}/documento.pdf';
+ 
+        String fileName = infoPdf.split('/').last.split('?').first;
+        // if (fileName.isEmpty) fileName = 'archivo_descargado';
+        String filePath = '${dir.path}/$fileName'; 
         await dio.download(
           infoPdf,
           filePath,

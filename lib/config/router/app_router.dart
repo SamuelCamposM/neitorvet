@@ -12,6 +12,9 @@ import 'package:neitorvet/features/cierre_surtidores/presentation/screens/cierre
 import 'package:neitorvet/features/cierre_surtidores/presentation/screens/cierre_surtidores_screen.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/screens/menu_despacho.dart';
 import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
+import 'package:neitorvet/features/cuentas_por_cobrar/presentation/screens/cuenta_por_cobrar.dart';
+import 'package:neitorvet/features/cuentas_por_cobrar/presentation/screens/cuentas_por_cobrar.dart';
+import 'package:neitorvet/features/cuentas_por_cobrar/presentation/screens/pago_screen.dart';
 import 'package:neitorvet/features/home/presentation/screens/cierre_turno_screen.dart'; 
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/shared/screen/send_email.dart';
@@ -89,6 +92,24 @@ final goRouterProvider = Provider((ref) {
           cajaId: int.tryParse(state.params['id'].toString()) ?? 0,
         ),
       ),
+      GoRoute(
+        path: '/cuenta_cobrar',
+        builder: (context, state) => const CuentasPorCobrarScreen(),
+      ),
+      GoRoute(
+        path: '/cuenta_cobrar/:id',
+        builder: (context, state) => CuentaPorCobrar(
+          ccId: int.tryParse(state.params['id'].toString()) ?? 0,
+        ),
+      ),
+      
+      GoRoute(
+        path: '/pago/:id',
+        builder: (context, state) => PagoScreen(
+          ccId: int.tryParse(state.params['id'].toString()) ?? 0,
+        ),
+      ),
+
       GoRoute(
         path: '/cierre_surtidores',
         builder: (context, state) => const CierreSurtidoresScreen(),
