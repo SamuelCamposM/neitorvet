@@ -147,8 +147,6 @@ class SideMenuState extends ConsumerState<SideMenu> {
                       return Navigator.of(context).pop(); // Cerrar el drawer
                     }
 
-            
-
                     final suma = await cierreCajasRepository.getSumaIEC(
                       fecha: GetDate.today,
                       search: auth.user!.usuario,
@@ -158,8 +156,15 @@ class SideMenuState extends ConsumerState<SideMenu> {
                           context, suma.error, SnackbarCategory.error);
                       return Navigator.of(context).pop(); // Cerrar el drawer
                     }
-
-                    printTicketBusqueda(suma, auth.user, GetDate.today);
+                    final response = await ref
+                        .read(cierreCajasRepositoryProvider)
+                        .getEgresos(documento: auth.user!.usuario);
+                    if (response.error.isNotEmpty && context.mounted) {
+                      NotificationsService.show(
+                          context, response.error, SnackbarCategory.error);
+                      return;
+                    }
+                    printTicketBusqueda(suma, auth.user, GetDate.today, response.resultado);
                     ref.read(authProvider.notifier).logout();
                   }
                 },

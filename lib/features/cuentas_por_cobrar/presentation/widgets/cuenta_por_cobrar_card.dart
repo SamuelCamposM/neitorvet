@@ -125,6 +125,13 @@ class CuentaPorCobrarCard extends ConsumerWidget {
                               : Colors.red,
                         ),
                       ),
+                      Text(
+                        cuentaPorCobrar.ccOtrosDetalles,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: size.iScreen(1.7),
+                        ),
+                      ),
                     ],
                   ),
                 ),

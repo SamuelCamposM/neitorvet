@@ -23,6 +23,9 @@ class CuentaPorCobrar {
   final List<CcPago> ccPagos;
   final String ccFecReg;
   final String ccFecUpd;
+  final String ccOtrosDetalles;
+  final String ccConductor;
+  final String ccObservacion;
   final String? ciudad;
   final String? sector;
 
@@ -48,6 +51,9 @@ class CuentaPorCobrar {
     required this.ccFecUpd,
     required this.ciudad,
     required this.sector,
+    required this.ccOtrosDetalles,
+    required this.ccConductor,
+    required this.ccObservacion,
   });
 
   static CuentaPorCobrar defaultCuentaPorCobrar() {
@@ -71,6 +77,9 @@ class CuentaPorCobrar {
       ccPagos: [],
       ccFecReg: '',
       ccFecUpd: '',
+      ccOtrosDetalles: '',
+      ccConductor: '',
+      ccObservacion: '',
       ciudad: null,
       sector: null,
     );
@@ -98,6 +107,9 @@ class CuentaPorCobrar {
             List<CcPago>.from(json["ccPagos"].map((x) => CcPago.fromJson(x))),
         ccFecReg: json["ccFecReg"],
         ccFecUpd: json["ccFecUpd"],
+        ccOtrosDetalles: json["ccOtrosDetalles"] ?? "",
+        ccConductor: json["ccConductor"] ?? "",
+        ccObservacion: json["ccObservacion"] ?? "",
         ciudad: json["ciudad"],
         sector: json["sector"],
       );
@@ -122,6 +134,9 @@ class CuentaPorCobrar {
         "ccPagos": List<dynamic>.from(ccPagos.map((x) => x.toJson())),
         "ccFecReg": ccFecReg,
         "ccFecUpd": ccFecUpd,
+        "ccOtrosDetalles": ccOtrosDetalles,
+        "ccConductor": ccConductor,
+        "ccObservacion": ccObservacion,
         "ciudad": ciudad,
         "sector": sector,
       };
@@ -228,6 +243,9 @@ class CuentaPorCobrarForm extends CuentaPorCobrar {
     required super.ccPagos,
     required super.ccFecReg,
     required super.ccFecUpd,
+    required super.ccOtrosDetalles,
+    required super.ccConductor,
+    required super.ccObservacion,
     super.ciudad,
     super.sector,
   });
@@ -256,8 +274,11 @@ class CuentaPorCobrarForm extends CuentaPorCobrar {
     List<CcPago>? ccPagos,
     String? ccFecReg,
     String? ccFecUpd,
-    final String? ciudad,
-    final String? sector,
+    String? ccOtrosDetalles,
+    String? ccConductor,
+    String? ccObservacion,
+    String? ciudad,
+    String? sector,
   }) {
     // final venRucClienteInput = venRucCliente != null
     //     ? GenericRequiredInput.dirty(venRucCliente)
@@ -290,6 +311,9 @@ class CuentaPorCobrarForm extends CuentaPorCobrar {
       ccPagos: ccPagos ?? this.ccPagos,
       ccFecReg: ccFecReg ?? this.ccFecReg,
       ccFecUpd: ccFecUpd ?? this.ccFecUpd,
+      ccOtrosDetalles: ccOtrosDetalles ?? this.ccOtrosDetalles,
+      ccConductor: ccConductor ?? this.ccConductor,
+      ccObservacion: ccObservacion ?? this.ccObservacion,
 
       //*POSIBLES NULOS
       // venOtros: venOtros ?? this.venOtros,
@@ -319,6 +343,9 @@ class CuentaPorCobrarForm extends CuentaPorCobrar {
         ccPagos: ccPagos,
         ccFecReg: ccFecReg,
         ccFecUpd: ccFecUpd,
+        ccOtrosDetalles: ccOtrosDetalles,
+        ccConductor: ccConductor,
+        ccObservacion: ccObservacion,
         ciudad: ciudad,
         sector: sector,
       );
@@ -347,6 +374,9 @@ class CuentaPorCobrarForm extends CuentaPorCobrar {
             ccPagos: venta.ccPagos,
             ccFecReg: venta.ccFecReg,
             ccFecUpd: venta.ccFecUpd,
+            ccOtrosDetalles: venta.ccOtrosDetalles,
+            ccConductor: venta.ccConductor,
+            ccObservacion: venta.ccObservacion,
             ciudad: venta.ciudad,
             sector: venta.sector,
           )
@@ -371,6 +401,9 @@ class CuentaPorCobrarForm extends CuentaPorCobrar {
             ccPagos: venta.ccPagos,
             ccFecReg: venta.ccFecReg,
             ccFecUpd: venta.ccFecUpd,
+            ccOtrosDetalles: venta.ccOtrosDetalles,
+            ccConductor: venta.ccConductor,
+            ccObservacion: venta.ccObservacion,
             ciudad: venta.ciudad,
             sector: venta.sector,
           );

@@ -36,4 +36,9 @@ class CierreCajasRepositoryImpl extends CierreCajasRepository {
   Future<ResponseNoFacturados> getNoFacturados() {
     return datasource.getNoFacturados();
   }
+
+  @override
+  Future<ResponseEgresos> getEgresos({required String documento}) {
+    return datasource.getEgresos(documento: documento);
+  }
 }

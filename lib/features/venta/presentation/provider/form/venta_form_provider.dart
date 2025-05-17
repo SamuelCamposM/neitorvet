@@ -379,7 +379,13 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     _touchedEverything(true);
 
     // Esperar un breve momento para asegurar que el estado se actualice
+    if (state.ventaForm.venTotal == 0) {
+      state = state.copyWith(error: 'El total no puede ser cero');
+      // Si el formulario está en modo edición, no se permite volver a enviar
 
+      _resetError();
+      return false;
+    }
     // Verificar si el formulario es válido y si ya se está posteando
     if (!state.isFormValid) {
       return false;
@@ -387,6 +393,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     if (state.isPosting) {
       return false;
     }
+
     // Actualizar el estado para indicar que se está posteando
     state = state.copyWith(isPosting: true);
 
@@ -471,7 +478,6 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     state = state.copyWith(estadoManguera: estadoManguera);
   }
 
- 
   @override
   void dispose() {
     socket.off('connect', _onConnect);
@@ -512,7 +518,7 @@ class VentaFormState {
   final String manguera;
   final double? valor;
   final Datum estadoManguera;
-  final bool saved; 
+  final bool saved;
   VentaFormState({
 // //* VENTA
     required this.ventaFormProviderParams,
@@ -539,7 +545,7 @@ class VentaFormState {
     this.nombreCombustible = '', // Provide default value here
     this.valor,
     this.estadoManguera = Datum.L, // Provide default value here
-    this.saved = false, 
+    this.saved = false,
   }); // Provide default value here
 
   VentaFormState copyWith({
@@ -563,7 +569,7 @@ class VentaFormState {
     String? nombreCombustible,
     double? valor,
     Datum? estadoManguera,
-    bool? saved, 
+    bool? saved,
   }) {
     return VentaFormState(
       ventaFormProviderParams:
@@ -587,7 +593,7 @@ class VentaFormState {
       nombreCombustible: nombreCombustible ?? this.nombreCombustible,
       valor: valor ?? this.valor,
       estadoManguera: estadoManguera ?? this.estadoManguera,
-      saved: saved ?? this.saved, 
+      saved: saved ?? this.saved,
     );
   }
 }

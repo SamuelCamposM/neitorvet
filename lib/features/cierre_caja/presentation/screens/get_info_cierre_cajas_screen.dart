@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/get_info_cierre_caja_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/widgets/no_facturado_card.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
@@ -8,8 +9,8 @@ import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
-import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart'; 
-import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart'; 
+import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
+import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
@@ -109,7 +110,7 @@ class _GetInfoCierreCajasScreenState
               ),
             ),
           )
-        : _BodyInfoCierreCajas( 
+        : _BodyInfoCierreCajas(
             searchController: searchController,
             surtidoresData: surtidoresData,
             getInfoState: getInfoState,
@@ -256,46 +257,110 @@ class _BodyInfoCierreCajas extends ConsumerWidget {
                     ),
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: getInfoState.noFacturados.isEmpty &&
-                          !getInfoState.deshabilitarPrint
-                      ? () async {
-                          final response =
-                              await getNoFacturados(surtidoresData);
-                          if (response.isEmpty) {
-                            printTicketBusqueda(
-                                getInfoState.datos,
-                                ref.read(authProvider).user,
-                                getInfoState.fecha);
-                          }
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.secondary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    elevation: 4,
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.print, size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'Cierre de turno',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: getInfoState.noFacturados.isEmpty &&
+                                !getInfoState.deshabilitarPrint
+                            ? () async {
+                                final response =
+                                    await getNoFacturados(surtidoresData);
+
+                                if (response.isEmpty) {
+                                  final response = await ref
+                                      .read(cierreCajasRepositoryProvider)
+                                      .getEgresos(
+                                          documento: searchController.text);
+                                  if (response.error.isNotEmpty &&
+                                      context.mounted) {
+                                    NotificationsService.show(context,
+                                        response.error, SnackbarCategory.error);
+                                    return;
+                                  }
+                                  printTicketBusqueda(
+                                    getInfoState.datos,
+                                    ref.read(authProvider).user,
+                                    getInfoState.fecha,
+                                    response.resultado,
+                                  );
+                                }
+                              }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.secondary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          elevation: 4,
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.print, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'Cierre de turno',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                        child: ElevatedButton(
+                      onPressed: () async {
+                        final response = await ref
+                            .read(cierreCajasRepositoryProvider)
+                            .getEgresos(documento: searchController.text);
+                        if (response.error.isNotEmpty && context.mounted) {
+                          NotificationsService.show(
+                              context, response.error, SnackbarCategory.error);
+                          return;
+                        }
+                        printEgresos(
+                          ref.read(authProvider).user,
+                          getInfoState.fecha,
+                          response.resultado,
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.error,
+                        foregroundColor: colors.onError,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        elevation: 4,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.print,
+                            size: 20,
+                            color: colors.onError,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Egresos',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ))
+                  ],
                 ),
-                const SizedBox(height: 20),
                 if (getInfoState.noFacturados.isNotEmpty)
                   Row(
                     children: [

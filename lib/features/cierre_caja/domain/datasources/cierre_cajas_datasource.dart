@@ -1,4 +1,5 @@
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
+import 'package:neitorvet/features/cierre_caja/domain/entities/egreso_usuario.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/no_facturado.dart';
 
 class ResponseCierreCajasPaginacion {
@@ -28,6 +29,16 @@ class ResponseSumaIEC {
   });
 }
 
+class ResponseEgresos {
+  final String error;
+  final List<EgresoUsuario> resultado;
+
+  const ResponseEgresos({
+    required this.error,
+    required this.resultado,
+  });
+}
+
 class ResponseNoFacturados {
   final List<NoFacturado> resultado;
   final String error;
@@ -48,6 +59,9 @@ abstract class CierreCajasDatasource {
   Future<ResponseSumaIEC> getSumaIEC({
     required String fecha,
     required String search,
+  });
+  Future<ResponseEgresos> getEgresos({
+    required String documento,
   });
   Future<ResponseNoFacturados> getNoFacturados();
 }

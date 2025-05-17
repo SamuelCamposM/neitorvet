@@ -14,5 +14,8 @@ abstract class CierreCajasRepository {
     required String fecha,
     required String search,
   });
+  Future<ResponseEgresos> getEgresos({
+    required String documento,
+  });
   Future<ResponseNoFacturados> getNoFacturados();
 }

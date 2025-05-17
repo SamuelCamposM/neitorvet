@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:neitorvet/features/cierre_caja/domain/datasources/cierre_cajas_datasource.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
+import 'package:neitorvet/features/cierre_caja/domain/entities/egreso_usuario.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/no_facturado.dart';
 import 'package:neitorvet/features/shared/errors/error_api.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
@@ -107,6 +108,30 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
     } catch (e) {
       return ResponseNoFacturados(
           resultado: [], error: ErrorApi.getErrorMessage(e, 'getNoFacturados'));
+    }
+  }
+
+  @override
+  Future<ResponseEgresos> getEgresos({required String documento}) async {
+    try {
+      final response = await dio.get(
+        '/cajas/egresos/del/dia/por/usuario',
+        queryParameters: {
+          'documento': documento,
+        },
+      );
+
+      final List<EgresoUsuario> resultado =
+          response.data.map<EgresoUsuario>((e) {
+        return EgresoUsuario.fromJson(e);
+      }).toList();
+      return ResponseEgresos(
+        error: '',
+        resultado: resultado,
+      );
+    } on DioException catch (e) {
+      return ResponseEgresos(
+          error: ErrorApi.getErrorMessage(e, 'getEgresos'), resultado: []);
     }
   }
 }
