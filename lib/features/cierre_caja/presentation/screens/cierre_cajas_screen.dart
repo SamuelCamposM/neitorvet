@@ -8,6 +8,7 @@ import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_caja
 import 'package:neitorvet/features/cierre_caja/presentation/widgets/cierre_caja_card.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/shared.dart';
+import 'package:neitorvet/features/shared/widgets/buttons/resumen_button.dart';
 import 'package:neitorvet/features/shared/widgets/form/custom_date_picker_button.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
@@ -371,103 +372,31 @@ class CierreCajasViewState extends ConsumerState<CierreCajasScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                // spacing: 5,
                 children: [
-                  // Botón para "Ingreso"
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.green.shade100, // Color de fondo del botón
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
-                    ),
+                  ResumenButton(
+                    backgroundColor: Colors.green.shade100,
+                    textColor: Colors.green,
+                    label: 'Ingreso',
+                    value: '${cierreCajasState.sumaIEC.ingreso}',
                     onPressed: () {},
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Ingreso',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                        Text(
-                          '${cierreCajasState.sumaIEC.ingreso}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
-
-                  // Botón para "Egreso"
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.red.shade100, // Color de fondo del botón
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
-                    ),
+                  ResumenButton(
+                    backgroundColor: Colors.red.shade100,
+                    textColor: Colors.red,
+                    label: 'Egreso',
+                    value: '${cierreCajasState.sumaIEC.egreso}',
                     onPressed: () {},
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Egreso',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
-                          ),
-                        ),
-                        Text(
-                          '${cierreCajasState.sumaIEC.egreso}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
-
-                  // Botón para "Crédito"
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.blue.shade100, // Color de fondo del botón
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
-                    ),
+                  ResumenButton(
+                    backgroundColor: Colors.blue.shade100,
+                    textColor: Colors.blue,
+                    label: 'Total',
+                    value:
+                        '\$${Format.roundToTwoDecimals(cierreCajasState.sumaIEC.ingreso + cierreCajasState.sumaIEC.egreso)}',
                     onPressed: () {},
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Total',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        Text(
-                          '\$${Format.roundToTwoDecimals(cierreCajasState.sumaIEC.ingreso + cierreCajasState.sumaIEC.egreso)}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),
-              SizedBox(width: size.width),
             ],
           ),
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:neitorvet/features/administracion/presentation/provider/info_tanque_provider.dart';
+import 'package:neitorvet/features/administracion/presentation/provider/info_manguera_provider.dart';
 import 'package:neitorvet/features/shared/screen/full_screen_loader.dart';
 
 String getNombreCombustible(int codigoCombustible) {
@@ -16,46 +16,56 @@ String getNombreCombustible(int codigoCombustible) {
   }
 }
 
-class InfoTanque extends ConsumerWidget {
-  final String combustible;
-
-  const InfoTanque({super.key, required this.combustible});
+class InfoManguera extends ConsumerWidget {
+  final String manguera;
+  final String codigoProducto;
+  const InfoManguera({
+    super.key,
+    required this.manguera,
+    required this.codigoProducto,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final infoTanqueState = ref.watch(infoTanqueProvider(combustible));
-
-    if (infoTanqueState.isLoading) {
+    final infoMangueraState =
+        ref.watch(infoMangueraProvider('$manguera/+/$codigoProducto'));
+    final nombreCombustible =
+        '$manguera: ${getNombreCombustible(int.parse(codigoProducto))}';
+    if (infoMangueraState.isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(getNombreCombustible(int.parse(combustible))),
+          title: Text(
+            'Cargando... $nombreCombustible',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
         ),
         body: const FullScreenLoader(),
       );
     }
 
-    if (infoTanqueState.error.isNotEmpty) {
+    if (infoMangueraState.error.isNotEmpty) {
       return Scaffold(
         appBar: AppBar(
           title: Text(
-            getNombreCombustible(int.parse(combustible)),
+            'Hubo un error $nombreCombustible',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
         body: FullScreenLoader(
-          message: infoTanqueState.error,
+          message: infoMangueraState.error,
         ),
       );
     }
 
-    final totalDiario = infoTanqueState.totalDiario;
-    final totalSemanal = infoTanqueState.totalSemanal;
-    final totalMensual = infoTanqueState.totalMensual;
-    final totalAnual = infoTanqueState.totalAnual;
+    final totalDiario = infoMangueraState.totalDiario;
+    final totalSemanal = infoMangueraState.totalSemanal;
+    final totalMensual = infoMangueraState.totalMensual;
+    final totalAnual = infoMangueraState.totalAnual;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          getNombreCombustible(int.parse(combustible)),
+          nombreCombustible,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),

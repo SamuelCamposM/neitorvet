@@ -159,7 +159,7 @@ class CierreCajaCard extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        "\$${cierreCaja.cajaProcedencia == 'VENTA' && (cierreCaja.cajaTipoCaja == 'CREDITO' || cierreCaja.cajaTipoCaja == 'TRANSFERENCIA') ? cierreCaja.cajaCredito : cierreCaja.cajaMonto}",
+                        "\$${cierreCaja.cajaProcedencia == 'VENTA' && (cierreCaja.cajaTipoCaja == 'CREDITO' || cierreCaja.cajaTipoCaja == 'TRANSFERENCIA' || cierreCaja.cajaTipoCaja == 'TARJETA DE DÉBITO' || cierreCaja.cajaTipoCaja == 'TARJETA DE CRÉDITO') ? cierreCaja.cajaCredito : cierreCaja.cajaMonto}",
                         style: TextStyle(
                           fontSize: size.iScreen(1.7),
                           fontWeight: FontWeight.bold,

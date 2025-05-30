@@ -51,6 +51,12 @@ class Total {
         codigoCombustible: json["codigoCombustible"],
       );
 
+  factory Total.defaultWithCodigo(String codigoCombustible) => Total(
+        valorTotal: 0,
+        volumenTotal: 0,
+        codigoCombustible: codigoCombustible,
+      );
+
   Map<String, dynamic> toJson() => {
         "valor_total": valorTotal,
         "volumen_total": volumenTotal,

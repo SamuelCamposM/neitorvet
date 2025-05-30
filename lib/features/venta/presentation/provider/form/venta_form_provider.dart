@@ -200,14 +200,16 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
   }
 
-  void updateState(
-      {String? nuevoEmail,
-      String? productoSearch,
-      Producto? nuevoProducto,
-      String? monto,
-      bool? permitirCredito,
-      List<String>? placasData,
-      VentaForm? ventaForm}) {
+  void updateState({
+    String? nuevoEmail,
+    String? productoSearch,
+    Producto? nuevoProducto,
+    String? monto,
+    String? cantidad,
+    bool? permitirCredito,
+    List<String>? placasData,
+    VentaForm? ventaForm,
+  }) {
     state = state.copyWith(
       nuevoEmail:
           nuevoEmail != null ? Email.dirty(nuevoEmail) : state.nuevoEmail,
@@ -215,6 +217,9 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
           ? ProductoInput.dirty(nuevoProducto)
           : state.nuevoProducto,
       monto: monto == '' ? 0 : double.tryParse(monto ?? "") ?? state.monto,
+      cantidad: cantidad == ''
+          ? 0
+          : double.tryParse(cantidad ?? "") ?? state.cantidad,
       productoSearch: productoSearch ?? state.productoSearch,
       permitirCredito: permitirCredito ?? state.permitirCredito,
       placasData: placasData ?? state.placasData,
@@ -293,8 +298,9 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     }
   }
 
-  bool agregarProducto(TextEditingController? controller,
-      {bool sinAlerta = false}) {
+  bool agregarProducto(
+      TextEditingController? controller, TextEditingController? controller2,
+      {bool sinAlerta = false, bool conCantidad = false}) {
     const restrictedCodes = ['0101', '0185', '0121'];
 
     if (state.nuevoProducto.isNotValid) {
@@ -332,7 +338,26 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
         return true; // Devuelve true si hay un error
       }
     }
-    final cantidad = state.monto / state.nuevoProducto.value.valorUnitario;
+    if (conCantidad && state.cantidad <= 0) {
+      state = state.copyWith(
+        error: 'La cantidad debe ser mayor a cero',
+      );
+      _resetError();
+      return true; // Devuelve true si hay un error
+    }
+    if ((state.ventaForm.abastecimiento?.valorTotal ?? state.monto) == 0 &&
+        !conCantidad) {
+      state = state.copyWith(
+        error: 'El valor no puede ser cero',
+      );
+      _resetError();
+      return true; // Devuelve true si hay un error
+    }
+
+    final cantidad = conCantidad
+        ? state.cantidad
+        : (state.ventaForm.abastecimiento?.valorTotal ?? state.monto) /
+            state.nuevoProducto.value.valorUnitario;
     final producto = state.nuevoProducto.value.copyWith(
       cantidad: cantidad,
     );
@@ -340,9 +365,11 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     _calcularTotales(result, state.porcentajeFormaPago);
     state = state.copyWith(
       monto: 0,
+      cantidad: 0,
       nuevoProducto: const ProductoInput.pure(),
     );
     controller?.text = '';
+    controller2?.text = '';
     return false; // Devuelve false si no hay error
   }
 
@@ -506,6 +533,7 @@ class VentaFormState {
   final bool isPosting;
   final bool ocultarEmail;
   final double monto;
+  final double cantidad;
   final double porcentajeFormaPago;
   final Email nuevoEmail;
   final List<String> placasData;
@@ -535,6 +563,7 @@ class VentaFormState {
     this.isPosted = false,
     this.isPosting = false,
     this.monto = 0,
+    this.cantidad = 0,
     this.porcentajeFormaPago = 0,
     this.placasData = const [],
     this.ocultarEmail = true,
@@ -557,6 +586,7 @@ class VentaFormState {
     bool? isPosted,
     bool? isPosting,
     double? monto,
+    double? cantidad,
     double? porcentajeFormaPago,
     List<String>? placasData,
     bool? ocultarEmail,
@@ -580,6 +610,7 @@ class VentaFormState {
       isPosted: isPosted ?? this.isPosted,
       isPosting: isPosting ?? this.isPosting,
       monto: monto ?? this.monto,
+      cantidad: cantidad ?? this.cantidad,
       nuevoEmail: nuevoEmail ?? this.nuevoEmail,
       nuevoProducto: nuevoProducto ?? this.nuevoProducto,
       ocultarEmail: ocultarEmail ?? this.ocultarEmail,

@@ -495,7 +495,7 @@ Future<String?> mostrarModalCentrado({
                   const SizedBox(height: 16.0),
                   CustomInputField(
                     controller: galonesController,
-                    maxDigits: 2,
+                    maxDigits: 3,
                     onlyInt: true,
                     keyboardType: TextInputType.number,
                     label: 'Galones',

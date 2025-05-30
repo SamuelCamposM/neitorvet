@@ -6,8 +6,8 @@ import 'package:neitorvet/features/shared/errors/error_api.dart';
 
 class ClientesDatasourceImpl extends ClientesDatasource {
   final Dio dio;
-  final String rucempresa;
-  ClientesDatasourceImpl({required this.dio, required this.rucempresa});
+  final String empCategoria;
+  ClientesDatasourceImpl({required this.dio, required this.empCategoria});
 
   @override
   Future<ResponseClientesPaginacion> getClientesByPage(
@@ -48,7 +48,7 @@ class ClientesDatasourceImpl extends ClientesDatasource {
       String search) async {
     try {
       final response = await dio.get(
-        rucempresa == "ZARACAY"
+        empCategoria == "GASOLINERA"
             ? "/proveedores/listar_clientes_factura/0"
             : "/proveedores/filtro/0",
         queryParameters: {

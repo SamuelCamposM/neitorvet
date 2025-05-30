@@ -1,16 +1,16 @@
 import 'package:formz/formz.dart';
 
 // Define input validation errors
-enum GenericRequiredInputNumberError { empty, lessThanOrEqualToZero }
+enum GenericRequiredInputNumberError { empty, lessThanOrEqualToZero, greaterThanMax }
 
 // Extend FormzInput and provide the input type and error type.
 class GenericRequiredInputNumber
     extends FormzInput<num, GenericRequiredInputNumberError> {
-  // Call super.pure to represent an unmodified form input.
-  const GenericRequiredInputNumber.pure() : super.pure(0);
+  final num? maxValue;
 
-  // Call super.dirty to represent a modified form input.
-  const GenericRequiredInputNumber.dirty(super.value) : super.dirty();
+  // Constructor with required parameter
+  const GenericRequiredInputNumber.pure([this.maxValue]) : super.pure(0);
+  const GenericRequiredInputNumber.dirty(num value, [this.maxValue]) : super.dirty(value);
 
   String? get errorMessage {
     if (isValid || isPure) return null;
@@ -23,6 +23,10 @@ class GenericRequiredInputNumber
       return 'El valor debe ser mayor a 0';
     }
 
+    if (displayError == GenericRequiredInputNumberError.greaterThanMax) {
+      return 'El valor debe ser menor o igual a $maxValue';
+    }
+
     return null;
   }
 
@@ -33,6 +37,10 @@ class GenericRequiredInputNumber
 
     if (value <= 0) {
       return GenericRequiredInputNumberError.lessThanOrEqualToZero;
+    }
+
+    if (maxValue != null && value > maxValue!) {
+      return GenericRequiredInputNumberError.greaterThanMax;
     }
 
     return null;

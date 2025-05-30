@@ -103,7 +103,8 @@ class NoFacturadoCard extends ConsumerWidget {
                         valorIva: 0,
                         costoProduccion: 0,
                       ));
-                  final errorAgregar = ventaFormNotifier.agregarProducto(null);
+                  final errorAgregar =
+                      ventaFormNotifier.agregarProducto(null, null);
                   if (context.mounted && !errorAgregar) {
                     context.push('/venta/${0}');
                   }

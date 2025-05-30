@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/router/app_router.notifier.dart';
+import 'package:neitorvet/features/administracion/presentation/screens/info_manguera.dart';
 import 'package:neitorvet/features/administracion/presentation/screens/info_tanque.dart';
 
 import 'package:neitorvet/features/auth/auth.dart';
@@ -15,7 +16,7 @@ import 'package:neitorvet/features/clientes/presentation/screens/screens.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/screens/cuenta_por_cobrar.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/screens/cuentas_por_cobrar.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/screens/pago_screen.dart';
-import 'package:neitorvet/features/home/presentation/screens/cierre_turno_screen.dart'; 
+import 'package:neitorvet/features/home/presentation/screens/cierre_turno_screen.dart';
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/shared/screen/send_email.dart';
 import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
@@ -94,7 +95,9 @@ final goRouterProvider = Provider((ref) {
       ),
       GoRoute(
         path: '/cuenta_cobrar',
-        builder: (context, state) => const CuentasPorCobrarScreen(),
+        builder: (context, state) => CuentasPorCobrarScreen(
+          search: state.queryParams['search'] ?? '',
+        ),
       ),
       GoRoute(
         path: '/cuenta_cobrar/:id',
@@ -102,7 +105,7 @@ final goRouterProvider = Provider((ref) {
           ccId: int.tryParse(state.params['id'].toString()) ?? 0,
         ),
       ),
-      
+
       GoRoute(
         path: '/pago/:id',
         builder: (context, state) => PagoScreen(
@@ -172,6 +175,13 @@ final goRouterProvider = Provider((ref) {
         path: '/info_tanque/:codigoCombustible',
         builder: (context, state) => InfoTanque(
           combustible: state.params['codigoCombustible'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: '/info_manguera',
+        builder: (context, state) => InfoManguera(
+          manguera: state.queryParams['manguera'] ?? '',
+          codigoProducto: state.queryParams['codigoProducto'] ?? '',
         ),
       ),
       GoRoute(

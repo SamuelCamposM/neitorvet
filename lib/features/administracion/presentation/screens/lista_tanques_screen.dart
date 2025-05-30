@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:neitorvet/features/administracion/domain/entities/tanque.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -20,21 +22,22 @@ int getCodigoCombustible(int tanque) {
   }
 }
 
-class ListaTanqueScreen extends StatefulWidget {
+class ListaTanqueScreen extends ConsumerStatefulWidget {
   const ListaTanqueScreen({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<ListaTanqueScreen> createState() => _ListaTanqueScreenState();
+  ConsumerState<ListaTanqueScreen> createState() => ListaTanqueScreenState();
 }
 
-class _ListaTanqueScreenState extends State<ListaTanqueScreen> {
+class ListaTanqueScreenState extends ConsumerState<ListaTanqueScreen> {
   late WebSocketChannel _channelInventario;
   List<Tanque> listaDeTanques = [];
 
   @override
   void initState() {
+    final rucempresa = ref.read(authProvider).user!.rucempresa;
     super.initState();
     // Conectar al WebSocket
     _channelInventario = WebSocketChannel.connect(
@@ -43,7 +46,11 @@ class _ListaTanqueScreenState extends State<ListaTanqueScreen> {
 
     // Escuchar mensajes del WebSocket
     _channelInventario.stream.listen((data) {
+      print('data: $data, rucempresa: $rucempresa');
       final decodedData = json.decode(data); // Decodificar el string JSON
+      if (decodedData['codEmp'] != rucempresa) {
+        return;
+      }
       if (decodedData['type'] == 'inventory_update') {
         // Procesar los datos de los tanques
         // final List tanquesJson = decodedData['data'];

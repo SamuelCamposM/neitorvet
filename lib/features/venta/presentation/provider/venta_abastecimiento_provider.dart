@@ -2,12 +2,19 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
 import 'package:neitorvet/features/administracion/domain/entities/manguera_status.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
+import 'package:neitorvet/features/shared/helpers/get_date.dart';
 import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 final ventaAbastecimientoProvider = StateNotifierProvider.autoDispose<
     VentaAbastecimientoNotifier, VentaAbastecimientoState>((ref) {
-  return VentaAbastecimientoNotifier();
+  final user = ref.watch(authProvider).user;
+
+  return VentaAbastecimientoNotifier(
+    rucempresa: user!.rucempresa,
+  );
 });
 
 class VentaAbastecimientoNotifier
@@ -15,9 +22,10 @@ class VentaAbastecimientoNotifier
   late WebSocketChannel _channelVisualizacion;
   late WebSocketChannel _channelAbastecimientos;
   late WebSocketChannel _channelStatus;
-
-  VentaAbastecimientoNotifier()
-      : super(VentaAbastecimientoState(
+  final String rucempresa;
+  VentaAbastecimientoNotifier({
+    required this.rucempresa,
+  }) : super(VentaAbastecimientoState(
           valores: [],
           abastecimientoSocket: null,
           manguerasStatus: null,
@@ -37,6 +45,7 @@ class VentaAbastecimientoNotifier
 
     // Escuchar mensajes del WebSocket de visualización
     _channelVisualizacion.stream.listen((data) {
+      print('data: $data, rucempresa: $rucempresa');
       try {
         final decodedData = json.decode(data); // Decodificar el string JSON
         if (decodedData['type'] == 'live_visualization') {
@@ -55,12 +64,20 @@ class VentaAbastecimientoNotifier
 
     // Escuchar mensajes del WebSocket de abastecimientos
     _channelAbastecimientos.stream.listen((data) async {
+      print('data: $data, rucempresa: $rucempresa');
       try {
         final decodedData = json.decode(data);
         if (decodedData['type'] == "dispatch") {
           final abastecimientoSocket =
               AbastecimientoSocket.fromJson(decodedData['data']);
-
+          GetDate.today;
+          abastecimientoSocket.fecha;
+          if (abastecimientoSocket.codEmp != rucempresa) {
+            return; // Ignorar abastecimientos de otras empresas
+          }
+          if (GetDate.today != abastecimientoSocket.fecha) {
+            return;
+          }
           // Actualizar el estado con el nuevo abastecimiento
           state = state.copyWith(abastecimientoSocket: abastecimientoSocket);
           state = state.copyWith(clearAbastecimientoSocket: true);

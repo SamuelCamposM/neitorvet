@@ -8,10 +8,15 @@ import 'package:neitorvet/features/cuentas_por_cobrar/presentation/widgets/cuent
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/shared/widgets/buttons/resumen_button.dart';
 import 'package:neitorvet/features/shared/widgets/modal/cupertino_modal.dart';
 
 class CuentasPorCobrarScreen extends ConsumerStatefulWidget {
-  const CuentasPorCobrarScreen({super.key});
+  final String search;
+  const CuentasPorCobrarScreen({
+    super.key,
+    this.search = '',
+  });
 
   @override
   ConsumerState createState() => CuentasPorCobrarViewState();
@@ -39,31 +44,17 @@ class CuentasPorCobrarViewState extends ConsumerState<CuentasPorCobrarScreen> {
   void initState() {
     super.initState();
 
-// //************  INICIALIZA LA IMPRESORA*******************//
-//     _bindingPrinter().then((bool? isBind) async {
-//       SunmiPrinter.paperSize().then((int size) {
-//         setState(() {
-//           paperSize = size;
-//         });
-//       });
-
-//       SunmiPrinter.printerVersion().then((String version) {
-//         setState(() {
-//           printerVersion = version;
-//         });
-//       });
-
-//       SunmiPrinter.serialNumber().then((String serial) {
-//         setState(() {
-//           serialNumber = serial;
-//         });
-//       });
-
-//       setState(() {
-//         printBinded = isBind!;
-//       });
-//     });
-// //***********************************************/
+    if (widget.search.isNotEmpty) {
+      Future.microtask(() {
+        ref
+            .read(cuentasPorCobrarProvider.notifier)
+            .resetQuery(search: widget.search);
+      });
+    } else {
+      Future.microtask(() {
+        ref.read(cuentasPorCobrarProvider.notifier).loadNextPage();
+      });
+    }
 
     scrollController.addListener(
       () {
@@ -175,8 +166,8 @@ class CuentasPorCobrarViewState extends ConsumerState<CuentasPorCobrarScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      // children: CuentaPorCobrarEstado.values.map((estado) {
-                      children: [].map((estado) {
+                      children: CuentaPorCobrarEstado.values.map((estado) {
+                        // children: [].map((estado) {
                         final isSelected =
                             cuentasPorCobrarState.estado == estado;
                         return ElevatedButton(
@@ -269,7 +260,6 @@ class CuentasPorCobrarViewState extends ConsumerState<CuentasPorCobrarScreen> {
                           //     },
                           //   ),
                           // ),
-                          
                         ],
                       ),
                       Row(
@@ -358,6 +348,42 @@ class CuentasPorCobrarViewState extends ConsumerState<CuentasPorCobrarScreen> {
                 ),
               ),
           ],
+        ),
+        bottomSheet: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  // ResumenButton(
+                  //   backgroundColor: Colors.green.shade100,
+                  //   textColor: Colors.green,
+                  //   label: 'Ingreso',
+                  //   value: '${cierreCajasState.sumaIEC.ingreso}',
+                  //   onPressed: () {},
+                  // ),
+                  ResumenButton(
+                    backgroundColor: Colors.red.shade100,
+                    textColor: Colors.red,
+                    label: 'Saldo a Pagar',
+                    value: '${cuentasPorCobrarState.saldoAPagar}',
+                    onPressed: () {},
+                  ),
+                  // ResumenButton(
+                  //   backgroundColor: Colors.blue.shade100,
+                  //   textColor: Colors.blue,
+                  //   label: 'Total',
+                  //   value:
+                  //       '\$${Format.roundToTwoDecimals(cierreCajasState.sumaIEC.ingreso + cierreCajasState.sumaIEC.egreso)}',
+                  //   onPressed: () {},
+                  // ),
+                ],
+              ),
+            ],
+          ),
         ),
         // floatingActionButton: FloatingActionButton(
         //   onPressed: () {

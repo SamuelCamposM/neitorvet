@@ -1,8 +1,8 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/provider/cuenta_por_cobrar_provider.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/provider/cuentas_por_cobrar_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -140,12 +140,17 @@ class _CuentaPorCobrarFormState extends ConsumerState<_CuentaPorCobrarForm> {
     final pagoFormCopyWith = cuentaPorCobrarState.pagoForm.copyWith;
     final colors = Theme.of(context).colorScheme;
     final cuentasPorCobrarState = ref.watch(cuentasPorCobrarProvider);
+    final usuario = ref.read(authProvider).user!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: SingleChildScrollView(
         child: Column(
           children: [
             const SectionTitleDivider(title: 'Agregando Pago', fontSize: 18),
+            SectionTitleDivider(
+              title:
+                  'Saldo: ${cuentaPorCobrarState.cuentaPorCobrarForm.ccSaldo}', 
+            ),
             if (cuentaPorCobrarState.pagoForm.uuid.isNotEmpty)
               SwitchListTile(
                 dense: true, // Hace que el SwitchListTile sea más compacto
@@ -232,8 +237,7 @@ class _CuentaPorCobrarFormState extends ConsumerState<_CuentaPorCobrarForm> {
             ),
             CustomInputField(
               readOnly: cuentaPorCobrarState.pagoForm.ccTipo == 'EFECTIVO',
-              label: 'Número',
-              keyboardType: TextInputType.number,
+              label: 'Número', 
               initialValue: cuentaPorCobrarState.pagoForm.ccNumero.toString(),
               onChanged: (p0) {
                 updateForm(pagoFormCopyWith(ccNumero: p0));
@@ -315,9 +319,7 @@ class _CuentaPorCobrarFormState extends ConsumerState<_CuentaPorCobrarForm> {
               },
               // errorMessage: clienteForm.perCanton.errorMessage,
             ),
-            DatoForm(
-                label: 'Usuario',
-                value: cuentaPorCobrarState.pagoForm.ccUsuario.toString()),
+            DatoForm(label: 'Usuario', value: usuario.usuario),
             const SizedBox(height: 100),
           ],
         ),

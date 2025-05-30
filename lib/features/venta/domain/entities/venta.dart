@@ -70,6 +70,7 @@ class Venta {
   final double? totInicio;
   final double? totFinal;
   final Abastecimiento? abastecimiento;
+  final String manguera;
   Venta({
     this.venOtros,
     required this.venId,
@@ -129,6 +130,7 @@ class Venta {
     this.totInicio,
     this.totFinal,
     this.abastecimiento,
+    required this.manguera,
   });
   static Venta defaultVenta() {
     return Venta(
@@ -185,6 +187,7 @@ class Venta {
       venCeluCliente: [],
       venEmailCliente: ["sin@sincorreo.com"],
       venProductos: [],
+      manguera: '',
     );
   }
 
@@ -253,6 +256,7 @@ class Venta {
         totInicio: Parse.parseDynamicToDouble(json['totInicio']),
         totFinal: Parse.parseDynamicToDouble(json['totFinal']),
         abastecimiento: json['abastecimiento'],
+        manguera: Parse.parseDynamicToString(json['manguera']),
       );
 
   Map<String, dynamic> toJson() => {
@@ -314,6 +318,7 @@ class Venta {
         "totInicio": totInicio,
         "totFinal": totFinal,
         "abastecimiento": abastecimiento?.toJson(),
+        "manguera": manguera,
       };
   static double cincoDecimales(double numero) {
     return double.parse(numero.toStringAsFixed(7));
@@ -463,6 +468,7 @@ class VentaForm extends Venta {
     required super.venTotalIva,
     required super.venTotalRetencion,
     required super.venUser,
+    required super.manguera,
     super.venOtros,
     super.idAbastecimiento,
     super.totInicio,
@@ -533,6 +539,7 @@ class VentaForm extends Venta {
     double? totInicio,
     double? totFinal,
     Abastecimiento? abastecimiento,
+    String? manguera,
   }) {
     final venRucClienteInput = venRucCliente != null
         ? GenericRequiredInput.dirty(venRucCliente)
@@ -607,6 +614,7 @@ class VentaForm extends Venta {
           venEmpContribuyenteEspecial ?? this.venEmpContribuyenteEspecial,
       venEmpLeyenda: venEmpLeyenda ?? this.venEmpLeyenda,
       venEmpIva: venEmpIva ?? this.venEmpIva,
+      manguera: manguera ?? this.manguera,
 
       //*POSIBLES NULOS
       venOtros: venOtros ?? this.venOtros,
@@ -619,64 +627,65 @@ class VentaForm extends Venta {
 
   //CONVIERTE A VENTA
   Venta toVenta() => Venta(
-      venId: venId,
-      venFecReg: venFecReg,
-      venOption: venOption,
-      venTipoDocumento: venTipoDocumento,
-      optionDocumento: optionDocumento,
-      venIdCliente: venIdCliente,
-      venRucCliente: venRucClienteInput.value,
-      venProductos: venProductosInput.value,
-      venTipoDocuCliente: venTipoDocuCliente,
-      venNomCliente: venNomCliente,
-      venEmailCliente: venEmailCliente,
-      venTelfCliente: venTelfCliente,
-      venCeluCliente: venCeluCliente,
-      venDirCliente: venDirCliente,
-      venEmpRuc: venEmpRuc,
-      venEmpNombre: venEmpNombre,
-      venEmpComercial: venEmpComercial,
-      venEmpDireccion: venEmpDireccion,
-      venEmpTelefono: venEmpTelefono,
-      venEmpEmail: venEmpEmail,
-      venEmpObligado: venEmpObligado,
-      venEmpRegimen: venEmpRegimen,
-      venFormaPago: venFormaPago,
-      venNumero: venNumero,
-      venFacturaCredito: venFacturaCredito,
-      venDias: venDias,
-      venAbono: venAbono,
-      venDescPorcentaje: venDescPorcentaje,
-      venOtrosDetalles: venOtrosDetalles,
-      venObservacion: venObservacion,
-      venSubTotal12: venSubTotal12,
-      venSubtotal0: venSubtotal0,
-      venDescuento: venDescuento,
-      venSubTotal: venSubTotal,
-      venTotalIva: venTotalIva,
-      venTotal: venTotal,
-      venCostoProduccion: venCostoProduccion,
-      venUser: venUser,
-      venFechaFactura: venFechaFactura,
-      venNumFactura: venNumFactura,
-      venNumFacturaAnterior: venNumFacturaAnterior,
-      venAutorizacion: venAutorizacion,
-      venFechaAutorizacion: venFechaAutorizacion,
-      venErrorAutorizacion: venErrorAutorizacion,
-      venEstado: venEstado,
-      venEnvio: venEnvio,
-      fechaSustentoFactura: fechaSustentoFactura,
-      venTotalRetencion: venTotalRetencion,
-      venEmpresa: venEmpresa,
-      venEmpAgenteRetencion: venEmpAgenteRetencion,
-      venEmpContribuyenteEspecial: venEmpContribuyenteEspecial,
-      venEmpLeyenda: venEmpLeyenda,
-      venEmpIva: venEmpIva,
-      venOtros: venOtros,
-      idAbastecimiento: idAbastecimiento,
-      totInicio: totInicio,
-      totFinal: totFinal,
-      abastecimiento: abastecimiento,
+        venId: venId,
+        venFecReg: venFecReg,
+        venOption: venOption,
+        venTipoDocumento: venTipoDocumento,
+        optionDocumento: optionDocumento,
+        venIdCliente: venIdCliente,
+        venRucCliente: venRucClienteInput.value,
+        venProductos: venProductosInput.value,
+        venTipoDocuCliente: venTipoDocuCliente,
+        venNomCliente: venNomCliente,
+        venEmailCliente: venEmailCliente,
+        venTelfCliente: venTelfCliente,
+        venCeluCliente: venCeluCliente,
+        venDirCliente: venDirCliente,
+        venEmpRuc: venEmpRuc,
+        venEmpNombre: venEmpNombre,
+        venEmpComercial: venEmpComercial,
+        venEmpDireccion: venEmpDireccion,
+        venEmpTelefono: venEmpTelefono,
+        venEmpEmail: venEmpEmail,
+        venEmpObligado: venEmpObligado,
+        venEmpRegimen: venEmpRegimen,
+        venFormaPago: venFormaPago,
+        venNumero: venNumero,
+        venFacturaCredito: venFacturaCredito,
+        venDias: venDias,
+        venAbono: venAbono,
+        venDescPorcentaje: venDescPorcentaje,
+        venOtrosDetalles: venOtrosDetalles,
+        venObservacion: venObservacion,
+        venSubTotal12: venSubTotal12,
+        venSubtotal0: venSubtotal0,
+        venDescuento: venDescuento,
+        venSubTotal: venSubTotal,
+        venTotalIva: venTotalIva,
+        venTotal: venTotal,
+        venCostoProduccion: venCostoProduccion,
+        venUser: venUser,
+        venFechaFactura: venFechaFactura,
+        venNumFactura: venNumFactura,
+        venNumFacturaAnterior: venNumFacturaAnterior,
+        venAutorizacion: venAutorizacion,
+        venFechaAutorizacion: venFechaAutorizacion,
+        venErrorAutorizacion: venErrorAutorizacion,
+        venEstado: venEstado,
+        venEnvio: venEnvio,
+        fechaSustentoFactura: fechaSustentoFactura,
+        venTotalRetencion: venTotalRetencion,
+        venEmpresa: venEmpresa,
+        venEmpAgenteRetencion: venEmpAgenteRetencion,
+        venEmpContribuyenteEspecial: venEmpContribuyenteEspecial,
+        venEmpLeyenda: venEmpLeyenda,
+        venEmpIva: venEmpIva,
+        venOtros: venOtros,
+        idAbastecimiento: idAbastecimiento,
+        totInicio: totInicio,
+        totFinal: totFinal,
+        abastecimiento: abastecimiento,
+        manguera: manguera,
       );
 
   factory VentaForm.fromVenta(Venta venta) {
@@ -743,6 +752,8 @@ class VentaForm extends Venta {
             totInicio: venta.totInicio,
             totFinal: venta.totFinal,
             abastecimiento: venta.abastecimiento,
+            manguera: venta.manguera,
+
           )
         : VentaForm(
             venTotalInput: MinValueCliente.dirty(venta.venTotal,
@@ -807,6 +818,7 @@ class VentaForm extends Venta {
             totInicio: venta.totInicio,
             totFinal: venta.totFinal,
             abastecimiento: venta.abastecimiento,
+            manguera: venta.manguera,
           );
   }
 }

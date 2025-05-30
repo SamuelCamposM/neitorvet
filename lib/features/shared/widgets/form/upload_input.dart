@@ -13,7 +13,7 @@ class UploadInput extends ConsumerStatefulWidget {
   final Function(String) onChanged;
   final Function(bool) setLoading;
   final bool isLoading;
-  final String errorMessage;
+  final String? errorMessage;
   final String label;
   final String? extension; // "IMAGEN", "PDF", "all"
   final String value; // URL o nombre del archivo actual
@@ -23,7 +23,7 @@ class UploadInput extends ConsumerStatefulWidget {
     required this.label,
     this.disabled = false,
     this.disabledDelete = false,
-    this.errorMessage = "",
+    this.errorMessage,
     this.extension = 'all',
     required this.onChanged,
     required this.value,

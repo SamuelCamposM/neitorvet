@@ -11,8 +11,8 @@ import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 enum CuentaPorCobrarEstado {
-  facturas(""),
-  sinAutorizar("");
+  diaria("DIARIA"),
+  general("GENERAL");
   // notaCuentasPorCobrar("NOTA VENTAS"),
   // proformas("PROFORMAS"),
   // notaCreditos("NOTA CREDITOS");
@@ -67,8 +67,18 @@ class CuentasPorCobrarNotifier extends StateNotifier<CuentasPorCobrarState> {
   }) : super(CuentasPorCobrarState()) {
     print('INIT VENTAS PROVIDER');
     _initializeSocketListeners();
-    loadNextPage();
     _setBancos();
+    setSaldoPendiente();
+  }
+
+  void setSaldoPendiente() async {
+    final res =
+        await cuentasPorCobrarRepository.getCuentasPorCobrarPendientes();
+    if (res.error.isNotEmpty) {
+      state = state.copyWith(error: res.error);
+      return;
+    }
+    state = state.copyWith(saldoAPagar: res.saldoAPagar);
   }
 
   void _setBancos() async {
@@ -81,7 +91,8 @@ class CuentasPorCobrarNotifier extends StateNotifier<CuentasPorCobrarState> {
   }
 
   Future loadNextPage() async {
-    if (!isAdmin && state.page == 1) {
+    // if (!isAdmin && state.page == 1) {
+    if (state.page == 1 && state.estado == CuentaPorCobrarEstado.diaria) {
       return;
     }
     if (state.isLastPage || state.isLoading) {
@@ -125,13 +136,14 @@ class CuentasPorCobrarNotifier extends StateNotifier<CuentasPorCobrarState> {
     state = state.copyWith(isLoading: true);
     final cuentasPorCobrar =
         await cuentasPorCobrarRepository.getCuentasPorCobrarByPage(
-            search: state.search,
-            cantidad: state.cantidad,
-            input: state.input,
-            orden: state.orden,
-            page: 0,
-            estado: state.estado.value,
-            busquedaCuentasPorCobrar: state.busquedaCuentaPorCobrar);
+      search: state.search,
+      cantidad: state.cantidad,
+      input: state.input,
+      orden: state.orden,
+      page: 0,
+      estado: state.estado.value,
+      busquedaCuentasPorCobrar: state.busquedaCuentaPorCobrar,
+    );
     // ref.read(searchQueryProvider.notifier).update((state) => search);
     if (cuentasPorCobrar.error.isNotEmpty) {
       state = state.copyWith(error: cuentasPorCobrar.error, isLoading: false);
@@ -218,6 +230,7 @@ class CuentasPorCobrarNotifier extends StateNotifier<CuentasPorCobrarState> {
       return;
     }
     state = state.copyWith(isLoading: true);
+    setSaldoPendiente();
 
     final cuentasPorCobrar =
         await cuentasPorCobrarRepository.getCuentasPorCobrarByPage(
@@ -237,19 +250,20 @@ class CuentasPorCobrarNotifier extends StateNotifier<CuentasPorCobrarState> {
     }
 
     state = state.copyWith(
-        isLoading: false,
-        page: 1,
-        total: cuentasPorCobrar.total,
-        cuentasPorCobrar: cuentasPorCobrar.resultado,
-        search: search,
-        estado: estado,
-        input: input,
-        orden: orden,
-        isLastPage: false,
-        busquedaCuentaPorCobrar: busquedaCuentaPorCobrar,
-        isSearching: (search ?? state.search).isNotEmpty ||
-            (busquedaCuentaPorCobrar ?? state.busquedaCuentaPorCobrar)
-                .isSearching());
+      isLoading: false,
+      page: 1,
+      total: cuentasPorCobrar.total,
+      cuentasPorCobrar: cuentasPorCobrar.resultado,
+      search: search,
+      estado: estado,
+      input: input,
+      orden: orden,
+      isLastPage: false,
+      busquedaCuentaPorCobrar: busquedaCuentaPorCobrar,
+      isSearching: (search ?? state.search).isNotEmpty ||
+          (busquedaCuentaPorCobrar ?? state.busquedaCuentaPorCobrar)
+              .isSearching(),
+    );
   }
 
   void handleSearch() async {
@@ -367,6 +381,8 @@ class CuentasPorCobrarState {
   final String error;
   //* PARAMS
   final List<Banco> bancos;
+  final double saldoAPagar; // <-- Nueva propiedad
+
   CuentasPorCobrarState({
     this.isLastPage = false,
     this.isLoading = false,
@@ -376,7 +392,7 @@ class CuentasPorCobrarState {
     this.error = '',
     this.total = 0,
     this.search = '',
-    this.estado = CuentaPorCobrarEstado.facturas,
+    this.estado = CuentaPorCobrarEstado.diaria,
     this.input = 'ccId',
     this.orden = false,
     this.searchedCuentasPorCobrar = const [],
@@ -384,6 +400,7 @@ class CuentasPorCobrarState {
     this.busquedaCuentaPorCobrar = const BusquedaCuentasPorCobrar(),
     this.isSearching = false,
     this.bancos = const [],
+    this.saldoAPagar = 0.0, // <-- Valor por defecto
   });
 
   CuentasPorCobrarState copyWith({
@@ -403,6 +420,7 @@ class CuentasPorCobrarState {
     BusquedaCuentasPorCobrar? busquedaCuentaPorCobrar,
     bool? isSearching,
     List<Banco>? bancos,
+    double? saldoAPagar, // <-- Nuevo parámetro
   }) {
     return CuentasPorCobrarState(
       isLastPage: isLastPage ?? this.isLastPage,
@@ -423,6 +441,7 @@ class CuentasPorCobrarState {
           busquedaCuentaPorCobrar ?? this.busquedaCuentaPorCobrar,
       isSearching: isSearching ?? this.isSearching,
       bancos: bancos ?? this.bancos,
+      saldoAPagar: saldoAPagar ?? this.saldoAPagar, // <-- Nuevo valor
     );
   }
 }

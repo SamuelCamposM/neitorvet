@@ -22,6 +22,15 @@ class ResponseBancos {
   });
 }
 
+class ResponseCuentasPorCobrarPendientes {
+  final String error;
+  final double saldoAPagar;
+  ResponseCuentasPorCobrarPendientes({
+    required this.error,
+    required this.saldoAPagar,
+  });
+}
+
 class CuentasPorCobrarRepository {
   final Dio dio;
   CuentasPorCobrarRepository({required this.dio});
@@ -34,6 +43,17 @@ class CuentasPorCobrarRepository {
       required String search,
       required BusquedaCuentasPorCobrar busquedaCuentasPorCobrar}) async {
     try {
+      if (estado == 'DIARIA') {
+        final response = await dio.get('/cuentasporcobrar/lista/por/turno');
+        final List<CuentaPorCobrar> newCuentasPorCobrar = response.data
+            .map<CuentaPorCobrar>((e) => CuentaPorCobrar.fromJson(e))
+            .toList();
+        return ResponseCuentasPorCobrar(
+          resultado: newCuentasPorCobrar,
+          error: '',
+          total: newCuentasPorCobrar.length,
+        );
+      }
       final queryParameters = {
         'search': search,
         'cantidad': cantidad,
@@ -77,6 +97,34 @@ class CuentasPorCobrarRepository {
     } on DioException catch (e) {
       return ResponseBancos(
           bancos: [], error: ErrorApi.getErrorMessage(e, 'getBancos'));
+    }
+  }
+
+  Future<ResponseCuentasPorCobrarPendientes>
+      getCuentasPorCobrarPendientes() async {
+    try {
+      // final queryParameters = {};
+      final response = await dio.get('/cuentasporcobrar/lista/por/turno');
+      final List<CuentaPorCobrar> newCuentasPorCobrar = response.data
+          .map<CuentaPorCobrar>((e) => CuentaPorCobrar.fromJson(e))
+          .toList();
+      if (newCuentasPorCobrar.isNotEmpty) {
+        return ResponseCuentasPorCobrarPendientes(
+          saldoAPagar:
+              (newCuentasPorCobrar[0].totalSaldoPendienteDelTurno ?? 0),
+          error: '',
+        );
+      }
+
+      return ResponseCuentasPorCobrarPendientes(
+        saldoAPagar: 0,
+        error: '',
+      );
+    } catch (e) {
+      return ResponseCuentasPorCobrarPendientes(
+          saldoAPagar: 0,
+          error:
+              ErrorApi.getErrorMessage(e, 'getCuentasPorCobrarListaPorTurno'));
     }
   }
 }

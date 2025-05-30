@@ -4,6 +4,7 @@ import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dar
 import 'package:neitorvet/features/cuentas_por_cobrar/domain/entities/cc_pago.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/domain/entities/cuenta_por_cobrar.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/provider/cuentas_por_cobrar_provider.dart';
+import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/infrastructure/inputs/generic_required_input_number.dart';
 import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:neitorvet/features/shared/shared.dart';
@@ -80,6 +81,10 @@ class CuentaPorCobrarFormNotifier
               cuentaPorCobrarForm: CuentaPorCobrarForm.fromCuentaPorCobrar(
                 updatedCuentaPorCobrar,
               ),
+              pagoForm: CcPagoForm.fromCcPago(CcPago.defaultCcPago()).copyWith(
+                  ccDetalle: updatedCuentaPorCobrar.ccFactura,
+                  ccValor: Parse.parseDynamicToDouble(
+                      updatedCuentaPorCobrar.ccSaldo)),
             );
           }
         }
@@ -100,6 +105,7 @@ class CuentaPorCobrarFormNotifier
         isLoading: true,
         error: res.error,
       );
+      _resetError();
       return;
     }
 
@@ -108,6 +114,9 @@ class CuentaPorCobrarFormNotifier
       cuentaPorCobrarForm: CuentaPorCobrarForm.fromCuentaPorCobrar(
         res.cuentaPorCobrar!,
       ),
+      pagoForm: CcPagoForm.fromCcPago(CcPago.defaultCcPago()).copyWith(
+          ccDetalle: res.cuentaPorCobrar!.ccFactura,
+          ccValor: Parse.parseDynamicToDouble(res.cuentaPorCobrar!.ccSaldo)),
     );
   }
 
@@ -154,6 +163,24 @@ class CuentaPorCobrarFormNotifier
     if (state.isPostingPago) {
       return false;
     }
+    // if (!(["EFECTIVO", "CRUCE COMPRA", "DONACION"]
+    //         .contains(state.pagoForm.ccTipo)) &&
+    //     state.pagoForm.ccComprobante.isEmpty) {
+    //   state = state.copyWith(
+    //     error: "El tipo de pago seleccionado requiere un comprobante.",
+    //   );
+    //   _resetError();
+    //   return false;
+    // }
+    if (Parse.parseDynamicToDouble(state.cuentaPorCobrarForm.ccSaldo) <
+        Parse.parseDynamicToDouble(state.pagoForm.ccValor)) {
+      state = state.copyWith(
+        error: "El valor del pago no puede ser mayor al saldo pendiente.",
+      );
+      _resetError();
+      return false;
+    }
+
     // Actualizar el estado para indicar que se está posteando
     state = state.copyWith(isPostingPago: true);
 
@@ -166,7 +193,10 @@ class CuentaPorCobrarFormNotifier
             ...state.cuentaPorCobrarForm.ccPagos,
           ],
         ),
-        pagoForm: CcPagoForm.fromCcPago(CcPago.defaultCcPago()),
+        pagoForm: CcPagoForm.fromCcPago(CcPago.defaultCcPago()).copyWith(
+            ccDetalle: state.cuentaPorCobrarForm.ccFactura,
+            ccValor:
+                Parse.parseDynamicToDouble(state.cuentaPorCobrarForm.ccSaldo)),
       );
       final cuentaPorCobrarMap = {
         ...state.cuentaPorCobrarForm.toCuentaPorCobrar().toJson(),
@@ -256,12 +286,16 @@ class CuentaPorCobrarFormNotifier
 
   void _touchedEverythingPago(bool submit) {
     state = state.copyWith(
-        isFormValidPago: Formz.validate([
-      GenericRequiredInput.dirty(state.pagoForm.ccTipo),
-      GenericRequiredInput.dirty(state.pagoForm.ccDeposito),
-      GenericRequiredInputNumber.dirty(state.pagoForm.ccValor),
-      GenericRequiredInput.dirty(state.pagoForm.ccFechaAbono),
-    ]));
+        isFormValidPago: Formz.validate(
+      [
+        GenericRequiredInput.dirty(state.pagoForm.ccTipo),
+        GenericRequiredInput.dirty(state.pagoForm.ccDeposito),
+        GenericRequiredInputNumber.dirty(
+          state.pagoForm.ccValor,
+        ),
+        GenericRequiredInput.dirty(state.pagoForm.ccFechaAbono),
+      ],
+    ));
     // if (submit) {
     //   state = state.copyWith(
     //       isFormValid: Formz.validate([
@@ -279,9 +313,9 @@ class CuentaPorCobrarFormNotifier
     // }
   }
 
-  // void _resetError() {
-  //   state = state.copyWith(error: '');
-  // }
+  void _resetError() {
+    state = state.copyWith(error: '');
+  }
 
   @override
   void dispose() {

@@ -28,6 +28,8 @@ class CuentaPorCobrar {
   final String ccObservacion;
   final String? ciudad;
   final String? sector;
+  final double? totalSaldoPendienteDelTurno;
+// "TotalSaldoPendienteDelTurno" -> "9.75"
 
   CuentaPorCobrar({
     required this.ccId,
@@ -54,6 +56,7 @@ class CuentaPorCobrar {
     required this.ccOtrosDetalles,
     required this.ccConductor,
     required this.ccObservacion,
+    required this.totalSaldoPendienteDelTurno,
   });
 
   static CuentaPorCobrar defaultCuentaPorCobrar() {
@@ -82,6 +85,7 @@ class CuentaPorCobrar {
       ccObservacion: '',
       ciudad: null,
       sector: null,
+      totalSaldoPendienteDelTurno: 0,
     );
   }
 
@@ -112,6 +116,7 @@ class CuentaPorCobrar {
         ccObservacion: json["ccObservacion"] ?? "",
         ciudad: json["ciudad"],
         sector: json["sector"],
+        totalSaldoPendienteDelTurno:Parse.parseDynamicToDouble( json["TotalSaldoPendienteDelTurno"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -139,6 +144,7 @@ class CuentaPorCobrar {
         "ccObservacion": ccObservacion,
         "ciudad": ciudad,
         "sector": sector,
+        "TotalSaldoPendienteDelTurno": totalSaldoPendienteDelTurno,
       };
 }
 
@@ -248,6 +254,7 @@ class CuentaPorCobrarForm extends CuentaPorCobrar {
     required super.ccObservacion,
     super.ciudad,
     super.sector,
+    super.totalSaldoPendienteDelTurno,
   });
 
   CuentaPorCobrarForm copyWith({
@@ -348,6 +355,7 @@ class CuentaPorCobrarForm extends CuentaPorCobrar {
         ccObservacion: ccObservacion,
         ciudad: ciudad,
         sector: sector,
+        totalSaldoPendienteDelTurno: totalSaldoPendienteDelTurno,
       );
 
   factory CuentaPorCobrarForm.fromCuentaPorCobrar(CuentaPorCobrar venta) {

@@ -1,10 +1,10 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/provider/cuenta_por_cobrar_provider.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/widgets/pago_card.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
-
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
@@ -41,54 +41,55 @@ class CuentaPorCobrar extends ConsumerWidget {
             : _CuentaPorCobrarForm(
                 ccId: ccId,
               ),
-        // floatingActionButton: cuentaPorCobrarState.isLoading
-        //     ? null
-        //     : _FloatingButton(
-        //         ccId: ccId,
-        //       ),
+        floatingActionButton: cuentaPorCobrarState.isLoading
+            ? null
+            : _FloatingButton(
+                ccId: ccId,
+              ),
       ),
     );
   }
 }
 
-// class _FloatingButton extends ConsumerWidget {
-//   final int ccId;
-//   const _FloatingButton({
-//     required this.ccId,
-//   });
+class _FloatingButton extends ConsumerWidget {
+  final int ccId;
+  const _FloatingButton({
+    required this.ccId,
+  });
 
-//   @override
-//   Widget build(BuildContext context, ref) {
-//     final cuentaPorCobrarState = ref.watch(cuentaPorCobrarFormProvider(ccId));
-//     final cuentaPorCobrarNotifier =
-//         ref.watch(cuentaPorCobrarFormProvider(ccId).notifier);
+  @override
+  Widget build(BuildContext context, ref) {
+    final cuentaPorCobrarState = ref.watch(cuentaPorCobrarFormProvider(ccId));
+    // final cuentaPorCobrarNotifier =
+    //     ref.watch(cuentaPorCobrarFormProvider(ccId).notifier);
 
-//     return FloatingActionButton(
-//       onPressed: () async {
-//         if (cuentaPorCobrarState.isPosting) {
-//           return;
-//         }
-//         final exitoso = await cuentaPorCobrarNotifier.onFormSubmit();
+    return FloatingActionButton(
+      onPressed: () async {
+        context.push('/pago/$ccId');
+        // if (cuentaPorCobrarState.isPosting) {
+        //   return;
+        // }
+        // final exitoso = await cuentaPorCobrarNotifier.onFormSubmit();
 
-//         if (exitoso && context.mounted) {
-//           context.pop();
-//           NotificationsService.show(
-//               context,
-//               cuentaPorCobrarState.cuentaPorCobrarForm.ccFactura,
-//               SnackbarCategory.success);
-//         }
-//       },
-//       child: cuentaPorCobrarState.isPosting
-//           ? SpinPerfect(
-//               duration: const Duration(seconds: 1),
-//               spins: 10,
-//               infinite: true,
-//               child: const Icon(Icons.refresh),
-//             )
-//           : const Icon(Icons.save_as),
-//     );
-//   }
-// }
+        // if (exitoso && context.mounted) {
+        //   context.pop();
+        //   NotificationsService.show(
+        //       context,
+        //       cuentaPorCobrarState.cuentaPorCobrarForm.ccFactura,
+        //       SnackbarCategory.success);
+        // }
+      },
+      child: cuentaPorCobrarState.isPosting
+          ? SpinPerfect(
+              duration: const Duration(seconds: 1),
+              spins: 10,
+              infinite: true,
+              child: const Icon(Icons.refresh),
+            )
+          : const Icon(Icons.add),
+    );
+  }
+}
 
 class _CuentaPorCobrarForm extends ConsumerStatefulWidget {
   final int ccId;

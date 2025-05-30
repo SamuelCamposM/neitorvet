@@ -10,7 +10,7 @@ class Abastecimiento {
   final double precioUnitario;
   final int tiempo;
   final String fechaHora;
-  final int totInicio;
+  final double totInicio;
   final double totFinal;
   final String iDoperador;
   final String iDcliente;
@@ -53,7 +53,7 @@ class Abastecimiento {
         precioUnitario: Parse.parseDynamicToDouble(json["precioUnitario"]),
         tiempo: json["tiempo"],
         fechaHora: json["fechaHora"],
-        totInicio: json["totInicio"],
+        totInicio: Parse.parseDynamicToDouble(json["totInicio"]),
         totFinal: Parse.parseDynamicToDouble(json["totFinal"]),
         iDoperador: json["IDoperador"],
         iDcliente: json["IDcliente"],

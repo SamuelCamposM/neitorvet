@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/menu/menu_item.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
+import 'package:neitorvet/features/cuentas_por_cobrar/presentation/provider/cuentas_por_cobrar_provider.dart';
+import 'package:neitorvet/features/cuentas_por_cobrar/presentation/provider/cuentas_por_cobrar_repository_provider.dart';
 import 'package:neitorvet/features/home/presentation/provider/turno_provider.dart';
 import 'package:neitorvet/features/shared/helpers/get_date.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
@@ -134,14 +136,25 @@ class SideMenuState extends ConsumerState<SideMenu> {
                 onTap: () async {
                   // Leer los proveedores al inicio
                   final auth = ref.read(authProvider);
+
                   if (auth.isAdmin) {
                     ref.read(authProvider.notifier).logout();
                   } else {
+                    final res = await ref
+                        .read(cuentasPorCobrarRepositoryProvider)
+                        .getCuentasPorCobrarPendientes();
+                    if (res.saldoAPagar > 1 && context.mounted) {
+                      NotificationsService.show(
+                          context,
+                          'Hay cuentas por cobrar pendientes: \$${res.saldoAPagar}',
+                          SnackbarCategory.error);
+                      return Navigator.of(context).pop(); // Cerrar el drawer
+                    }
                     final cierreCajasRepository =
                         ref.read(cierreCajasRepositoryProvider);
                     final turnoActivo = ref.read(turnoProvider).turnoActivo;
 
-                    if (turnoActivo) {
+                    if (turnoActivo && context.mounted) {
                       NotificationsService.show(
                           context, 'Debe cerrar turno', SnackbarCategory.error);
                       return Navigator.of(context).pop(); // Cerrar el drawer
@@ -164,7 +177,8 @@ class SideMenuState extends ConsumerState<SideMenu> {
                           context, response.error, SnackbarCategory.error);
                       return;
                     }
-                    printTicketBusqueda(suma, auth.user, GetDate.today, response.resultado);
+                    printTicketBusqueda(
+                        suma, auth.user, GetDate.today, response.resultado);
                     ref.read(authProvider.notifier).logout();
                   }
                 },

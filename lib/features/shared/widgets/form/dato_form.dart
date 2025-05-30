@@ -20,16 +20,13 @@ class DatoForm extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           ),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
-                color: color ?? Colors.black87,
-                fontWeight: FontWeight.w400,
-              ),
+              style: TextStyle(color: color ?? Colors.black87, fontSize: 16),
               overflow: TextOverflow.ellipsis,
             ),
           ),

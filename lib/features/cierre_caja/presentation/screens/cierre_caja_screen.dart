@@ -213,7 +213,7 @@ class _CierreCajaFormState extends ConsumerState<_CierreCajaForm> {
                       );
                     },
             ),
-            const Divider(), // Línea divisoria para separar secciones
+            const Divider(), // Línea divisoria para separar secciones 
             CustomSelectField(
               bold: true,
               errorMessage: cierreCajaFState
@@ -234,6 +234,8 @@ class _CierreCajaFormState extends ConsumerState<_CierreCajaForm> {
                     value: "TRANSFERENCIA",
                     enabled: isAdmin),
                 Option(label: "DEPOSITO", value: "DEPOSITO", enabled: isAdmin),
+                Option(label: "TARJETA DE DÉBITO", value: "TARJETA DE DÉBITO", enabled: isAdmin),
+                Option(label: "	TARJETA DE CRÉDITO", value: "	TARJETA DE CRÉDITO", enabled: isAdmin),
               ],
             ),
             const SizedBox(height: 10),

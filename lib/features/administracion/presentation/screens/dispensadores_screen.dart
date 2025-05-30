@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
 import 'package:neitorvet/features/administracion/domain/entities/manguera_status.dart';
 import 'package:neitorvet/features/administracion/presentation/widgets/estacion_card.dart';
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_provider.dart';
 import 'package:neitorvet/features/shared/screen/full_screen_loader.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
@@ -25,6 +26,7 @@ class _DispensadoresScreenState extends ConsumerState<DispensadoresScreen> {
   List<LiveVisualization> liveVisualizationList = [];
   @override
   void initState() {
+    final rucempresa = ref.read(authProvider).user!.rucempresa;
     super.initState();
     // Conectar al WebSocket
     _channelStatus = WebSocketChannel.connect(
@@ -36,7 +38,8 @@ class _DispensadoresScreenState extends ConsumerState<DispensadoresScreen> {
 
     // Escuchar mensajes segúrate de importar esto para usar json.decode
 
-    _channelStatus.stream.listen((data) { 
+    _channelStatus.stream.listen((data) {
+      print(rucempresa);
       final decodedData = json.decode(data); // Decodificar el string JSON
       if (decodedData['type'] == 'pico_status') {
         final Map<String, Datum> parsedData = Map<String, Datum>.from(
@@ -50,7 +53,7 @@ class _DispensadoresScreenState extends ConsumerState<DispensadoresScreen> {
         });
       }
     });
-    _channelPrecios.stream.listen((data) { 
+    _channelPrecios.stream.listen((data) {
       final decodedData = json.decode(data); // Decodificar el string JSON
       if (decodedData['type'] == 'live_visualization') {
         // Convertir los datos a una lista de LiveVisualization
@@ -78,23 +81,24 @@ class _DispensadoresScreenState extends ConsumerState<DispensadoresScreen> {
     final size = Responsive.of(context);
 
     // Crear una copia de la lista y luego ordenarla
-    final estacionesOrdenadas = List.from(cierreSurtidoresState.estacionesData.reversed)
-      ..sort((a, b) {
-        // Verificar si manguerasStatus o data es null
-        if (manguerasStatus == null) {
-          return 0; // No realizar ningún cambio en el orden si es null
-        }
+    final estacionesOrdenadas =
+        List.from(cierreSurtidoresState.estacionesData.reversed)
+          ..sort((a, b) {
+            // Verificar si manguerasStatus o data es null
+            if (manguerasStatus == null) {
+              return 0; // No realizar ningún cambio en el orden si es null
+            }
 
-        final datoa = manguerasStatus!.data[a.numeroPistola.toString()];
-        final datab = manguerasStatus!.data[b.numeroPistola.toString()];
+            final datoa = manguerasStatus!.data[a.numeroPistola.toString()];
+            final datab = manguerasStatus!.data[b.numeroPistola.toString()];
 
-        // Comparar los valores, asegurándote de manejar valores null
-        if (datoa == null && datab == null) return 0;
-        if (datoa == null) return 1;
-        if (datab == null) return -1;
+            // Comparar los valores, asegurándote de manejar valores null
+            if (datoa == null && datab == null) return 0;
+            if (datoa == null) return 1;
+            if (datab == null) return -1;
 
-        return datoa == Datum.A ? 0 : 1;
-      });
+            return datoa == Datum.A ? 0 : 1;
+          });
 
     return Scaffold(
       appBar: AppBar(

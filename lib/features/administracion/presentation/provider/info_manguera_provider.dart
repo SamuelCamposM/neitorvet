@@ -1,36 +1,41 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:neitorvet/features/administracion/presentation/provider/info_tanque_repository_provider.dart';
 import 'package:neitorvet/features/administracion/domain/entities/totalesTanque.dart';
+import 'package:neitorvet/features/administracion/presentation/provider/info_tanque_repository_provider.dart';
 
-final infoTanqueProvider = StateNotifierProvider.family
-    .autoDispose<InfoTanqueNotifier, InfoTanqueState, String>(
-        (ref, codigoCombustible) {
+final infoMangueraProvider = StateNotifierProvider.family
+    .autoDispose<InfoMangueraNotifier, InfoMangueraState, String>(
+        (ref, mangueraCodigoCombustible) {
   final totalesRepository = ref.watch(totalesRepositoryProvider);
 
-  return InfoTanqueNotifier(
-    getTotalesTanque: totalesRepository.getTotalesTanque,
-    codigoCombustible: codigoCombustible,
+  return InfoMangueraNotifier(
+    getInfoManguera: totalesRepository.getInfoManguera,
+    manguera: mangueraCodigoCombustible.split('/+/')[0],
+    codigoCombustible: mangueraCodigoCombustible.split('/+/')[1],
   );
 });
 
-class InfoTanqueNotifier extends StateNotifier<InfoTanqueState> {
-  final Future<ResponseTotalesTanque> Function() getTotalesTanque;
+class InfoMangueraNotifier extends StateNotifier<InfoMangueraState> {
+  final Future<ResponseTotalesTanque> Function({required String manguera})
+      getInfoManguera;
+  final String manguera;
   final String codigoCombustible;
 
-  InfoTanqueNotifier({
-    required this.getTotalesTanque,
+  InfoMangueraNotifier({
+    required this.getInfoManguera,
+    required this.manguera,
     required this.codigoCombustible,
-  }) : super(InfoTanqueState(codigoCombustible: codigoCombustible)) {
-    loadInfoTanque();
+  }) : super(InfoMangueraState(manguera: manguera)) {
+    loadInfoManguera(manguera: manguera);
   }
 
-  void loadInfoTanque() async {
+  void loadInfoManguera({required String manguera}) async {
     try {
-      final response = await getTotalesTanque();
+      final response = await getInfoManguera(manguera: manguera);
       if (response.error.isNotEmpty) {
         state = state.copyWith(error: response.error);
         return;
       }
+
       final totales = response.totales;
       if (totales == null) {
         state = state.copyWith(error: 'No se encontró información de totales.');
@@ -88,7 +93,8 @@ class InfoTanqueNotifier extends StateNotifier<InfoTanqueState> {
   }
 }
 
-class InfoTanqueState {
+class InfoMangueraState {
+  final String manguera;
   final String codigoCombustible;
   final Total? totalDiario;
   final Total? totalSemanal;
@@ -97,8 +103,9 @@ class InfoTanqueState {
   final bool isLoading;
   final String error;
 
-  InfoTanqueState({
-    required this.codigoCombustible,
+  InfoMangueraState({
+    required this.manguera,
+    this.codigoCombustible = '',
     this.totalDiario,
     this.totalSemanal,
     this.totalMensual,
@@ -107,7 +114,8 @@ class InfoTanqueState {
     this.error = '',
   });
 
-  InfoTanqueState copyWith({
+  InfoMangueraState copyWith({
+    String? manguera,
     String? codigoCombustible,
     Total? totalDiario,
     Total? totalSemanal,
@@ -116,7 +124,8 @@ class InfoTanqueState {
     bool? isLoading,
     String? error,
   }) =>
-      InfoTanqueState(
+      InfoMangueraState(
+        manguera: manguera ?? this.manguera,
         codigoCombustible: codigoCombustible ?? this.codigoCombustible,
         totalDiario: totalDiario ?? this.totalDiario,
         totalSemanal: totalSemanal ?? this.totalSemanal,

@@ -102,6 +102,11 @@ class VentaCard extends ConsumerWidget {
         //   children: [],
         // ),
         child: GestureDetector(
+          onLongPress: () {
+            if (venta.venFormaPago != 'EFECTIVO') {
+              context.push('/cuenta_cobrar?search=${venta.venNumFactura}');
+            }
+          },
           onTap: redirect
               ? () {
                   if (verificarEstadoVenta != null) {
@@ -187,20 +192,32 @@ class VentaCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () async {
-                          final res = await ref
-                              .read(authProvider.notifier)
-                              .getUsuarioNombre(venta.venUser);
-                          if (res.error.isNotEmpty && context.mounted) {
-                            NotificationsService.show(
-                                context, res.error, SnackbarCategory.error);
-                            return;
-                          }
-                          printTicket(venta, user, res.nombre);
-                        },
-                        icon: Icon(Icons.print, color: colors.secondary),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'M: ${venta.manguera}',
+                            style: TextStyle(
+                              fontSize: size.iScreen(1.5),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () async {
+                              final res = await ref
+                                  .read(authProvider.notifier)
+                                  .getUsuarioNombre(venta.venUser);
+                              if (res.error.isNotEmpty && context.mounted) {
+                                NotificationsService.show(
+                                    context, res.error, SnackbarCategory.error);
+                                return;
+                              }
+                              printTicket(venta, user, res.nombre);
+                            },
+                            icon: Icon(Icons.print, color: colors.secondary),
+                          ),
+                        ],
                       ),
                       Text(
                         venta.venFormaPago,

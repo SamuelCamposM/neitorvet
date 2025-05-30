@@ -20,7 +20,7 @@ class AbastecimientoSocket {
   final String idCliente;
   final double odometroOVolTanque;
   final String rawData;
-
+  final String codEmp;
   AbastecimientoSocket({
     required this.status,
     required this.type,
@@ -41,6 +41,7 @@ class AbastecimientoSocket {
     required this.idCliente,
     required this.odometroOVolTanque,
     required this.rawData,
+    required this.codEmp,
   });
 
   factory AbastecimientoSocket.fromJson(Map<String, dynamic> json) =>
@@ -65,6 +66,7 @@ class AbastecimientoSocket {
         idCliente: json["id_cliente"],
         odometroOVolTanque: json["odometro_o_vol_tanque"],
         rawData: json["raw_data"],
+        codEmp: json["codEmp"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -87,5 +89,6 @@ class AbastecimientoSocket {
         "id_cliente": idCliente,
         "odometro_o_vol_tanque": odometroOVolTanque,
         "raw_data": rawData,
+        "codEmp": codEmp,
       };
 }

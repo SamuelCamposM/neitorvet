@@ -76,6 +76,7 @@ Future<void> printTicket(
   await SunmiPrinter.printText(info.venEmailCliente.isNotEmpty
       ? 'Email: ${info.venEmailCliente[0]}'
       : 'Email:');
+  await SunmiPrinter.printText('F. de Pago: ${info.venFormaPago}');
 
   await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
   await SunmiPrinter.line();
@@ -145,8 +146,9 @@ Future<void> printTicket(
       style: SunmiStyle(fontSize: SunmiFontSize.SM));
   await SunmiPrinter.printText('\$0.81 : valor total sin subsidio',
       style: SunmiStyle(fontSize: SunmiFontSize.SM));
-  await SunmiPrinter.printText('Usuario: ${user.usuario}');
-  await SunmiPrinter.printText(nombreUsuario);
+  await SunmiPrinter.printText('Manguera: ${info.manguera}');
+  // await SunmiPrinter.printText('Usuario: ${user.usuario}');
+  await SunmiPrinter.printText(nombreUsuario.split(' ')[0]);
   await SunmiPrinter.lineWrap(4);
   await SunmiPrinter.exitTransactionPrint(true);
 }
@@ -154,7 +156,7 @@ Future<void> printTicket(
 //=================================================================================================//
 //======================================IMPRIME INFORMACION DE LA BUSQUEDA===========================================================//
 
-Future<void> printEgresos( 
+Future<void> printEgresos(
   User? user,
   String fecha,
   List<EgresoUsuario>? egresos,

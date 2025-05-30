@@ -61,7 +61,7 @@ class BodyFullScreenLoaderVenta extends ConsumerStatefulWidget {
 
 class _BodyFullScreenLoaderVentaState
     extends ConsumerState<BodyFullScreenLoaderVenta> {
-  late WebSocketChannel _channelVisualizacion; 
+  late WebSocketChannel _channelVisualizacion;
   late WebSocketChannel _channelAbastecimientos;
   String valor = '0.00';
   late VentaForm ventaForm;
@@ -73,7 +73,7 @@ class _BodyFullScreenLoaderVentaState
     _channelVisualizacion = WebSocketChannel.connect(
       Uri.parse('wss://zaracayapi.neitor.com/ws/despachos_visualizacion'),
     );
- 
+
     _channelAbastecimientos = WebSocketChannel.connect(
       Uri.parse('wss://zaracayapi.neitor.com/ws/abastecimientos'),
     );
@@ -162,7 +162,7 @@ class _BodyFullScreenLoaderVentaState
               costoProduccion: 0,
             ),
           );
-          ventaFormNotifier.agregarProducto(null);
+          ventaFormNotifier.agregarProducto(null, null);
 
           context.pop();
           context.pop();
@@ -173,7 +173,7 @@ class _BodyFullScreenLoaderVentaState
 
   @override
   void dispose() {
-    _channelVisualizacion.sink.close(); 
+    _channelVisualizacion.sink.close();
     _channelAbastecimientos.sink.close();
     super.dispose();
   }

@@ -64,8 +64,10 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
             final estado =
                 next.manguerasStatus!.data[tabFind.manguera.toString()];
             ventaFNotifier.setEstadoManguera(estado);
-            tabsNotifier.updateTabManguera(tabFind.id,
-                monto: valor.valorActual);
+            tabsNotifier.updateTabManguera(
+              tabFind.id,
+              monto: valor.valorActual,
+            );
           }
         }
       },
@@ -83,6 +85,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
               editar: false,
               id: tabFind.id,
             );
+
             final ventaFNotifier =
                 ref.watch(ventaFormProvider(ventaFormProviderParams).notifier);
 
@@ -111,9 +114,10 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
                 codigo = '0000';
             }
 
+            ventaFNotifier.setValor(next.abastecimientoSocket!.total);
             ventaFNotifier.updateState(
-              monto: ventaFState.valor.toString(),
               ventaForm: ventaFState.ventaForm.copyWith(
+                manguera: next.abastecimientoSocket!.pico.toString(),
                 // idAbastecimiento: Parse.parseDynamicToInt(
                 //     next.abastecimientoSocket!.indiceMemoria),
                 totInicio: next.abastecimientoSocket!.totalizadorInicial,
@@ -133,10 +137,8 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
                   fechaHora:
                       '${next.abastecimientoSocket!.fecha} ${next.abastecimientoSocket!.hora}', // fecha
                   // "": "08:50:09",
-                  totInicio: Parse.parseDynamicToInt(next.abastecimientoSocket!
-                      .totalizadorInicial), //totalizadorInicial
-                  totFinal: next.abastecimientoSocket!
-                      .totalizadorFinal, //totalizadorFinal
+                  totInicio: next.abastecimientoSocket!.totalizadorInicial,
+                  totFinal: next.abastecimientoSocket!.totalizadorFinal,
                   iDoperador:
                       next.abastecimientoSocket!.idFrentista, //id_frentista
                   iDcliente: next.abastecimientoSocket!.idCliente, //id_cliente
@@ -167,8 +169,9 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
                 valorIva: 0,
                 costoProduccion: 0,
               ),
+              monto: next.abastecimientoSocket!.total.toString(),
             );
-            ventaFNotifier.agregarProducto(null, sinAlerta: true);
+            ventaFNotifier.agregarProducto(null, null, sinAlerta: true);
             final volver = await ventaFNotifier.onFormSubmit();
             if (volver && context.mounted) {
               context.pop();
@@ -357,18 +360,21 @@ class _VentaForm extends ConsumerStatefulWidget {
 class _VentaFormState extends ConsumerState<_VentaForm> {
   late TextEditingController nuevoEmailController;
   late TextEditingController montoController;
+  late TextEditingController cantidadController;
 
   @override
   void initState() {
     super.initState();
     nuevoEmailController = TextEditingController();
     montoController = TextEditingController();
+    cantidadController = TextEditingController();
   }
 
   @override
   void dispose() {
     nuevoEmailController.dispose();
     montoController.dispose();
+    cantidadController.dispose();
     super.dispose();
   }
 
@@ -668,86 +674,87 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                       valorActual:
                           Parse.parseDynamicToDouble(ventaFState.valor),
                     )),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    width: size.wScreen(50.0),
-                    child: OutlinedButton.icon(
-                      onPressed:
-                          ventaFState.ventaForm.venRucCliente == '9999999999999'
-                              ? null
-                              : () async {
-                                  context.push(
-                                      '/seleccionSurtidor/${ventaFState.ventaFormProviderParams.id}');
-                                  // context.push('/venta/${venta.venId}');
-                                  // final inventario =
-                                  //     await searchInventario(context: context, ref: ref);
-                                  // if (inventario != null) {
-                                  //   final exist = ventaFState
-                                  //       .ventaForm.venProductosInput.value
-                                  //       .any((e) => e.codigo == inventario.invSerie);
-                                  //   if (exist) {
-                                  //     if (context.mounted) {
-                                  //       NotificationsService.show(
-                                  //           context,
-                                  //           'Este Producto ya se encuentra en la lista',
-                                  //           SnackbarCategory.error);
-                                  //     }
-                                  //     return;
-                                  //   }
-                                  //   ref
-                                  //       .read(ventaFormProvider(venta).notifier)
-                                  //       .updateState(
-                                  //           nuevoProducto: Producto(
-                                  //         cantidad: 0,
-                                  //         codigo: inventario.invSerie,
-                                  //         descripcion: inventario.invNombre,
-                                  //         valUnitarioInterno: Parse.parseDynamicToDouble(
-                                  //             inventario.invprecios[0]),
-                                  //         valorUnitario: Parse.parseDynamicToDouble(
-                                  //             inventario.invprecios[0]),
-                                  //         llevaIva: inventario.invIva,
-                                  //         incluyeIva: inventario.invIncluyeIva,
-                                  //         recargoPorcentaje: 0,
-                                  //         recargo: 0,
-                                  //         descPorcentaje: venta.venDescPorcentaje,
-                                  //         descuento: 0,
-                                  //         precioSubTotalProducto: 0,
-                                  //         valorIva: 0,
-                                  //         costoProduccion: 0,
-                                  //       ));
-                                  // }
-                                },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                            color:
-                                ventaFState.nuevoProducto.errorMessage != null
-                                    ? Colors.red
-                                    : Colors.grey),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                      icon: const Icon(Icons.create),
-                      label: Text(
-                        ventaFState.nuevoProducto.errorMessage != null
-                            ? ventaFState.nuevoProducto.errorMessage!
-                            : ventaFState.nuevoProducto.value.descripcion == ''
-                                ? "Producto*"
-                                : '${ventaFState.nuevoProducto.value.descripcion} \$${ventaFState.nuevoProducto.value.valorUnitario}',
-                      ),
+              SizedBox(
+                width: size.wScreen(100.0),
+                child: OutlinedButton.icon(
+                  onPressed:
+                      ventaFState.ventaForm.venRucCliente == '9999999999999'
+                          ? null
+                          : () async {
+                              context.push(
+                                  '/seleccionSurtidor/${ventaFState.ventaFormProviderParams.id}');
+                              // context.push('/venta/${venta.venId}');
+                              // final inventario =
+                              //     await searchInventario(context: context, ref: ref);
+                              // if (inventario != null) {
+                              //   final exist = ventaFState
+                              //       .ventaForm.venProductosInput.value
+                              //       .any((e) => e.codigo == inventario.invSerie);
+                              //   if (exist) {
+                              //     if (context.mounted) {
+                              //       NotificationsService.show(
+                              //           context,
+                              //           'Este Producto ya se encuentra en la lista',
+                              //           SnackbarCategory.error);
+                              //     }
+                              //     return;
+                              //   }
+                              //   ref
+                              //       .read(ventaFormProvider(venta).notifier)
+                              //       .updateState(
+                              //           nuevoProducto: Producto(
+                              //         cantidad: 0,
+                              //         codigo: inventario.invSerie,
+                              //         descripcion: inventario.invNombre,
+                              //         valUnitarioInterno: Parse.parseDynamicToDouble(
+                              //             inventario.invprecios[0]),
+                              //         valorUnitario: Parse.parseDynamicToDouble(
+                              //             inventario.invprecios[0]),
+                              //         llevaIva: inventario.invIva,
+                              //         incluyeIva: inventario.invIncluyeIva,
+                              //         recargoPorcentaje: 0,
+                              //         recargo: 0,
+                              //         descPorcentaje: venta.venDescPorcentaje,
+                              //         descuento: 0,
+                              //         precioSubTotalProducto: 0,
+                              //         valorIva: 0,
+                              //         costoProduccion: 0,
+                              //       ));
+                              // }
+                            },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                        color: ventaFState.nuevoProducto.errorMessage != null
+                            ? Colors.red
+                            : Colors.grey),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  SizedBox(
-                    width: size.wScreen(30.0),
+                  icon: const Icon(Icons.create),
+                  label: Text(
+                    ventaFState.nuevoProducto.errorMessage != null
+                        ? ventaFState.nuevoProducto.errorMessage!
+                        : ventaFState.nuevoProducto.value.descripcion == ''
+                            ? "Producto*"
+                            : '${ventaFState.nuevoProducto.value.descripcion} \$${ventaFState.nuevoProducto.value.valorUnitario}',
+                  ),
+                ),
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    flex: 1,
                     child: CustomInputField(
                       textAlign: TextAlign.center,
                       label: 'Precio',
                       controller: montoController,
                       keyboardType: const TextInputType.numberWithOptions(),
                       onFieldSubmitted: (_) {
-                        ventaFNotifier.agregarProducto(montoController);
+                        ventaFNotifier.agregarProducto(
+                            montoController, cantidadController);
                       },
                       onChanged: (p0) {
                         ventaFNotifier.updateState(monto: p0);
@@ -756,12 +763,39 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                           onPressed: ventaFState.monto == 0
                               ? null
                               : () {
-                                  ventaFNotifier
-                                      .agregarProducto(montoController);
+                                  ventaFNotifier.agregarProducto(
+                                      montoController, cantidadController);
                                 },
                           icon: const Icon(Icons.add_circle)),
                     ),
                   ),
+                  Expanded(
+                    flex: 1,
+                    child: CustomInputField(
+                      textAlign: TextAlign.center,
+                      label: 'Cantidad',
+                      controller: cantidadController,
+                      keyboardType: const TextInputType.numberWithOptions(),
+                      onFieldSubmitted: (_) {
+                        if (ventaFState.cantidad  == 0) {
+                          return;
+                        }
+                        ventaFNotifier.agregarProducto(
+                            montoController, cantidadController);
+                      },
+                      onChanged: (p0) {
+                        ventaFNotifier.updateState(cantidad: p0);
+                      },
+                      suffixIcon: IconButton(
+                          onPressed: ventaFState.cantidad == 0
+                              ? null
+                              : () {
+                                  ventaFNotifier.agregarProducto(
+                                      montoController, cantidadController, conCantidad: true);
+                                },
+                          icon: const Icon(Icons.add_circle)),
+                    ),
+                  )
                 ],
               ),
               // IconButton(

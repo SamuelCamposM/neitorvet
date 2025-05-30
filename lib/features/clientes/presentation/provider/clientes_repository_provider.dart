@@ -7,10 +7,10 @@ import 'package:neitorvet/features/clientes/infrastructure/repositories/clientes
 final clientesRepositoryProvider = Provider<ClientesRepository>(
   (ref) {
     final dio = ref.watch(authProvider.notifier).dio;
-    final rucempresa = ref.watch(authProvider).user?.rucempresa ?? '';
+    final empCategoria = ref.watch(authProvider).user?.empCategoria ?? '';
 
     final clientesRepository = ClientesRepositoryImpl(
-        datasource: ClientesDatasourceImpl(dio: dio, rucempresa: rucempresa));
+        datasource: ClientesDatasourceImpl(dio: dio, empCategoria: empCategoria));
 
     return clientesRepository;
   },

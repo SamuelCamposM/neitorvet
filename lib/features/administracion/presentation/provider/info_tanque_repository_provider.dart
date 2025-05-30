@@ -22,9 +22,9 @@ class TotalesRepository {
 
   Future<ResponseTotalesTanque> getTotalesTanque() async {
     try {
-      final response = await dio
-          .get('/abastecimientos/totales_anual_mensual_semanal_diara');
-      final res = Totalestanque.fromJson(response.data); 
+      final response =
+          await dio.get('/abastecimientos/totales_anual_mensual_semanal_diara');
+      final res = Totalestanque.fromJson(response.data);
       return ResponseTotalesTanque(
         error: '',
         totales: res,
@@ -33,6 +33,26 @@ class TotalesRepository {
       // Manejo de errores
       return ResponseTotalesTanque(
           error: ErrorApi.getErrorMessage(e, 'getTotales'), totales: null);
+    }
+  }
+
+  Future<ResponseTotalesTanque> getInfoManguera(
+      {required String manguera}) async {
+    try {
+      final response = await dio.get(
+          '/abastecimientos/totales_anual_mensual_semanal_diara_by_pistola/$manguera');
+      print(response.data);
+      final res = Totalestanque.fromJson(response.data);
+      return ResponseTotalesTanque(
+        error: '',
+        totales: res,
+      );
+    } catch (e) {
+      // Manejo de errores
+      return ResponseTotalesTanque(
+        error: ErrorApi.getErrorMessage(e, 'getTotales'),
+        totales: null,
+      );
     }
   }
 }

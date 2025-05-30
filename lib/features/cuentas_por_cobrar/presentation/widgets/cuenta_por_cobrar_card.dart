@@ -48,9 +48,7 @@ class CuentaPorCobrarCard extends ConsumerWidget {
         child: GestureDetector(
           onTap: redirect
               ? () {
-                  if (isAdmin) {
-                    context.push('/cuenta_cobrar/${cuentaPorCobrar.ccId}');
-                  }
+                  context.push('/cuenta_cobrar/${cuentaPorCobrar.ccId}');
                 }
               : null,
           child: CardContainer(
@@ -122,7 +120,9 @@ class CuentaPorCobrarCard extends ConsumerWidget {
                           fontSize: size.iScreen(1.7),
                           color: cuentaPorCobrar.ccEstado == 'PENDIENTE'
                               ? Colors.orange
-                              : Colors.red,
+                              : cuentaPorCobrar.ccEstado == 'CANCELADO'
+                                  ? Colors.green
+                                  : Colors.red,
                         ),
                       ),
                       Text(
