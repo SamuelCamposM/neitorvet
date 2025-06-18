@@ -14,4 +14,7 @@ abstract class TurnoRepository {
   });
 
   Future<ResponseVerificarTurnoActivo> verificarTurnoActivo();
+  Future<ResponseHorariosMes> getHorariosMes({
+    required int perId,
+  });
 }

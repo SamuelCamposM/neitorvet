@@ -253,6 +253,39 @@ class _BodyInfoCierreCajas extends ConsumerWidget {
                             color: Colors.purple,
                           ),
                         ),
+                        Text(
+                          'Tar. Crédito: \$${getInfoState.datos.tarjetaCredito}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                        Text(
+                          'Tar. Débito: \$${getInfoState.datos.tarjetaDebito}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.cyanAccent.shade700,
+                          ),
+                        ),
+                        Text(
+                          'Tar. Prepago: \$${getInfoState.datos.tarjetaPrepago}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent.shade700,
+                          ),
+                        ),
+// Suma total de medios de pago
+                        Text(
+                          'Total CxC: \$${Format.roundToTwoDecimals(getInfoState.datos.transferencia + getInfoState.datos.credito + getInfoState.datos.deposito + getInfoState.datos.tarjetaCredito + getInfoState.datos.tarjetaDebito + getInfoState.datos.tarjetaPrepago)}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
                       ],
                     ),
                   ),

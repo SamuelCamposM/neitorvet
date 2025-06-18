@@ -33,6 +33,11 @@ class TurnoRepositoryImpl extends TurnoRepository {
         coordenadasFinalizar: coordenadasFinalizar,
         regId: regId);
   }
+
+  @override
+  Future<ResponseHorariosMes> getHorariosMes({required int perId}) {
+    return datasource.getHorariosMes(perId: perId);
+  }
   // @override
   // Future<ResponseTurno> getTurnoByPage(
   //     {required int cantidad,

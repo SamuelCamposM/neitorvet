@@ -62,6 +62,9 @@ class ClienteNotifier extends StateNotifier<ClienteState> {
       perSaldo: 0,
       perFecReg: '',
       perFecUpd: '',
+      perTipoTransporte: '',
+      perFlota: '',
+      perCompra: '',
     );
   }
 
@@ -91,7 +94,7 @@ class ClienteNotifier extends StateNotifier<ClienteState> {
   }
 
   @override
-  void dispose() { 
+  void dispose() {
     // Log para verificar que se está destruyendo
     super.dispose();
   }

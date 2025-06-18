@@ -78,7 +78,13 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
         credito: Parse.parseDynamicToDouble(response.data?['Credito']),
         transferencia:
             Parse.parseDynamicToDouble(response.data?['Transferencia']),
-        deposito: Parse.parseDynamicToDouble(response.data?['Deposito']),
+        deposito: Parse.parseDynamicToDouble(response.data?['DEPOSITO']),
+        tarjetaCredito:
+            Parse.parseDynamicToDouble(response.data?['TARJETA_DE_CREDITO']),
+        tarjetaDebito:
+            Parse.parseDynamicToDouble(response.data?['TARJETA_DE_DEBITO']),
+        tarjetaPrepago:
+            Parse.parseDynamicToDouble(response.data?['TARJETA_PREPAGO']),
         error: '',
       );
     } on DioException catch (e) {
@@ -88,6 +94,9 @@ class CierreCajasDatasourceImpl extends CierreCajasDatasource {
           ingreso: 0,
           transferencia: 0,
           deposito: 0,
+          tarjetaCredito: 0,
+          tarjetaDebito: 0,
+          tarjetaPrepago: 0,
           error: ErrorApi.getErrorMessage(e, 'getSumaIEC'));
     }
   }

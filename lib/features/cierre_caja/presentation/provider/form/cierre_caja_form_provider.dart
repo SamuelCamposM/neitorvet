@@ -103,7 +103,7 @@ class CierreCajaFormNotifier extends StateNotifier<CierreCajaFormState> {
             // GenericRequiredInput.dirty(state.perProvincia.value),
             // GenericRequiredInput.dirty(state.perRecomendacion.value),
             GenericRequiredInput.dirty(state.cierreCajaForm.cajaDetalle),
-            GenericRequiredInputNumber.dirty(state.cierreCajaForm.cajaMonto),
+            GenericRequiredInputNumber.dirty(state.cierreCajaForm.cajaMonto, condition: true),
             GenericRequiredInput.dirty(state.cierreCajaForm.cajaTipoCaja),
             GenericRequiredInput.dirty(state.cierreCajaForm.cajaTipoDocumento),
           ]));
@@ -118,7 +118,7 @@ class CierreCajaFormNotifier extends StateNotifier<CierreCajaFormState> {
         // GenericRequiredInput.dirty(state.perProvincia.value),
         // GenericRequiredInput.dirty(state.perRecomendacion.value),
         GenericRequiredInput.dirty(state.cierreCajaForm.cajaDetalle),
-        GenericRequiredInputNumber.dirty(state.cierreCajaForm.cajaMonto),
+        GenericRequiredInputNumber.dirty(state.cierreCajaForm.cajaMonto, condition: true),
         GenericRequiredInput.dirty(state.cierreCajaForm.cajaTipoCaja),
         GenericRequiredInput.dirty(state.cierreCajaForm.cajaTipoDocumento),
       ]));

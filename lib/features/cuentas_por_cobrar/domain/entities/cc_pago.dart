@@ -133,6 +133,7 @@ class CcPagoForm extends CcPago {
   final GenericRequiredInput ccTipoInput;
   final GenericRequiredInput ccDepositoInput;
   final GenericRequiredInputNumber ccValorInput;
+  final GenericRequiredInputNumber ccNumeroInput;
   final GenericRequiredInput ccFechaAbonoInput;
   CcPagoForm({
     //*VALIDACIONES
@@ -140,6 +141,7 @@ class CcPagoForm extends CcPago {
     required this.ccTipoInput,
     required this.ccDepositoInput,
     required this.ccValorInput,
+    required this.ccNumeroInput,
     required this.ccFechaAbonoInput,
     //*CAMPOS NORMALES
     required super.ccComprobante,
@@ -186,12 +188,18 @@ class CcPagoForm extends CcPago {
         : this.ccDepositoInput;
 
     final ccValorInput = ccValor != null
-        ? GenericRequiredInputNumber.dirty(Parse.parseDynamicToDouble(ccValor))
+        ? GenericRequiredInputNumber.dirty(Parse.parseDynamicToDouble(ccValor),
+            condition: true)
         : this.ccValorInput;
 
     final ccFechaAbonoInput = ccFechaAbono != null
         ? GenericRequiredInput.dirty(ccFechaAbono)
         : this.ccFechaAbonoInput;
+
+    final ccNumeroInput = ccNumero != null
+        ? GenericRequiredInputNumber.dirty(Parse.parseDynamicToDouble(ccNumero),
+            condition: ccTipo == 'EFECTIVO')
+        : this.ccNumeroInput;
 
     return CcPagoForm(
       // //*REQUERIDOS
@@ -199,6 +207,7 @@ class CcPagoForm extends CcPago {
       ccDepositoInput: ccDepositoInput,
       ccValorInput: ccValorInput,
       ccFechaAbonoInput: ccFechaAbonoInput,
+      ccNumeroInput: ccNumeroInput,
       //*SUS EQUIVALENTES
       // venRucCliente: venRucCliente ?? this.venRucCliente,
 
@@ -243,7 +252,13 @@ class CcPagoForm extends CcPago {
       ccTipoInput: GenericRequiredInput.dirty(venta.ccTipo),
       ccDepositoInput: GenericRequiredInput.dirty(venta.ccDeposito),
       ccValorInput: GenericRequiredInputNumber.dirty(
-          Parse.parseDynamicToDouble(venta.ccValor)),
+          Parse.parseDynamicToDouble(
+            venta.ccValor,
+          ),
+          condition: true),
+      ccNumeroInput: GenericRequiredInputNumber.dirty(
+          Parse.parseDynamicToDouble(venta.ccNumero),
+          condition: venta.ccTipo == 'EFECTIVO'),
       ccFechaAbonoInput: GenericRequiredInput.dirty(venta.ccFechaAbono),
       ccComprobante: venta.ccComprobante,
       ccTipo: venta.ccTipo,

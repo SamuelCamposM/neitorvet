@@ -131,6 +131,7 @@ class CuentaPorCobrarFormNotifier
     state = state.copyWith(
       pagoForm: ccPagoForm,
     );
+    _touchedEverythingPago(false);
   }
 
   void _touchedEverything(bool submit) {
@@ -277,7 +278,7 @@ class CuentaPorCobrarFormNotifier
       );
       return true;
     } catch (e) {
-      // Actualizar el estado para indicar que ya no se está posteando
+      // Actualizar el estado para indica que ya no se está posteando
       state = state.copyWith(isPosting: false);
 
       return false;
@@ -290,9 +291,11 @@ class CuentaPorCobrarFormNotifier
       [
         GenericRequiredInput.dirty(state.pagoForm.ccTipo),
         GenericRequiredInput.dirty(state.pagoForm.ccDeposito),
+        GenericRequiredInputNumber.dirty(state.pagoForm.ccValor,
+            condition: true),
         GenericRequiredInputNumber.dirty(
-          state.pagoForm.ccValor,
-        ),
+            Parse.parseDynamicToDouble(state.pagoForm.ccNumero),
+            condition: state.pagoForm.ccTipo != 'EFECTIVO'),
         GenericRequiredInput.dirty(state.pagoForm.ccFechaAbono),
       ],
     ));

@@ -120,7 +120,7 @@ class _BodyFullScreenLoaderVentaState
               codigo = '0101';
               break;
             case 58:
-              descripcion = 'GASOLINA SÚPER';
+              descripcion = 'GASOLINA SUPER';
               codigo = '0185';
               break;
             case 59:

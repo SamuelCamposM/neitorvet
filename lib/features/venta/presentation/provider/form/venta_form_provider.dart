@@ -6,6 +6,7 @@ import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dar
 import 'package:neitorvet/features/cierre_surtidores/domain/datasources/cierre_surtidores_datasource.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_repository_provider.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
@@ -162,6 +163,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
                 venTelfCliente: updatedCliente.perTelefono,
                 venCeluCliente: updatedCliente.perCelular,
                 venDirCliente: updatedCliente.perDireccion,
+                venFlota: updatedCliente.perFlota,
                 venOtrosDetalles: updatedCliente.perOtros.isEmpty
                     ? ""
                     : updatedCliente.perOtros[0],
@@ -190,6 +192,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
                 venTelfCliente: newCliente.perTelefono,
                 venCeluCliente: newCliente.perCelular,
                 venDirCliente: newCliente.perDireccion,
+                venFlota: newCliente.perFlota,
                 venOtrosDetalles:
                     newCliente.perOtros.isEmpty ? "" : newCliente.perOtros[0],
               ));
@@ -432,6 +435,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
                   state.ventaForm.venFormaPago == "CALIBRACIÓN" ? 'N' : 'F',
               venTipoDocumento:
                   state.ventaForm.venFormaPago == "CALIBRACIÓN" ? 'N' : "F",
+              venFlota: Format.limpiarComillas(state.ventaForm.venFlota),
             )
             .toVenta()
             .toJson(),

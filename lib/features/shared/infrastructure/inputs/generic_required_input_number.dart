@@ -1,16 +1,21 @@
 import 'package:formz/formz.dart';
 
 // Define input validation errors
-enum GenericRequiredInputNumberError { empty, lessThanOrEqualToZero, greaterThanMax }
+enum GenericRequiredInputNumberError {
+  empty,
+  lessThanOrEqualToZero,
+  conditionNotMet
+}
 
-// Extend FormzInput and provide the input type and error type.
 class GenericRequiredInputNumber
     extends FormzInput<num, GenericRequiredInputNumberError> {
-  final num? maxValue;
+  final bool condition;
 
-  // Constructor with required parameter
-  const GenericRequiredInputNumber.pure([this.maxValue]) : super.pure(0);
-  const GenericRequiredInputNumber.dirty(num value, [this.maxValue]) : super.dirty(value);
+  // Constructor con parámetro condition requerido
+  const GenericRequiredInputNumber.pure({required this.condition})
+      : super.pure(0);
+  const GenericRequiredInputNumber.dirty(num value, {required this.condition})
+      : super.dirty(value);
 
   String? get errorMessage {
     if (isValid || isPure) return null;
@@ -23,26 +28,23 @@ class GenericRequiredInputNumber
       return 'El valor debe ser mayor a 0';
     }
 
-    if (displayError == GenericRequiredInputNumberError.greaterThanMax) {
-      return 'El valor debe ser menor o igual a $maxValue';
+    if (displayError == GenericRequiredInputNumberError.conditionNotMet) {
+      return 'La condición no se cumple';
     }
 
     return null;
   }
 
-  // Override validator to handle validating a given input value.
   @override
   GenericRequiredInputNumberError? validator(num? value) {
-    if (value == null) return GenericRequiredInputNumberError.empty;
-
-    if (value <= 0) {
-      return GenericRequiredInputNumberError.lessThanOrEqualToZero;
+    // Si condition es true, el campo es requerido y debe ser mayor a 0
+    if (condition) {
+      if (value == null) return GenericRequiredInputNumberError.empty;
+      if (value <= 0) {
+        return GenericRequiredInputNumberError.lessThanOrEqualToZero;
+      }
     }
-
-    if (maxValue != null && value > maxValue!) {
-      return GenericRequiredInputNumberError.greaterThanMax;
-    }
-
+    // Si condition es false, no se valida (puede ser nulo o <= 0)
     return null;
   }
 }

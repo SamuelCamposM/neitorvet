@@ -56,8 +56,8 @@ class ClienteScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(clienteState.cliente?.perId == 0
-              ? 'Nuevo Cliente ${ventaTab}'
-              : 'Editar Cliente ${ventaTab}'),
+              ? 'Nuevo Cliente'
+              : 'Editar Cliente'),
         ),
         body: clienteState.isLoading
             ? const FullScreenLoader()

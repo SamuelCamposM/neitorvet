@@ -10,10 +10,10 @@ import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
 import 'package:sunmi_printer_plus/enums.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
-import 'package:sunmi_printer_plus/column_maker.dart';
-import 'package:sunmi_printer_plus/sunmi_style.dart';
 
 import '../../../auth/domain/domain.dart';
+import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
 
 // String? _fechaLocal;
 
@@ -27,130 +27,127 @@ Future<void> printTicket(
   User? user,
   String nombreUsuario,
 ) async {
-  await SunmiPrinter.initPrinter();
-  await SunmiPrinter.startTransactionPrint(true);
+  final profile = await CapabilityProfile.load();
+  final printer = NetworkPrinter(PaperSize.mm80, profile);
 
-  if (user!.logo.isNotEmpty) {
-    try {
-      Uint8List byte =
-          (await NetworkAssetBundle(Uri.parse(user.logo)).load(user.logo))
-              .buffer
-              .asUint8List();
-
-      img.Image? originalImage = img.decodeImage(byte);
-
-      if (originalImage != null) {
-        img.Image resizedImage =
-            img.copyResize(originalImage, width: 150, height: 150);
-        Uint8List resizedByte = Uint8List.fromList(img.encodePng(resizedImage));
-
-        await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-        await SunmiPrinter.printImage(resizedByte);
-        await SunmiPrinter.lineWrap(2);
+  // Cambia la IP y puerto por los de tu impresora
+  final result = await printer.connect(
+    '192.168.1.91',
+    port: 9100,
+  );
+  if (result == PosPrintResult.success) {
+    // LOGO
+    if (user != null && user.logo.isNotEmpty) {
+      try {
+        Uint8List byte =
+            (await NetworkAssetBundle(Uri.parse(user.logo)).load(user.logo))
+                .buffer
+                .asUint8List();
+        img.Image? originalImage = img.decodeImage(byte);
+        if (originalImage != null) {
+          img.Image resizedImage =
+              img.copyResize(originalImage, width: 150, height: 150);
+          printer.image(resizedImage);
+          printer.feed(2);
+        }
+      } catch (e) {
+        printer.text('NO LOGO');
+        printer.feed(1);
       }
-    } catch (e) {
-      await SunmiPrinter.printText('NO LOGO');
-      await SunmiPrinter.lineWrap(1);
+    } else {
+      printer.text('NO LOGO');
+      printer.feed(1);
     }
-  } else {
-    await SunmiPrinter.printText('NO LOGO');
-    await SunmiPrinter.lineWrap(1);
-  }
 
-  await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-  await SunmiPrinter.printText('FACTURA',
-      style: SunmiStyle(bold: true, fontSize: SunmiFontSize.LG));
-  await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
-  await SunmiPrinter.printText('Ruc: ${info.venEmpRuc}');
-  await SunmiPrinter.printText('Dir: ${info.venEmpDireccion}');
-  await SunmiPrinter.printText('Tel: ${info.venEmpTelefono}');
-  await SunmiPrinter.printText('Email: ${info.venEmpEmail}');
+    printer.text('FACTURA',
+        styles: PosStyles(
+            align: PosAlign.center, bold: true, height: PosTextSize.size2));
+    printer.text('Ruc: ${info.venEmpRuc}');
+    printer.text('Dir: ${info.venEmpDireccion}');
+    printer.text('Tel: ${info.venEmpTelefono}');
+    printer.text('Email: ${info.venEmpEmail}');
+    printer.hr();
+    printer.text('Cliente: ${info.venNomCliente}');
+    printer.text('Ruc: ${info.venRucCliente}');
+    printer.text('Factura: ${info.venNumFactura}');
+    printer.text('Fecha: ${Format.formatFechaHora(info.venFecReg)}');
+    printer.text('Placa: ${info.venOtrosDetalles}');
+    printer.text(info.venEmailCliente.isNotEmpty
+        ? 'Email: ${info.venEmailCliente[0]}'
+        : 'Email:');
+    printer.text('F. de Pago: ${info.venFormaPago}');
+    printer.hr();
 
-  await SunmiPrinter.line();
-  await SunmiPrinter.printText('Cliente: ${info.venNomCliente}');
-  await SunmiPrinter.printText('Ruc: ${info.venRucCliente}');
-  await SunmiPrinter.printText('Factura: ${info.venNumFactura}');
-  await SunmiPrinter.printText(
-      'Fecha: ${Format.formatFechaHora(info.venFecReg)}');
-  await SunmiPrinter.printText('Placa: ${info.venOtrosDetalles}');
-  await SunmiPrinter.printText(info.venEmailCliente.isNotEmpty
-      ? 'Email: ${info.venEmailCliente[0]}'
-      : 'Email:');
-  await SunmiPrinter.printText('F. de Pago: ${info.venFormaPago}');
+    // Encabezado productos
+    printer.row([
+      PosColumn(
+          text: 'Descripción',
+          width: 6,
+          styles: PosStyles(align: PosAlign.left, bold: true)),
+      PosColumn(
+          text: 'Cant',
+          width: 2,
+          styles: PosStyles(align: PosAlign.center, bold: true)),
+      PosColumn(
+          text: 'vU',
+          width: 2,
+          styles: PosStyles(align: PosAlign.right, bold: true)),
+      PosColumn(
+          text: 'TOT',
+          width: 2,
+          styles: PosStyles(align: PosAlign.right, bold: true)),
+    ]);
 
-  await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
-  await SunmiPrinter.line();
-  await SunmiPrinter.printRow(cols: [
-    ColumnMaker(text: 'Descripción', width: 12, align: SunmiPrintAlign.LEFT),
-    ColumnMaker(text: 'Cant', width: 6, align: SunmiPrintAlign.CENTER),
-    ColumnMaker(text: 'vU', width: 6, align: SunmiPrintAlign.RIGHT),
-    ColumnMaker(text: 'TOT', width: 6, align: SunmiPrintAlign.RIGHT),
-  ]);
+    final productos = info.venProductos as List<dynamic>?;
 
-  final productos = info.venProductos as List<dynamic>?;
-
-  if (productos != null) {
-    for (var item in productos) {
-      await SunmiPrinter.printRow(cols: [
-        ColumnMaker(
-            text: item.descripcion.toString(),
-            width: 12,
-            align: SunmiPrintAlign.LEFT),
-        ColumnMaker(
-            text: item.cantidad.toString(),
-            width: 6,
-            align: SunmiPrintAlign.CENTER),
-        ColumnMaker(
-            text: item.valorUnitario.toString(),
-            width: 6,
-            align: SunmiPrintAlign.RIGHT),
-        ColumnMaker(
-            text: item.precioSubTotalProducto.toString(),
-            width: 6,
-            align: SunmiPrintAlign.RIGHT),
-      ]);
+    if (productos != null) {
+      for (var item in productos) {
+        printer.row([
+          PosColumn(text: item.descripcion.toString(), width: 6),
+          PosColumn(text: item.cantidad.toString(), width: 2),
+          PosColumn(text: item.valorUnitario.toString(), width: 2),
+          PosColumn(text: item.precioSubTotalProducto.toString(), width: 2),
+        ]);
+      }
+    } else {
+      printer.text('No hay productos para mostrar.');
     }
+
+    printer.hr();
+    printer.row([
+      PosColumn(text: 'SubTotal', width: 8),
+      PosColumn(
+          text: info.venSubTotal.toString(),
+          width: 4,
+          styles: PosStyles(align: PosAlign.right)),
+    ]);
+    printer.row([
+      PosColumn(text: 'Iva', width: 8),
+      PosColumn(
+          text: info.venTotalIva.toString(),
+          width: 4,
+          styles: PosStyles(align: PosAlign.right)),
+    ]);
+    printer.row([
+      PosColumn(text: 'TOTAL', width: 8),
+      PosColumn(
+          text: info.venTotal.toString(),
+          width: 4,
+          styles: PosStyles(align: PosAlign.right)),
+    ]);
+    printer.hr();
+    printer.text('Autorización: ${validarCampo(info.venAutorizacion)}');
+    printer.text('\$0.81 : Monto equivalente al subsidio');
+    printer.text('\$0.81 : valor total sin subsidio');
+    printer.text('Manguera: ${info.manguera}');
+    printer.text(nombreUsuario.split(' ')[0]);
+    printer.feed(4);
+    printer.cut();
+    printer.disconnect();
   } else {
-    await SunmiPrinter.printText('No hay productos para mostrar.');
+    // Maneja el error de conexión aquí
+    print('No se pudo conectar a la impresora');
   }
-
-  await SunmiPrinter.line();
-  await SunmiPrinter.printRow(cols: [
-    ColumnMaker(text: 'SubTotal', width: 20, align: SunmiPrintAlign.LEFT),
-    ColumnMaker(
-        text: info.venSubTotal.toString(),
-        width: 10,
-        align: SunmiPrintAlign.RIGHT),
-  ]);
-
-  await SunmiPrinter.printRow(cols: [
-    ColumnMaker(text: 'Iva', width: 20, align: SunmiPrintAlign.LEFT),
-    ColumnMaker(
-        text: info.venTotalIva.toString(),
-        width: 10,
-        align: SunmiPrintAlign.RIGHT),
-  ]);
-
-  await SunmiPrinter.printRow(cols: [
-    ColumnMaker(text: 'TOTAL', width: 20, align: SunmiPrintAlign.LEFT),
-    ColumnMaker(
-        text: info.venTotal.toString(),
-        width: 10,
-        align: SunmiPrintAlign.RIGHT),
-  ]);
-
-  await SunmiPrinter.line();
-  await SunmiPrinter.printText(
-      'Autorización: ${validarCampo(info.venAutorizacion)}');
-  await SunmiPrinter.printText('\$0.81 : Monto equivalente al subsidio',
-      style: SunmiStyle(fontSize: SunmiFontSize.SM));
-  await SunmiPrinter.printText('\$0.81 : valor total sin subsidio',
-      style: SunmiStyle(fontSize: SunmiFontSize.SM));
-  await SunmiPrinter.printText('Manguera: ${info.manguera}');
-  // await SunmiPrinter.printText('Usuario: ${user.usuario}');
-  await SunmiPrinter.printText(nombreUsuario.split(' ')[0]);
-  await SunmiPrinter.lineWrap(4);
-  await SunmiPrinter.exitTransactionPrint(true);
 }
 
 //=================================================================================================//
@@ -281,6 +278,22 @@ Future<void> printTicketBusqueda(
       'Crédito: ${validarCampo(info.credito.toString())}');
   await SunmiPrinter.printText(
       'Depósito: ${validarCampo(info.deposito.toString())}');
+  await SunmiPrinter.printText(
+      'Tar. Crédito: ${validarCampo(info.tarjetaCredito.toString())}');
+  await SunmiPrinter.printText(
+      'Tar. Débito: ${validarCampo(info.tarjetaDebito.toString())}');
+  await SunmiPrinter.printText(
+      'Tar. Prepago: ${validarCampo(info.tarjetaPrepago.toString())}');
+
+// Suma total de todos los valores
+  final suma = (info.transferencia) +
+      (info.credito) +
+      (info.deposito) +
+      (info.tarjetaCredito) +
+      (info.tarjetaDebito) +
+      (info.tarjetaPrepago);
+
+  await SunmiPrinter.printText('Total CxC: $suma');
   await SunmiPrinter.printText('Usuario: ${user.usuario}');
 
   await SunmiPrinter.line();

@@ -18,7 +18,7 @@ class TurnoDatasourceImpl extends TurnoDatasource {
         'qrUbicacion': qrUbicacion,
         'regCoordenadas': regCoordenadas.toJson(),
         'regDispositivo': regDispositivo,
-      }; 
+      };
       final response = await dio.post('/registro_asistencias/iniciar_turno',
           data: queryParameters);
       final Turno turno = Turno.fromJson(response.data['informacion']);
@@ -44,7 +44,7 @@ class TurnoDatasourceImpl extends TurnoDatasource {
         'regId': regId,
       };
       final response = await dio.put('/registro_asistencias/finalizar_turno',
-          data: queryParameters); 
+          data: queryParameters);
       return ResponseFinalizarTurno(
         error: '',
         msg: response.data['msg'],
@@ -72,6 +72,27 @@ class TurnoDatasourceImpl extends TurnoDatasource {
       return ResponseVerificarTurnoActivo(
           error: ErrorApi.getErrorMessage(e, 'verificarTurnoActivo'),
           response: false);
+    }
+  }
+
+  @override
+  Future<ResponseHorariosMes> getHorariosMes({required int perId}) async {
+    try {
+      final response = await dio.get(
+        '/horarios/$perId/mes_actual',
+      );
+      final List<FechasIso> horarios = response.data
+          .map((e) => FechasIso.fromJson(e))
+          .toList()
+          .cast<FechasIso>();
+      return ResponseHorariosMes(
+        error: '',
+        horarios: horarios,
+      );
+    } on DioException catch (e) {
+      return ResponseHorariosMes(
+          error: ErrorApi.getErrorMessage(e, 'verificarTurnoActivo'),
+          horarios: []);
     }
   }
 

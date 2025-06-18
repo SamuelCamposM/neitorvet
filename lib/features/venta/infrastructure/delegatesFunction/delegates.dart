@@ -31,7 +31,6 @@ Future<ClienteForeign?> searchClienteResult({
         size: size,
         icon: Icons.add,
         onPressed: () {
-          print(queryUpdated);
           context.pop();
           context.push(
             '/cliente/0?ventaTab=$ventaTab&search=$queryUpdated',
@@ -44,8 +43,7 @@ Future<ClienteForeign?> searchClienteResult({
             '${clienteItem.perDocNumero} - ${clienteItem.perNombre} - ${clienteItem.perOtros}',
         onItemSelected: onItemSelected,
       ),
-      searchItems: ({search = ''}) async {
-        print('HOLA');
+      searchItems: ({search = ''}) async { 
         final res = await ref
             .read(clientesRepositoryProvider)
             .getClientesByQueryInVentas(search);

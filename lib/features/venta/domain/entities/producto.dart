@@ -139,7 +139,7 @@ class Producto {
       double resvalorIva = 0;
       if (llevaIva == "SI") {
         resvalorIva = (resprecioSubTotalProducto * (iva / 100));
-      } 
+      }
       return Producto(
         cantidad: double.parse(cantidad.toStringAsFixed(4)),
         codigo: codigo,
@@ -152,7 +152,8 @@ class Producto {
         descuento: tresDecimales(resdescuento),
         precioSubTotalProducto: tresDecimales(resprecioSubTotalProducto),
         valorIva: tresDecimales(resvalorIva),
-        costoProduccion: tresDecimales(resvalorUnitario),
+        // costoProduccion: tresDecimales(resvalorUnitario),
+        costoProduccion: 0,
         llevaIva: llevaIva,
         incluyeIva: incluyeIva,
       );

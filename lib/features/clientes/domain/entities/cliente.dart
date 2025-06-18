@@ -44,7 +44,9 @@ class Cliente {
   final String perFecUpd;
   final PerPermisos? perPermisos;
   final String? ventaTab;
-
+  final String perTipoTransporte;
+  final String perFlota;
+  final String perCompra;
   Cliente({
     required this.perNombreComercial,
     required this.perEmpresa,
@@ -85,6 +87,9 @@ class Cliente {
     required this.perSaldo,
     required this.perFecReg,
     required this.perFecUpd,
+    required this.perTipoTransporte,
+    required this.perFlota,
+    required this.perCompra,
     this.perPermisos,
     this.ventaTab,
   });
@@ -130,6 +135,9 @@ class Cliente {
         perSaldo: Parse.parseDynamicToInt(json["perSaldo"]),
         perFecReg: json["perFecReg"] ?? '',
         perFecUpd: json["perFecUpd"] ?? '',
+        perTipoTransporte: json["perTipoTransporte"] ?? '',
+        perFlota: json["perFlota"] ?? '',
+        perCompra: Parse.parseDynamicToString(json["perCompra"]),
         perPermisos: PerPermisos.fromJson(json["perPermisos"]),
         ventaTab: json["ventaTab"],
       );
@@ -174,6 +182,9 @@ class Cliente {
         "perSaldo": perSaldo,
         "perFecReg": perFecReg,
         "perFecUpd": perFecUpd,
+        "perTipoTransporte": perTipoTransporte,
+        "perFlota": perFlota,
+        "perCompra": perCompra,
         "perPermisos": perPermisos?.toJson(),
         "ventaTab": ventaTab,
       };
@@ -271,6 +282,9 @@ class ClienteForm extends Cliente {
     required super.perSaldo,
     required super.perFecReg,
     required super.perFecUpd,
+    required super.perTipoTransporte,
+    required super.perFlota,
+    required super.perCompra,
     required super.ventaTab,
   });
 
@@ -324,6 +338,9 @@ class ClienteForm extends Cliente {
     int? perSaldo,
     String? perFecReg,
     String? perFecUpd,
+    String? perTipoTransporte,
+    String? perFlota,
+    String? perCompra,
     PerPermisos? perPermisos,
     String? ventaTab,
   }) {
@@ -392,6 +409,9 @@ class ClienteForm extends Cliente {
       perSaldo: perSaldo ?? this.perSaldo,
       perFecReg: perFecReg ?? this.perFecReg,
       perFecUpd: perFecUpd ?? this.perFecUpd,
+      perTipoTransporte: perTipoTransporte ?? this.perTipoTransporte,
+      perFlota: perFlota ?? this.perFlota,
+      perCompra: perCompra ?? this.perCompra,
       ventaTab: ventaTab ?? this.ventaTab,
       // perPermisos: perPermisos ?? this.perPermisos,
     );
@@ -445,6 +465,9 @@ class ClienteForm extends Cliente {
         perUbicacion: perUbicacion,
         perUser: perUser,
         perUsuario: perUsuario,
+        perTipoTransporte: perTipoTransporte,
+        perFlota: perFlota,
+        perCompra: perCompra,
         ventaTab: ventaTab,
       );
 
@@ -497,6 +520,9 @@ class ClienteForm extends Cliente {
             perSaldo: cliente.perSaldo,
             perFecReg: cliente.perFecReg,
             perFecUpd: cliente.perFecUpd,
+            perTipoTransporte: cliente.perTipoTransporte,
+            perFlota: cliente.perFlota,
+            perCompra: cliente.perCompra,
             ventaTab: cliente.ventaTab,
           )
         : ClienteForm(
@@ -547,6 +573,9 @@ class ClienteForm extends Cliente {
             perSaldo: cliente.perSaldo,
             perFecReg: cliente.perFecReg,
             perFecUpd: cliente.perFecUpd,
+            perTipoTransporte: cliente.perTipoTransporte,
+            perFlota: cliente.perFlota,
+            perCompra: cliente.perCompra,
             ventaTab: cliente.ventaTab,
           );
   }

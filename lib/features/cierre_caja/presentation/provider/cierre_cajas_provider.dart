@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/auth/domain/domain.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
+import 'package:neitorvet/features/cierre_caja/domain/datasources/cierre_cajas_datasource.dart';
 import 'package:neitorvet/features/cierre_caja/domain/entities/cierre_caja.dart';
 import 'package:neitorvet/features/cierre_caja/domain/repositories/cierre_cajas_repository.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
@@ -23,17 +24,6 @@ enum CierreCajaEstado {
 
   final String value;
   const CierreCajaEstado(this.value);
-}
-
-class SumaIEC {
-  final double ingreso;
-  final double egreso;
-  final double credito;
-  const SumaIEC({
-    this.ingreso = 0,
-    this.egreso = 0,
-    this.credito = 0,
-  });
 }
 
 class GetCierreCajaResponse {
@@ -328,7 +318,6 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
   }
 
   void deleteCierreCaja(int cajaId) async {
- 
     socket.emit('client:eliminarData', {
       'tabla': "caja",
       'rucempresa': user.rucempresa,
@@ -348,9 +337,7 @@ class CierreCajasNotifier extends StateNotifier<CierreCajasState> {
       state = state.copyWith(isLoading: false, error: res.error);
       return;
     }
-    state = state.copyWith(
-        sumaIEC: SumaIEC(
-            ingreso: res.ingreso, egreso: res.egreso, credito: res.credito));
+    state = state.copyWith(sumaIEC: res);
   }
 }
 
@@ -370,7 +357,7 @@ class CierreCajasState {
   final int totalSearched;
   final BusquedaCierreCaja busquedaCierreCaja;
   final bool isSearching;
-  final SumaIEC sumaIEC;
+  final ResponseSumaIEC sumaIEC;
 
   CierreCajasState({
     this.isLastPage = false,
@@ -388,7 +375,17 @@ class CierreCajasState {
     this.totalSearched = 0,
     this.busquedaCierreCaja = const BusquedaCierreCaja(),
     this.isSearching = false,
-    this.sumaIEC = const SumaIEC(),
+    this.sumaIEC = const ResponseSumaIEC(
+      credito: 0,
+      deposito: 0,
+      egreso: 0,
+      ingreso: 0,
+      tarjetaCredito: 0,
+      tarjetaDebito: 0,
+      tarjetaPrepago: 0,
+      transferencia: 0,
+      error: '',
+    ),
   });
 
   CierreCajasState copyWith({
@@ -407,7 +404,7 @@ class CierreCajasState {
     int? totalSearched,
     BusquedaCierreCaja? busquedaCierreCaja,
     bool? isSearching,
-    SumaIEC? sumaIEC,
+    ResponseSumaIEC? sumaIEC,
   }) {
     return CierreCajasState(
       isLastPage: isLastPage ?? this.isLastPage,

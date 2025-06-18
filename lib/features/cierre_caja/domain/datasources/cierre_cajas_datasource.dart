@@ -11,12 +11,16 @@ class ResponseCierreCajasPaginacion {
       {required this.resultado, required this.error, this.total = 0});
 }
 
+// Ejemplo de la clase ResponseSumaIEC
 class ResponseSumaIEC {
   final double ingreso;
   final double egreso;
   final double credito;
   final double transferencia;
   final double deposito;
+  final double tarjetaCredito;
+  final double tarjetaDebito;
+  final double tarjetaPrepago;
   final String error;
 
   const ResponseSumaIEC({
@@ -25,6 +29,9 @@ class ResponseSumaIEC {
     required this.credito,
     required this.transferencia,
     required this.deposito,
+    required this.tarjetaCredito,
+    required this.tarjetaDebito,
+    required this.tarjetaPrepago,
     required this.error,
   });
 }

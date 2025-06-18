@@ -44,6 +44,25 @@ class TurnoNotifier extends StateNotifier<TurnoState> {
           turno: response.turno,
           turnoActivo: response.response,
         );
+        getHorariosMes();
+      }
+    }
+  }
+
+  Future<void> getHorariosMes() async {
+    state = state.copyWith(loading: true);
+    final response = await turnosRepository.getHorariosMes(perId: user.id);
+    if (mounted) {
+      if (response.error.isNotEmpty) {
+        state = state.copyWith(
+          loading: false,
+          errorMessage: response.error,
+        );
+      } else {
+        state = state.copyWith(
+          loading: false,
+          horariosMes: response.horarios,
+        );
       }
     }
   }
@@ -162,7 +181,7 @@ class TurnoState {
   final String errorMessage;
   final String successMessage;
   final Turno? turno;
-
+  final List<FechasIso> horariosMes;
   TurnoState({
     this.qrUbicacion = '',
     this.turnoActivo = false,
@@ -170,6 +189,7 @@ class TurnoState {
     this.errorMessage = '',
     this.successMessage = '',
     this.turno,
+    this.horariosMes = const [],
   });
 
   TurnoState copyWith({
@@ -180,6 +200,7 @@ class TurnoState {
     String? successMessage,
     Turno? turno,
     bool resetTurno = false, // Nuevo marcador para sobrescribir con null
+    List<FechasIso>? horariosMes,
   }) {
     return TurnoState(
       qrUbicacion: qrUbicacion ?? this.qrUbicacion,
@@ -189,6 +210,7 @@ class TurnoState {
       successMessage: successMessage ?? this.successMessage,
       turno:
           resetTurno ? null : (turno ?? this.turno), // Manejo explícito de null
+      horariosMes: horariosMes ?? this.horariosMes,
     );
   }
 }

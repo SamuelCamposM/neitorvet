@@ -1,4 +1,5 @@
 import 'package:neitorvet/features/shared/helpers/parse.dart';
+import 'package:uuid/v4.dart';
 
 class Turno {
   final int regId;
@@ -138,12 +139,12 @@ class RegDatosTurno {
 class FechasIso {
   final String desde;
   final String hasta;
-  final int id;
+  final int? id;
 
   FechasIso({
     required this.desde,
     required this.hasta,
-    required this.id,
+    this.id,
   });
 
   factory FechasIso.fromJson(Map<String, dynamic> json) => FechasIso(

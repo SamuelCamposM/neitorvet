@@ -46,8 +46,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
     ref.listen<VentaAbastecimientoState>(
       ventaAbastecimientoProvider,
       (_, next) {
-        for (var valor in next.valores) {
-          print('Manguera ${valor.pico} : ${valor.valorActual}');
+        for (var valor in next.valores) { 
           final tabFind = tabsState.tabs.firstWhere(
             (tab) => tab.manguera == valor.pico.toString(),
             orElse: () => const TabItem(id: 0, label: '', manguera: ""),
@@ -102,7 +101,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
                 codigo = '0101';
                 break;
               case 58:
-                descripcion = 'GASOLINA SÚPER';
+                descripcion = 'GASOLINA SUPER';
                 codigo = '0185';
                 break;
               case 59:
@@ -117,7 +116,9 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
             ventaFNotifier.setValor(next.abastecimientoSocket!.total);
             ventaFNotifier.updateState(
               ventaForm: ventaFState.ventaForm.copyWith(
-                manguera: next.abastecimientoSocket!.pico.toString(),
+                manguera: next.abastecimientoSocket!.pico.toString() != ''
+                    ? next.abastecimientoSocket!.pico.toString()
+                    : tabFind.manguera,
                 // idAbastecimiento: Parse.parseDynamicToInt(
                 //     next.abastecimientoSocket!.indiceMemoria),
                 totInicio: next.abastecimientoSocket!.totalizadorInicial,
@@ -549,6 +550,7 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                               venTelfCliente: cliente.perTelefono,
                               venCeluCliente: cliente.perCelular,
                               venDirCliente: cliente.perDireccion,
+                              venFlota: cliente.perFlota,
                               venOtrosDetalles: cliente.perOtros.isEmpty
                                   ? ""
                                   : cliente.perOtros[0],
@@ -777,7 +779,7 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                       controller: cantidadController,
                       keyboardType: const TextInputType.numberWithOptions(),
                       onFieldSubmitted: (_) {
-                        if (ventaFState.cantidad  == 0) {
+                        if (ventaFState.cantidad == 0) {
                           return;
                         }
                         ventaFNotifier.agregarProducto(
@@ -791,7 +793,8 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                               ? null
                               : () {
                                   ventaFNotifier.agregarProducto(
-                                      montoController, cantidadController, conCantidad: true);
+                                      montoController, cantidadController,
+                                      conCantidad: true);
                                 },
                           icon: const Icon(Icons.add_circle)),
                     ),

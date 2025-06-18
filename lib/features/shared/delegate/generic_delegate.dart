@@ -52,7 +52,7 @@ class GenericDelegate<T> extends SearchDelegate<SearchGenericResult<T>> {
     loadingStream.add(true);
 
     _debounceTimer = Timer(
-      const Duration(milliseconds: 1000),
+      const Duration(milliseconds: 250),
       () async {
         if (search.isEmpty) {
           if (!debounceItems.isClosed) {

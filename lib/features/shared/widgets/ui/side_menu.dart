@@ -67,7 +67,16 @@ class SideMenuState extends ConsumerState<SideMenu> {
               child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              ...appMenuItems.map(
+              ...[
+                ...appMenuItems,
+                const MenuItem(
+                  title: 'Horarios',
+                  subTitle: "Horarios del mes",
+                  link: "/horarios",
+                  icon: 'assets/images/horario_mes.png',
+                  color: Colors.blue,
+                ),
+              ].map(
                 (e) {
                   if (!authState.isAdmin && e.title == 'Gestión') {
                     return const SizedBox.shrink(); // Ocultar el elemento
@@ -140,16 +149,16 @@ class SideMenuState extends ConsumerState<SideMenu> {
                   if (auth.isAdmin) {
                     ref.read(authProvider.notifier).logout();
                   } else {
-                    final res = await ref
-                        .read(cuentasPorCobrarRepositoryProvider)
-                        .getCuentasPorCobrarPendientes();
-                    if (res.saldoAPagar > 1 && context.mounted) {
-                      NotificationsService.show(
-                          context,
-                          'Hay cuentas por cobrar pendientes: \$${res.saldoAPagar}',
-                          SnackbarCategory.error);
-                      return Navigator.of(context).pop(); // Cerrar el drawer
-                    }
+                    // final res = await ref
+                    //     .read(cuentasPorCobrarRepositoryProvider)
+                    //     .getCuentasPorCobrarPendientes();
+                    // if (res.saldoAPagar > 0 && context.mounted) {
+                    //   NotificationsService.show(
+                    //       context,
+                    //       'Hay cuentas por cobrar pendientes: \$${res.saldoAPagar}',
+                    //       SnackbarCategory.error);
+                    //   return Navigator.of(context).pop(); // Cerrar el drawer
+                    // }
                     final cierreCajasRepository =
                         ref.read(cierreCajasRepositoryProvider);
                     final turnoActivo = ref.read(turnoProvider).turnoActivo;

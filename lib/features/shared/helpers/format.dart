@@ -41,4 +41,10 @@ class Format {
       throw FormatException('Invalid valorPreset: $valorPreset');
     }
   }
+
+  /// Quita las dobles comillas al inicio y final de un string, si existen
+  static String limpiarComillas(String valor) {
+    // Quita todas las comillas dobles
+    return valor.replaceAll('"', '');
+  }
 }

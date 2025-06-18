@@ -149,7 +149,7 @@ class _CuentaPorCobrarFormState extends ConsumerState<_CuentaPorCobrarForm> {
             const SectionTitleDivider(title: 'Agregando Pago', fontSize: 18),
             SectionTitleDivider(
               title:
-                  'Saldo: ${cuentaPorCobrarState.cuentaPorCobrarForm.ccSaldo}', 
+                  'Saldo: ${cuentaPorCobrarState.cuentaPorCobrarForm.ccSaldo}',
             ),
             if (cuentaPorCobrarState.pagoForm.uuid.isNotEmpty)
               SwitchListTile(
@@ -182,7 +182,13 @@ class _CuentaPorCobrarFormState extends ConsumerState<_CuentaPorCobrarForm> {
               label: 'Tipo',
               value: cuentaPorCobrarState.pagoForm.ccTipo,
               onChanged: (String? value) async {
-                updateForm(pagoFormCopyWith(ccTipo: value));
+                updateForm(pagoFormCopyWith(
+                  ccTipo: value,
+                  ccDeposito: value != 'EFECTIVO'
+                      ? 'NINGUNO'
+                      : cuentaPorCobrarState.pagoForm.ccDeposito,
+                  ccBanco: value != 'EFECTIVO' ? 'Banco Del Pichincha' : '',
+                ));
               },
               options: [
                 Option(label: 'Seleccione...', value: '', enabled: false),
@@ -237,12 +243,16 @@ class _CuentaPorCobrarFormState extends ConsumerState<_CuentaPorCobrarForm> {
             ),
             CustomInputField(
               readOnly: cuentaPorCobrarState.pagoForm.ccTipo == 'EFECTIVO',
-              label: 'Número', 
+              label: 'Número',
               initialValue: cuentaPorCobrarState.pagoForm.ccNumero.toString(),
               onChanged: (p0) {
-                updateForm(pagoFormCopyWith(ccNumero: p0));
+                updateForm(pagoFormCopyWith(
+                  ccNumero: p0,
+                ));
               },
-              // errorMessage: clienteForm.perCanton.errorMessage,
+              errorMessage: cuentaPorCobrarState.pagoForm.ccTipo != 'EFECTIVO'
+                  ? cuentaPorCobrarState.pagoForm.ccNumeroInput.errorMessage
+                  : null,
             ),
             CustomSelectField(
               bold: false,

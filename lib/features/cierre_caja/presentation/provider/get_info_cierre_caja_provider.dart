@@ -5,7 +5,7 @@ import 'package:neitorvet/features/cierre_caja/domain/datasources/cierre_cajas_d
 import 'package:neitorvet/features/cierre_caja/domain/entities/no_facturado.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
-import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart'; 
+import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/shared/helpers/get_date.dart';
 
 final getInfoCierreCajaProvider = StateNotifierProvider.autoDispose<
@@ -77,6 +77,9 @@ class GenInfoCierreCajaNotifier extends StateNotifier<GenInfoCierreCajaState> {
           credito: 0,
           transferencia: 0,
           deposito: 0,
+          tarjetaCredito: 0,
+          tarjetaDebito: 0,
+          tarjetaPrepago: 0,
           error: 'Error al cargar los datos',
         ),
       );
@@ -175,6 +178,9 @@ class GenInfoCierreCajaState {
       credito: 0,
       transferencia: 0,
       deposito: 0,
+      tarjetaCredito: 0,
+      tarjetaDebito: 0,
+      tarjetaPrepago: 0,
       error: '',
     ),
     this.fecha = '',

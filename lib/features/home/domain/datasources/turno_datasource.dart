@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/home/domain/entities/turno.dart';
 
@@ -32,6 +33,15 @@ class ResponseVerificarTurnoActivo {
   });
 }
 
+class ResponseHorariosMes {
+  final String error;
+  final List<FechasIso> horarios;
+  ResponseHorariosMes({
+    required this.error,
+    required this.horarios,
+  });
+}
+
 abstract class TurnoDatasource {
   Future<ResponseIniciarTurno> iniciarTurno({
     required String qrUbicacion,
@@ -45,4 +55,7 @@ abstract class TurnoDatasource {
   });
 
   Future<ResponseVerificarTurnoActivo> verificarTurnoActivo();
+  Future<ResponseHorariosMes> getHorariosMes({
+    required int perId,
+  });
 }

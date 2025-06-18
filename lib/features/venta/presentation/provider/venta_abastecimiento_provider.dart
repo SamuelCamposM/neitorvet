@@ -44,8 +44,7 @@ class VentaAbastecimientoNotifier
     );
 
     // Escuchar mensajes del WebSocket de visualización
-    _channelVisualizacion.stream.listen((data) {
-      print('data: $data, rucempresa: $rucempresa');
+    _channelVisualizacion.stream.listen((data) { 
       try {
         final decodedData = json.decode(data); // Decodificar el string JSON
         if (decodedData['type'] == 'live_visualization') {
@@ -63,8 +62,7 @@ class VentaAbastecimientoNotifier
     });
 
     // Escuchar mensajes del WebSocket de abastecimientos
-    _channelAbastecimientos.stream.listen((data) async {
-      print('data: $data, rucempresa: $rucempresa');
+    _channelAbastecimientos.stream.listen((data) async { 
       try {
         final decodedData = json.decode(data);
         if (decodedData['type'] == "dispatch") {

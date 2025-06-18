@@ -1,3 +1,5 @@
+import 'package:esc_pos_printer/esc_pos_printer.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,6 +8,8 @@ import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dar
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
 import 'package:neitorvet/features/home/presentation/provider/turno_provider.dart';
 import 'package:neitorvet/features/home/presentation/widgets/item_menu.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
+import 'package:neitorvet/features/shared/helpers/get_date.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 // import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/shared.dart';
@@ -36,7 +40,7 @@ class HomeScreen extends ConsumerWidget {
 class _HomeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final turnoActivo = ref.watch(turnoProvider).turnoActivo;
+    final turnoState = ref.watch(turnoProvider);
     final authState = ref.watch(authProvider);
 
     final size = Responsive.of(context);
@@ -47,6 +51,41 @@ class _HomeView extends ConsumerWidget {
       // color: Colors.red,
       child: Stack(
         children: [
+          if (turnoState.turno != null &&
+              turnoState.turno!.regDatosTurno.isNotEmpty &&
+              turnoState.turno!.regDatosTurno.first.fechasIso.isNotEmpty &&
+              !authState.isAdmin &&
+              !authState.isDemo)
+            Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Turno de hoy:',
+                    style: TextStyle(
+                      fontSize: size.iScreen(2.0),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueGrey,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Desde: ${Format.formatFechaHora(turnoState.turno!.regDatosTurno.first.fechasIso.first.desde)}',
+                    style: TextStyle(
+                      fontSize: size.iScreen(1.7),
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    'Hasta: ${Format.formatFechaHora(turnoState.turno!.regDatosTurno.first.fechasIso.first.hasta)}',
+                    style: TextStyle(
+                      fontSize: size.iScreen(1.7),
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.all(4.0), // Reducir el padding
             child: Center(
@@ -54,50 +93,68 @@ class _HomeView extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (!authState.isAdmin && !authState.isDemo)
-                    BotonTurno(
-                        size: size, isBotonActivo: turnoActivo, colors: colors),
-                  const SizedBox(height: 8.0),
-                  // if (!isAdmin)
-                  //   Consumer(
-                  //     builder: (context, ref, child) {
-                  //       final qrResult = ref.watch(turnoProvider).qrUbicacion;
-                  //       return Text(
-                  //         qrResult.isNotEmpty
-                  //             ? 'Resultado: $qrResult'
-                  //             : '',
-                  //         style: TextStyle(
-                  //           fontSize: size.iScreen(1.7),
-                  //           fontWeight: FontWeight.bold,
-                  //           color: qrResult.isNotEmpty
-                  //               ? Colors.green
-                  //               : Colors.grey[700],
-                  //         ),
-                  //       );
-                  //     },
-                  //   ),
-                  Wrap(
-                    alignment: WrapAlignment.center, // Centrar los elementos
-                    spacing: size
-                        .iScreen(1.0), // Espacio horizontal entre los elementos
-                    runSpacing:
-                        size.iScreen(1.0), // Espacio vertical entre las filas
-                    children: appMenuItems.map((menuItem) {
-                      if (!authState.isAdmin &&
-                          menuItem.title == 'Gestión' &&
-                          !authState.isDemo) {
-                        return const SizedBox.shrink(); // Ocultar el elemento
-                      }
-                      if (authState.isDemo && menuItem.link == '/admin') {
-                        return ItemMenu(
-                            size: size, menuItem: menuItem, turnoActivo: true);
-                      }
-                      return ItemMenu(
+                  if (authState.isAdmin || authState.isDemo) const SizedBox(),
+                  Column(
+                    children: [
+                      IconButton(
+                          onPressed: () async {
+                            final profile = await CapabilityProfile.load();
+                            final printer =
+                                NetworkPrinter(PaperSize.mm80, profile);
+
+                            // Cambia la IP y puerto por los de tu impresora
+                            final result = await printer.connect(
+                              '192.168.1.91',
+                              port: 9100,
+                            );
+
+                            if (result == PosPrintResult.success) {
+                              printer.text('¡Hola desde Flutter!');
+                              printer.cut();
+                              printer.disconnect();
+                            } else {
+                              NotificationsService.show(
+                                  context,
+                                  'No se pudo conectar a la impresora',
+                                  SnackbarCategory.error);
+                            }
+                          },
+                          icon: Icon(Icons.print)),
+                      if (!authState.isAdmin && !authState.isDemo)
+                        BotonTurno(
                           size: size,
-                          menuItem: menuItem,
-                          turnoActivo: turnoActivo || authState.isAdmin);
-                    }).toList(),
+                          isBotonActivo: turnoState.turnoActivo,
+                          colors: colors,
+                          fechaHoraEntrada: turnoState
+                              .turno?.regDatosTurno.first.fechasIso.first.desde,
+                        ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: size.iScreen(1.0),
+                        runSpacing: size.iScreen(1.0),
+                        children: appMenuItems.map((menuItem) {
+                          if (!authState.isAdmin &&
+                              menuItem.title == 'Gestión' &&
+                              !authState.isDemo) {
+                            return const SizedBox.shrink();
+                          }
+                          if (authState.isDemo && menuItem.link == '/admin') {
+                            return ItemMenu(
+                                size: size,
+                                menuItem: menuItem,
+                                turnoActivo: true);
+                          }
+                          return ItemMenu(
+                              size: size,
+                              menuItem: menuItem,
+                              turnoActivo:
+                                  turnoState.turnoActivo || authState.isAdmin);
+                        }).toList(),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 8.0),
                 ],
               ),
             ),
@@ -113,7 +170,7 @@ class _HomeView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Ver: 1.2.1',
+                      'Ver: 2.045',
                       style: TextStyle(
                         fontSize: size.iScreen(1.7),
                         fontWeight: FontWeight.bold,
@@ -139,11 +196,13 @@ class BotonTurno extends ConsumerWidget {
     required this.size,
     required this.isBotonActivo,
     required this.colors,
+    this.fechaHoraEntrada,
   });
 
   final Responsive size;
   final bool isBotonActivo;
   final ColorScheme colors;
+  final String? fechaHoraEntrada;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -171,6 +230,22 @@ class BotonTurno extends ConsumerWidget {
           NotificationsService.show(
               context, 'Hay Facturas Pendientes', SnackbarCategory.error);
           return;
+        }
+        if (isBotonActivo && context.mounted) {
+          if (fechaHoraEntrada == null || fechaHoraEntrada!.isEmpty) {
+            NotificationsService.show(
+                context,
+                'Fecha y hora de entrada no disponible',
+                SnackbarCategory.error);
+            return;
+          }
+          final noPuedeIniciarTurno =
+              GetDate.noEsHoraDeIniciarTurno("2025-06-16 15:20:00");
+          if (noPuedeIniciarTurno) {
+            NotificationsService.show(
+                context, 'No es hora de iniciar turno', SnackbarCategory.error);
+            return;
+          }
         }
         if (context.mounted) {
           mostrarModalTurno(

@@ -332,6 +332,9 @@ class CuentasPorCobrarViewState extends ConsumerState<CuentasPorCobrarScreen> {
                       },
                     ),
                   ),
+                  SizedBox(
+                    height: size.hScreen(15),
+                  )
                 ],
               ),
             ),

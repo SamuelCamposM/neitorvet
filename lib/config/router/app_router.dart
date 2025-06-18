@@ -17,6 +17,7 @@ import 'package:neitorvet/features/cuentas_por_cobrar/presentation/screens/cuent
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/screens/cuentas_por_cobrar.dart';
 import 'package:neitorvet/features/cuentas_por_cobrar/presentation/screens/pago_screen.dart';
 import 'package:neitorvet/features/home/presentation/screens/cierre_turno_screen.dart';
+import 'package:neitorvet/features/home/presentation/screens/horarios_screen.dart';
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/shared/screen/send_email.dart';
 import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
@@ -129,6 +130,10 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => MenuDespacho(
           ventaId: int.tryParse(state.params['id'].toString()) ?? 0,
         ),
+      ),
+      GoRoute(
+        path: '/horarios',
+        builder: (context, state) => const HorariosScreen(),
       ),
       // GoRoute(
       //   path: '/surtidores',

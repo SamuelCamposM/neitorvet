@@ -6,4 +6,16 @@ class GetDate {
     final DateTime now = DateTime.now().toLocal();
     return DateFormat('yyyy-MM-dd').format(now);
   }
+
+  static String fechaHoraActual() {
+    return DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+  }
+
+  static bool noEsHoraDeIniciarTurno(String fechaHoraEntrada) {
+    final ahora = DateTime.now();
+    final formato = DateFormat('yyyy-MM-dd HH:mm:ss');
+    final fechaTurno = formato.parse(fechaHoraEntrada);
+
+    return ahora.isBefore(fechaTurno);
+  }
 }

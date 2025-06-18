@@ -8,7 +8,7 @@ String getNombreCombustible(int codigoCombustible) {
     case 57:
       return 'GASOLINA EXTRA';
     case 58:
-      return 'GASOLINA SÚPER';
+      return 'GASOLINA SUPER';
     case 59:
       return 'DIESEL PREMIUM';
     default:

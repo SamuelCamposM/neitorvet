@@ -153,7 +153,7 @@ class CierreCajaForm extends CierreCaja {
           ? GenericRequiredInput.dirty(cajaDetalle)
           : cajaDetalleInput,
       cajaMontoInput: cajaMonto != null
-          ? GenericRequiredInputNumber.dirty(cajaMonto)
+          ? GenericRequiredInputNumber.dirty(cajaMonto, condition: true)
           : cajaMontoInput,
       cajaTipoCajaInput: cajaTipoCaja != null
           ? GenericRequiredInput.dirty(cajaTipoCaja)
@@ -211,7 +211,8 @@ class CierreCajaForm extends CierreCaja {
     return cierreCaja.cajaId == 0
         ? CierreCajaForm(
             cajaDetalleInput: const GenericRequiredInput.pure(),
-            cajaMontoInput: const GenericRequiredInputNumber.pure(),
+            cajaMontoInput:
+                const GenericRequiredInputNumber.pure(condition: true),
             cajaTipoCajaInput: const GenericRequiredInput.pure(),
             cajaTipoDocumentoInput: const GenericRequiredInput.pure(),
             cajaDetalle: cierreCaja.cajaDetalle,
@@ -236,8 +237,9 @@ class CierreCajaForm extends CierreCaja {
         : CierreCajaForm(
             cajaDetalleInput:
                 GenericRequiredInput.dirty(cierreCaja.cajaDetalle),
-            cajaMontoInput:
-                GenericRequiredInputNumber.dirty(cierreCaja.cajaMonto),
+            cajaMontoInput: GenericRequiredInputNumber.dirty(
+                cierreCaja.cajaMonto,
+                condition: false),
             cajaTipoCajaInput:
                 GenericRequiredInput.dirty(cierreCaja.cajaTipoCaja),
             cajaTipoDocumentoInput:
