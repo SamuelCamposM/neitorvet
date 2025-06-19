@@ -9,19 +9,6 @@ import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dar
 import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-int getCodigoCombustible(int tanque) {
-  switch (tanque) {
-    case 1:
-      return 58; // GASOLINA SUPER
-    case 2:
-      return 57; // GASOLINA EXTRA
-    case 3:
-      return 59; // DIESEL PREMIUM
-    default:
-      return 0; // DESCONOCIDO
-  }
-}
-
 class ListaTanqueScreen extends ConsumerStatefulWidget {
   const ListaTanqueScreen({
     Key? key,
@@ -179,8 +166,8 @@ class _AnimatedLiquidCircularProgressIndicatorState
           //  1 = super
           //  2 = extra
           //  3 = diesel
-          context
-              .push('/info_tanque/${getCodigoCombustible(combustible.tanque)}');
+          context.push(
+              '/info_tanque/${Format.getCodigoCombustible(combustible.tanque)}');
         },
         child: Card(
           elevation: 5,

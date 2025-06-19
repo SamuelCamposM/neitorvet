@@ -1,5 +1,12 @@
 import 'package:intl/intl.dart';
 
+class CombustibleInfo {
+  final String descripcion;
+  final String codigo;
+
+  CombustibleInfo({required this.descripcion, required this.codigo});
+}
+
 class Format {
   /// Formatea una fecha (String) a un formato local con el nombre del día (3 letras), día/mes/año (ejemplo: mié, 26/03/2025)
   static String formatFecha(String fecha) {
@@ -46,5 +53,58 @@ class Format {
   static String limpiarComillas(String valor) {
     // Quita todas las comillas dobles
     return valor.replaceAll('"', '');
+  }
+
+  static String getNombreCombustible(dynamic codigoCombustible) {
+    final intCodigo = int.tryParse(codigoCombustible.toString());
+    switch (intCodigo) {
+      case 57:
+        return 'GASOLINA EXTRA';
+      case 58:
+        return 'GASOLINA SUPER';
+      case 59:
+        return 'DIESEL PREMIUM';
+      default:
+        return 'DESCONOCIDO';
+    }
+  }
+
+  static int getCodigoCombustibleFromCodigo(String codigo) {
+    switch (codigo) {
+      case '0101':
+        return 57;
+      case '0185':
+        return 58;
+      case '0121':
+        return 59;
+      default:
+        return -1;
+    }
+  }
+
+  static int getCodigoCombustible(int tanque) {
+    switch (tanque) {
+      case 1:
+        return 58; // GASOLINA SUPER
+      case 2:
+        return 57; // GASOLINA EXTRA
+      case 3:
+        return 59; // DIESEL PREMIUM
+      default:
+        return 0; // DESCONOCIDO
+    }
+  }
+
+   static CombustibleInfo getCombustibleInfo(int? codigoCombustible) {
+    switch (codigoCombustible) {
+      case 57:
+        return CombustibleInfo(descripcion: 'GASOLINA EXTRA', codigo: '0101');
+      case 58:
+        return CombustibleInfo(descripcion: 'GASOLINA SUPER', codigo: '0185');
+      case 59:
+        return CombustibleInfo(descripcion: 'DIESEL PREMIUM', codigo: '0121');
+      default:
+        return CombustibleInfo(descripcion: 'DESCONOCIDO', codigo: '0000');
+    }
   }
 }

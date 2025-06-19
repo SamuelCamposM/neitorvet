@@ -21,8 +21,6 @@ import 'package:neitorvet/features/home/presentation/screens/horarios_screen.dar
 import 'package:neitorvet/features/shared/provider/send_email/send_email_provider.dart';
 import 'package:neitorvet/features/shared/screen/send_email.dart';
 import 'package:neitorvet/features/shared/screen/show_pdf_screen.dart';
-import 'package:neitorvet/features/venta/presentation/screens/full_screen_loader_venta.dart';
-
 import 'package:neitorvet/features/venta/presentation/screens/screens.dart';
 
 import 'package:neitorvet/features/home/home.dart';
@@ -189,14 +187,7 @@ final goRouterProvider = Provider((ref) {
           codigoProducto: state.queryParams['codigoProducto'] ?? '',
         ),
       ),
-      GoRoute(
-        path: '/cargando/venta',
-        builder: (context, state) {
-          final numeroPistola = state.queryParams['numeroPistola'] ?? '';
-          final venId = state.queryParams['venId'] ?? '';
-          return FullScreenLoaderVenta(manguera: numeroPistola, venId: venId);
-        },
-      ),
+
       // GoRoute(
       //   path: '/product/:id',
       //   builder: (context, state) {

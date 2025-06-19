@@ -4,23 +4,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_mar_pad.dart';
 import 'package:neitorvet/features/shared/widgets/card/card_container.dart';
 import 'package:neitorvet/features/administracion/domain/entities/manguera_status.dart';
-
-int getCodigoCombustibleFromCodigo(String codigo) {
-  switch (codigo) {
-    case '0101':
-      return 57;
-    case '0185':
-      return 58;
-    case '0121':
-      return 59;
-    default:
-      return -1;
-  }
-}
 
 class EstacionCard extends ConsumerWidget {
   final Estacion estacion;
@@ -95,7 +83,7 @@ class EstacionCard extends ConsumerWidget {
           onTap: redirect
               ? () {
                   context.push(
-                    '/info_manguera?manguera=${estacion.numeroPistola}&codigoProducto=${getCodigoCombustibleFromCodigo(estacion.codigoProducto.toString())}',
+                    '/info_manguera?manguera=${estacion.numeroPistola}&codigoProducto=${Format.getCodigoCombustibleFromCodigo(estacion.codigoProducto.toString())}',
                   );
                 }
               : null,

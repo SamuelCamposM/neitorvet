@@ -6,6 +6,7 @@ import 'package:neitorvet/features/administracion/domain/entities/live_visualiza
 import 'package:neitorvet/features/administracion/presentation/widgets/estacion_card.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/shared.dart';
@@ -46,7 +47,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
     ref.listen<VentaAbastecimientoState>(
       ventaAbastecimientoProvider,
       (_, next) {
-        for (var valor in next.valores) { 
+        for (var valor in next.valores) {
           final tabFind = tabsState.tabs.firstWhere(
             (tab) => tab.manguera == valor.pico.toString(),
             orElse: () => const TabItem(id: 0, label: '', manguera: ""),
@@ -91,27 +92,12 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
             final ventaFState =
                 ref.watch(ventaFormProvider(ventaFormProviderParams));
             // Variables para descripción y código según el códigoCombustible
-            String descripcion = '';
-            String codigo = '';
 
             // Asignar valores según el códigoCombustible
-            switch (next.abastecimientoSocket?.codigoCombustible) {
-              case 57:
-                descripcion = 'GASOLINA EXTRA';
-                codigo = '0101';
-                break;
-              case 58:
-                descripcion = 'GASOLINA SUPER';
-                codigo = '0185';
-                break;
-              case 59:
-                descripcion = 'DIESEL PREMIUM';
-                codigo = '0121';
-                break;
-              default:
-                descripcion = 'DESCONOCIDO';
-                codigo = '0000';
-            }
+            final info = Format.getCombustibleInfo(
+                next.abastecimientoSocket?.codigoCombustible);
+            final descripcion = info.descripcion;
+            final codigo = info.codigo;
 
             ventaFNotifier.setValor(next.abastecimientoSocket!.total);
             ventaFNotifier.updateState(

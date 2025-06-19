@@ -4,8 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neitorvet/config/menu/menu_item.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_caja/presentation/provider/cierre_cajas_repository_provider.dart';
-import 'package:neitorvet/features/cuentas_por_cobrar/presentation/provider/cuentas_por_cobrar_provider.dart';
-import 'package:neitorvet/features/cuentas_por_cobrar/presentation/provider/cuentas_por_cobrar_repository_provider.dart';
+
 import 'package:neitorvet/features/home/presentation/provider/turno_provider.dart';
 import 'package:neitorvet/features/shared/helpers/get_date.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';

@@ -1,20 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/administracion/presentation/provider/info_manguera_provider.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/screen/full_screen_loader.dart';
-
-String getNombreCombustible(int codigoCombustible) {
-  switch (codigoCombustible) {
-    case 57:
-      return 'GASOLINA EXTRA';
-    case 58:
-      return 'GASOLINA SUPER';
-    case 59:
-      return 'DIESEL PREMIUM';
-    default:
-      return 'DESCONOCIDO';
-  }
-}
 
 class InfoManguera extends ConsumerWidget {
   final String manguera;
@@ -30,7 +18,7 @@ class InfoManguera extends ConsumerWidget {
     final infoMangueraState =
         ref.watch(infoMangueraProvider('$manguera/+/$codigoProducto'));
     final nombreCombustible =
-        '$manguera: ${getNombreCombustible(int.parse(codigoProducto))}';
+        '$manguera: ${Format.getNombreCombustible(int.parse(codigoProducto))}';
     if (infoMangueraState.isLoading) {
       return Scaffold(
         appBar: AppBar(

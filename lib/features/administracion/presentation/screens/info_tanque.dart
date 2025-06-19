@@ -1,20 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/administracion/presentation/provider/info_tanque_provider.dart';
+import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/screen/full_screen_loader.dart';
-
-String getNombreCombustible(int codigoCombustible) {
-  switch (codigoCombustible) {
-    case 57:
-      return 'GASOLINA EXTRA';
-    case 58:
-      return 'GASOLINA SUPER';
-    case 59:
-      return 'DIESEL PREMIUM';
-    default:
-      return 'DESCONOCIDO';
-  }
-}
 
 class InfoTanque extends ConsumerWidget {
   final String combustible;
@@ -28,7 +16,7 @@ class InfoTanque extends ConsumerWidget {
     if (infoTanqueState.isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(getNombreCombustible(int.parse(combustible))),
+          title: Text(Format.getNombreCombustible(int.parse(combustible))),
         ),
         body: const FullScreenLoader(),
       );
@@ -38,7 +26,7 @@ class InfoTanque extends ConsumerWidget {
       return Scaffold(
         appBar: AppBar(
           title: Text(
-            getNombreCombustible(int.parse(combustible)),
+            Format.getNombreCombustible(int.parse(combustible)),
           ),
         ),
         body: FullScreenLoader(
@@ -55,7 +43,7 @@ class InfoTanque extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          getNombreCombustible(int.parse(combustible)),
+          Format.getNombreCombustible(int.parse(combustible)),
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
