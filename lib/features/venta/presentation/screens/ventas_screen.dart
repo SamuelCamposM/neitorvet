@@ -9,6 +9,7 @@ import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delega
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
+import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 import 'package:neitorvet/features/venta/presentation/widgets/venta_card.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
@@ -92,7 +93,16 @@ class VentasViewState extends ConsumerState<VentasScreen> {
 
     ref.listen(
       ventasProvider,
-      (_, next) {
+      (prev, next) {
+        print(prev?.lastVenta?.venId);
+        print(next.lastVenta?.venId);
+        if (prev?.lastVenta != null &&
+            prev?.lastVenta?.venId != next.lastVenta?.venId) {
+          if (next.lastVenta!.venUser == authState.user!.usuario) {
+            printTicket(
+                next.lastVenta!, authState.user!, authState.user!.usuario);
+          }
+        }
         if (next.error.isEmpty) return;
         NotificationsService.show(context, next.error, SnackbarCategory.error);
         ref.read(ventasProvider.notifier).resetError();

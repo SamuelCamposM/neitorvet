@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
+import 'package:neitorvet/features/administracion/domain/entities/manguera_status.dart';
 import 'package:neitorvet/features/administracion/presentation/widgets/estacion_card.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
+import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:neitorvet/features/shared/shared.dart';
 import 'package:neitorvet/features/shared/utils/responsive.dart';
 import 'package:neitorvet/features/shared/widgets/form/email_list.dart';
@@ -19,8 +21,8 @@ import 'package:neitorvet/features/venta/infrastructure/delegatesFunction/delega
 import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/tabs_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/venta_abastecimiento_provider.dart';
-
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class VentaTabsScreen extends ConsumerStatefulWidget {
   const VentaTabsScreen({Key? key}) : super(key: key);
@@ -33,7 +35,27 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
   final PageController _pageController = PageController(initialPage: 0);
 
   @override
+  void initState() {
+    super.initState();
+    WakelockPlus.enable(); // Mantiene la pantalla encendida
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'No bloquee la pantalla ni salga de esta sección mientras factura. La pantalla permanecerá encendida automáticamente.',
+            ),
+            duration: Duration(seconds: 6),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    WakelockPlus.disable(); // Permite que la pantalla se apague normalmente
     _pageController.dispose();
     super.dispose();
   }
@@ -283,6 +305,9 @@ class VentaScreen extends ConsumerWidget {
                 ventaFormProviderParams: ventaFormProviderParams,
               ),
         floatingActionButton: ventaFState.isLoading
+            // floatingActionButton: (ventaFState.ventaForm.venEstado != 'ACTIVA' &&
+            //     ventaFState.isLoading) ||
+            // (!ventaFState.puedeGuardar && ventaFState.isLoading)
             ? null
             : _FloatingButton(
                 ventaFState: ventaFState,
@@ -304,8 +329,10 @@ class _FloatingButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final ventasState = ref.watch(ventasProvider);
+    final ventaFState = ref.watch(ventaFormProvider(ventaFormProviderParams));
     final ventaFNotifier =
         ref.watch(ventaFormProvider(ventaFormProviderParams).notifier);
+
     return FloatingActionButton(
       onPressed: () async {
         if (ventaFState.isPosting || ventaFState.saved) {
@@ -382,6 +409,7 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
     //     NotificationsService.show(context, next.error, SnackbarCategory.error);
     //   },
     // );
+    final socket = ref.watch(socketProvider);
     ref.listen(
       ventasProvider,
       (_, next) {
@@ -393,12 +421,20 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
     // final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+      child: RefreshIndicator(
+        onRefresh: () async {
+          ventaFNotifier.setAbastecimiento();
+        },
+        child: SingleChildScrollView(
+            child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height,
+          ),
           child: Column(
             children: [
               Row(
                 children: [
+                  Text(socket.connected ? 'Conectado' : 'Desconectado'),
                   Text(
                     'Factura #:  ',
                     style: TextStyle(
@@ -978,9 +1014,11 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                         ),
                     ],
                   )),
-              SizedBox(height: size.hScreen(15)),
+              SizedBox(height: size.hScreen(25)),
             ],
-          )),
+          ),
+        )),
+      ),
     );
   }
 }

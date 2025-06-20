@@ -15,11 +15,11 @@ import 'package:neitorvet/features/venta/presentation/provider/form/venta_form_p
 import 'package:neitorvet/features/venta/presentation/provider/tabs_provider.dart';
 import 'package:neitorvet/features/venta/presentation/provider/ventas_provider.dart';
 
-class ResponseModal {
+class ResponseModalEstacion {
   Estacion estacion;
   Surtidor surtidor;
 
-  ResponseModal({
+  ResponseModalEstacion({
     required this.estacion,
     required this.surtidor,
   });
@@ -228,8 +228,9 @@ class _CardSurtidor extends ConsumerWidget {
                                 'Este lado no tiene productos',
                                 SnackbarCategory.error);
                           }
-                          ResponseModal? responseModal = await _surtidorModal(
-                              context, size, surtidor, estaciones);
+                          ResponseModalEstacion? responseModal =
+                              await _surtidorModal(
+                                  context, size, surtidor, estaciones);
 
                           if (responseModal != null) {
                             // final res = await ref
@@ -350,12 +351,8 @@ class _CardSurtidor extends ConsumerWidget {
                                     modo: '01');
 
                             //* ESTADO DEL FORM
-                            ventaFormNotifier.setManguera(responseModal
-                                .estacion.numeroPistola
-                                .toString());
-                            ventaFormNotifier.setNombreCombustible(responseModal
-                                .estacion.nombreProducto
-                                .toString());
+                            ventaFormNotifier.setValoresEstacion(responseModal);
+                            
                             //* ESTADO DEL TAB
                             ref.read(tabsProvider.notifier).updateTabManguera(
                                   ventaFState.ventaFormProviderParams.id,
@@ -404,9 +401,9 @@ class _CardSurtidor extends ConsumerWidget {
   }
 }
 
-Future<ResponseModal?> _surtidorModal(BuildContext context, Responsive size,
-    Surtidor data, List<Estacion> estaciones) async {
-  return await showCupertinoModalPopup<ResponseModal>(
+Future<ResponseModalEstacion?> _surtidorModal(BuildContext context,
+    Responsive size, Surtidor data, List<Estacion> estaciones) async {
+  return await showCupertinoModalPopup<ResponseModalEstacion>(
     context: context,
     builder: (BuildContext builder) {
       return CupertinoActionSheet(
@@ -423,7 +420,7 @@ Future<ResponseModal?> _surtidorModal(BuildContext context, Responsive size,
             child: Text('${e.nombreProducto ?? ""} - ${e.numeroPistola}'),
             onPressed: () {
               Navigator.pop(
-                  context, ResponseModal(estacion: e, surtidor: data));
+                  context, ResponseModalEstacion(estacion: e, surtidor: data));
             },
           );
         }).toList(),
@@ -484,7 +481,7 @@ Future<String?> mostrarModalCentrado({
                     label: 'Valor \$',
                     onChanged: (p0) {
                       // Borra el valor de galones y actualiza el estado
-                      setState(() { 
+                      setState(() {
                         valorController.value = TextEditingValue(
                           text: p0,
                         );

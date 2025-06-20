@@ -7,6 +7,8 @@ import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dar
 import 'package:neitorvet/features/shared/msg/show_snackbar.dart';
 import 'package:neitorvet/features/shared/provider/download_pdf.dart';
 
+import 'package:image/image.dart' as img; // Agrega esta importación
+
 class UploadInput extends ConsumerStatefulWidget {
   final bool disabled;
   final bool disabledDelete;
@@ -72,9 +74,30 @@ class _UploadInputState extends ConsumerState<UploadInput> {
     final dio = ref.read(authProvider.notifier).dio;
     try {
       final fileName = file.path.split('/').last;
+
+      // Si es imagen, reducir tamaño/resolución
+      final isImage = ['png', 'jpg', 'jpeg']
+          .any((ext) => fileName.toLowerCase().endsWith(ext));
+      File fileToUpload = file;
+      if (isImage) {
+        final bytes = await file.readAsBytes();
+        final image = img.decodeImage(bytes);
+        if (image != null) {
+          // Redimensionar (por ejemplo, ancho máximo 1024px)
+          final resized = img.copyResize(image, width: 1024);
+          final resizedBytes =
+              img.encodeJpg(resized, quality: 80); // Puedes ajustar la calidad
+          final tempDir = Directory.systemTemp;
+          final tempFile = await File('${tempDir.path}/resized_$fileName')
+              .writeAsBytes(resizedBytes);
+          fileToUpload = tempFile;
+        }
+      }
+
       final formData = FormData.fromMap({
         "tipo": widget.label,
-        "archivo": await MultipartFile.fromFile(file.path, filename: fileName),
+        "archivo":
+            await MultipartFile.fromFile(fileToUpload.path, filename: fileName),
       });
 
       // Si hay un archivo previo, eliminarlo
@@ -93,7 +116,6 @@ class _UploadInputState extends ConsumerState<UploadInput> {
     } catch (e) {
       NotificationsService.show(context.mounted ? context : null,
           'Hubo un error al subir el archivo', SnackbarCategory.error);
-      // Puedes mostrar un snackbar o similar
     }
     widget.setLoading(false);
   }

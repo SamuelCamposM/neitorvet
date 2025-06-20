@@ -71,4 +71,9 @@ class CierreSurtidoresRepositoryImpl extends CierreSurtidoresRepository {
   }) {
     return datasource.setModoManguera(manguera: manguera, modo: modo);
   }
+
+  @override
+  Future<ResponseLastDispatch> getLastDispatch({required String manguera}) {
+    return datasource.getLastDispatch(manguera: manguera);
+  }
 }

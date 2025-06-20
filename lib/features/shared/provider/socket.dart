@@ -5,7 +5,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 final socketProvider = Provider<io.Socket>((ref) {
   final socket = io.io(Environment.socketUrl, <String, dynamic>{
     'transports': ['websocket'],
-    'autoConnect': false,
+    'autoConnect': true, 
   });
 
   // Solo conectar si no está ya conectado o conectando

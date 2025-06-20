@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -5,10 +7,13 @@ import 'package:neitorvet/features/administracion/domain/entities/manguera_statu
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/datasources/cierre_surtidores_datasource.dart';
 import 'package:neitorvet/features/cierre_surtidores/presentation/provider/cierre_surtidores_repository_provider.dart';
+import 'package:neitorvet/features/cierre_surtidores/presentation/screens/menu_despacho.dart';
 import 'package:neitorvet/features/clientes/domain/entities/cliente.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
+import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/provider/socket.dart';
 import 'package:neitorvet/features/venta/domain/datasources/ventas_datasource.dart';
+import 'package:neitorvet/features/venta/domain/entities/abastecimiento.dart';
 import 'package:neitorvet/features/venta/domain/entities/forma_pago.dart';
 import 'package:neitorvet/features/venta/domain/entities/producto.dart';
 import 'package:neitorvet/features/venta/domain/entities/venta.dart';
@@ -45,8 +50,7 @@ final ventaFormProvider = StateNotifierProvider.family
         (ref, params) {
   final ventasProviderNotifier = ref.read(ventasProvider.notifier);
   final removeTabById = ref.watch(tabsProvider.notifier).removeTabById;
-  final setModoManguera =
-      ref.read(cierreSurtidoresRepositoryProvider).setModoManguera;
+  final surtidoresProvider = ref.read(cierreSurtidoresRepositoryProvider);
   final formasPago = ref.read(ventasProvider).formasPago;
   final user = ref.read(authProvider).user!;
   final iva = user.iva;
@@ -57,7 +61,8 @@ final ventaFormProvider = StateNotifierProvider.family
   return VentaFormNotifier(
     socket: socket,
     createUpdateVenta: ventasProviderNotifier.createUpdateVenta,
-    setModoManguera: setModoManguera,
+    setModoManguera: surtidoresProvider.setModoManguera,
+    getLastDispatch: surtidoresProvider.getLastDispatch,
     ventaFormProviderParams: params,
     removeTabById: removeTabById,
     getSecuencia: ventasProviderNotifier.getSecuencia,
@@ -83,6 +88,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   final io.Socket socket;
   final Future<ResponseSecuencia> Function() getSecuencia;
   final Future<GetVentaResponse> Function(int venId) getVentaById;
+  final Future<ResponseLastDispatch> Function({required String manguera})
+      getLastDispatch;
 
   VentaFormNotifier({
     required this.getSecuencia,
@@ -97,6 +104,7 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     required this.rol,
     required this.rucempresa,
     required this.usuario,
+    required this.getLastDispatch,
   }) : super(VentaFormState(
             ventaForm: VentaForm.fromVenta(Venta.defaultVenta()),
             ventaFormProviderParams: ventaFormProviderParams
@@ -393,14 +401,14 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     final totalChunks = (entries.length / chunkSize).ceil();
 
     for (int i = 0; i < totalChunks; i++) {
-      // final start = i * chunkSize;
-      // final end = start + chunkSize;
-      // final chunk =
-      //     entries.sublist(start, end > entries.length ? entries.length : end);
+      final start = i * chunkSize;
+      final end = start + chunkSize;
+      final chunk =
+          entries.sublist(start, end > entries.length ? entries.length : end);
 
-      // final chunkMap = Map.fromEntries(chunk);
+      final chunkMap = Map.fromEntries(chunk);
       // Convertir el fragmento en un mapa
-      // print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
+      print('Parte ${i + 1} de $totalChunks: ${jsonEncode(chunkMap)}');
     }
   }
 
@@ -493,20 +501,126 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     state = state.copyWith(error: '');
   }
 
-  void setManguera(String? manguera) {
-    state = state.copyWith(manguera: manguera);
-  }
-
   void setValor(double? valor) {
     state = state.copyWith(valor: valor);
   }
 
-  void setNombreCombustible(String? nombreCombustible) {
-    state = state.copyWith(nombreCombustible: nombreCombustible);
+  void setValoresEstacion(ResponseModalEstacion response) async {
+    final res = await getLastDispatch(
+      manguera: response.estacion.numeroPistola.toString(),
+    );
+    state = state.copyWith(
+      manguera: response.estacion.numeroPistola.toString(),
+      nombreCombustible: response.estacion.nombreProducto.toString(),
+      indiceMemoria: res.abastecimientoSocket?.indiceMemoria.toString(),
+    );
   }
 
   void setEstadoManguera(Datum? estadoManguera) {
     state = state.copyWith(estadoManguera: estadoManguera);
+  }
+
+  void setAbastecimiento() async {
+    final res = await getLastDispatch(
+      manguera: state.manguera,
+    );
+
+    if (res.error.isNotEmpty) {
+      state = state.copyWith(error: res.error);
+
+      _resetError();
+      return;
+    }
+    final abastecimientoSocket = res.abastecimientoSocket;
+
+    if (abastecimientoSocket != null) {
+      if (
+          abastecimientoSocket.indiceMemoria == state.indiceMemoria
+           &&
+          Parse.parseDynamicToString(abastecimientoSocket.pico) !=
+              state.manguera) {
+        state = state.copyWith(
+          error: 'No hay abastecimiento nuevo',
+        );
+        _resetError();
+        // Si el índice de memoria es el mismo, no hacer nada
+        return;
+      }
+      if (state.manguera.isNotEmpty) {
+        // Variables para descripción y código según el códigoCombustible
+
+        // Asignar valores según el códigoCombustible
+        final info =
+            Format.getCombustibleInfo(abastecimientoSocket.codigoCombustible);
+        final descripcion = info.descripcion;
+        final codigo = info.codigo;
+
+        setValor(abastecimientoSocket.total);
+        updateState(
+          ventaForm: state.ventaForm.copyWith(
+            manguera: abastecimientoSocket.pico.toString(),
+            // idAbastecimiento: Parse.parseDynamicToInt(
+            //     abastecimientoSocket.indiceMemoria),
+            totInicio: abastecimientoSocket.totalizadorInicial,
+            totFinal: abastecimientoSocket.totalizadorFinal,
+            abastecimiento: Abastecimiento(
+              registro: abastecimientoSocket.indiceMemoria, //indice_memoria
+              pistola: abastecimientoSocket.pico, //pico
+              numeroTanque: abastecimientoSocket.tanque, //tanque
+              codigoCombustible:
+                  abastecimientoSocket.codigoCombustible, //tanque
+              valorTotal: abastecimientoSocket.total, //total
+              volTotal: abastecimientoSocket.volumen, //volumen
+              precioUnitario: abastecimientoSocket.precioUnitario,
+              tiempo:
+                  abastecimientoSocket.duracionSegundos, // duracion_segundos
+              fechaHora:
+                  '${abastecimientoSocket.fecha} ${abastecimientoSocket.hora}', // fecha
+              // "": "08:50:09",
+              totInicio: abastecimientoSocket.totalizadorInicial,
+              totFinal: abastecimientoSocket.totalizadorFinal,
+              iDoperador: abastecimientoSocket.idFrentista, //id_frentista
+              iDcliente: abastecimientoSocket.idCliente, //id_cliente
+              volTanque: Parse.parseDynamicToInt(abastecimientoSocket
+                  .odometroOVolTanque), //odometro_o_vol_tanque
+              facturado: 1,
+              nombreCombustible: descripcion, //descripcion
+              usuario: usuario,
+              cedulaCliente: state.ventaForm.venRucCliente,
+              nombreCliente: state.ventaForm.venNomCliente,
+            ),
+          ),
+          nuevoProducto: Producto(
+            cantidad: 0,
+            codigo: codigo,
+            descripcion: descripcion,
+            valUnitarioInterno:
+                Parse.parseDynamicToDouble(abastecimientoSocket.precioUnitario),
+            valorUnitario:
+                Parse.parseDynamicToDouble(abastecimientoSocket.precioUnitario),
+            llevaIva: 'SI',
+            incluyeIva: 'SI',
+            recargoPorcentaje: 0,
+            recargo: 0,
+            descPorcentaje: state.ventaForm.venDescPorcentaje,
+            descuento: 0,
+            precioSubTotalProducto: 0,
+            valorIva: 0,
+            costoProduccion: 0,
+          ),
+          monto: abastecimientoSocket.total.toString(),
+        );
+        agregarProducto(null, null, sinAlerta: true);
+        state = state.copyWith(puedeGuardar: true);
+      }
+    } else {
+      state = state.copyWith(
+        error: 'No hay abastecimiento',
+      );
+      _resetError();
+      // Si el índice de memoria es el mismo, no hacer nada
+      return;
+    }
   }
 
   @override
@@ -551,6 +665,9 @@ class VentaFormState {
   final double? valor;
   final Datum estadoManguera;
   final bool saved;
+  final bool puedeGuardar;
+  //*indice
+  final String indiceMemoria;
   VentaFormState({
 // //* VENTA
     required this.ventaFormProviderParams,
@@ -579,6 +696,8 @@ class VentaFormState {
     this.valor,
     this.estadoManguera = Datum.L, // Provide default value here
     this.saved = false,
+    this.indiceMemoria = '', // Provide default value here
+    this.puedeGuardar = false, // Provide default value here
   }); // Provide default value here
 
   VentaFormState copyWith({
@@ -604,6 +723,8 @@ class VentaFormState {
     double? valor,
     Datum? estadoManguera,
     bool? saved,
+    String? indiceMemoria,
+    bool? puedeGuardar,
   }) {
     return VentaFormState(
       ventaFormProviderParams:
@@ -629,6 +750,8 @@ class VentaFormState {
       valor: valor ?? this.valor,
       estadoManguera: estadoManguera ?? this.estadoManguera,
       saved: saved ?? this.saved,
+      indiceMemoria: indiceMemoria ?? this.indiceMemoria,
+      puedeGuardar: puedeGuardar ?? this.puedeGuardar,
     );
   }
 }

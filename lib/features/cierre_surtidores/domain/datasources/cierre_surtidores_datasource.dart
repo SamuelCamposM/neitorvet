@@ -1,5 +1,6 @@
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/cierre_surtidor.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
+import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_socket.dart';
 
 class ResponseCierreSurtidores {
   final List<CierreSurtidor> resultado;
@@ -55,6 +56,15 @@ class ResponseModoManguera {
   });
 }
 
+class ResponseLastDispatch {
+  final String error;
+  final AbastecimientoSocket? abastecimientoSocket;
+  ResponseLastDispatch({
+    required this.error,
+    required this.abastecimientoSocket,
+  });
+}
+
 abstract class CierreSurtidoresDatasource {
   Future<ResponseCierreSurtidores> getCierreSurtidoresByPage(
       {required int cantidad,
@@ -89,5 +99,8 @@ abstract class CierreSurtidoresDatasource {
   Future<ResponseModoManguera> setModoManguera({
     required String manguera,
     required String modo,
+  });
+  Future<ResponseLastDispatch> getLastDispatch({
+    required String manguera,
   });
 }

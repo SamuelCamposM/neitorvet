@@ -28,7 +28,7 @@ class ListaTanqueScreenState extends ConsumerState<ListaTanqueScreen> {
     super.initState();
     // Conectar al WebSocket
     _channelInventario = WebSocketChannel.connect(
-      Uri.parse('wss://zaracayapi.neitor.com/ws/inventario_actual'),
+      Uri.parse('ws://186.101.181.90:9111/ws/inventario_actual'),
     );
 
     // Escuchar mensajes del WebSocket

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
 import 'package:neitorvet/features/administracion/domain/entities/manguera_status.dart';
-import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart'; 
+import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/shared/helpers/get_date.dart';
 import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -31,19 +31,20 @@ class VentaAbastecimientoNotifier
         )) {
     // Conectar a los WebSockets
     _channelVisualizacion = WebSocketChannel.connect(
-      Uri.parse('wss://zaracayapi.neitor.com/ws/despachos_visualizacion'),
+      Uri.parse('ws://186.101.181.90:9111/ws/despachos_visualizacion'),
     );
 
     _channelAbastecimientos = WebSocketChannel.connect(
-      Uri.parse('wss://zaracayapi.neitor.com/ws/abastecimientos'),
+      Uri.parse('ws://186.101.181.90:9111/ws/abastecimientos'),
     );
 
     _channelStatus = WebSocketChannel.connect(
-      Uri.parse('wss://zaracayapi.neitor.com/ws/status_picos'),
+      Uri.parse('ws://186.101.181.90:9111/ws/status_picos'),
     );
 
     // Escuchar mensajes del WebSocket de visualización
-    _channelVisualizacion.stream.listen((data) { 
+    _channelVisualizacion.stream.listen((data) {
+      print(data);
       try {
         final decodedData = json.decode(data); // Decodificar el string JSON
         if (decodedData['type'] == 'live_visualization') {
@@ -56,12 +57,13 @@ class VentaAbastecimientoNotifier
           state = state.copyWith(valores: liveVisualizationListData);
         }
       } catch (e) {
-        e;
+        print(e);
       }
     });
 
     // Escuchar mensajes del WebSocket de abastecimientos
-    _channelAbastecimientos.stream.listen((data) async { 
+    _channelAbastecimientos.stream.listen((data) async {
+      print(data);
       try {
         final decodedData = json.decode(data);
         if (decodedData['type'] == "dispatch") {
@@ -86,6 +88,7 @@ class VentaAbastecimientoNotifier
 
     // Escuchar mensajes del WebSocket de estado de mangueras
     _channelStatus.stream.listen((data) {
+      print(data);
       try {
         final decodedData = json.decode(data); // Decodificar el string JSON
         if (decodedData['type'] == 'pico_status') {
@@ -99,9 +102,7 @@ class VentaAbastecimientoNotifier
           state =
               state.copyWith(manguerasStatus: MangueraStatus(data: parsedData));
         }
-      } catch (e) {
-        e;
-      }
+      } catch (e) {}
     });
   }
 

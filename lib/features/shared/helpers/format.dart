@@ -58,11 +58,11 @@ class Format {
   static String getNombreCombustible(dynamic codigoCombustible) {
     final intCodigo = int.tryParse(codigoCombustible.toString());
     switch (intCodigo) {
-      case 57:
+      case 56:
         return 'GASOLINA EXTRA';
-      case 58:
+      case 57:
         return 'GASOLINA SUPER';
-      case 59:
+      case 11:
         return 'DIESEL PREMIUM';
       default:
         return 'DESCONOCIDO';
@@ -72,11 +72,11 @@ class Format {
   static int getCodigoCombustibleFromCodigo(String codigo) {
     switch (codigo) {
       case '0101':
-        return 57;
+        return 56; // EXTRA
       case '0185':
-        return 58;
+        return 57; // SUPER
       case '0121':
-        return 59;
+        return 11; // DIESEL PREMIUM
       default:
         return -1;
     }
@@ -85,11 +85,11 @@ class Format {
   static int getCodigoCombustible(int tanque) {
     switch (tanque) {
       case 1:
-        return 58; // GASOLINA SUPER
+        return 57; // GASOLINA SUPER
       case 2:
-        return 57; // GASOLINA EXTRA
+        return 56; // GASOLINA EXTRA
       case 3:
-        return 59; // DIESEL PREMIUM
+        return 11; // DIESEL PREMIUM
       default:
         return 0; // DESCONOCIDO
     }
@@ -97,11 +97,11 @@ class Format {
 
    static CombustibleInfo getCombustibleInfo(int? codigoCombustible) {
     switch (codigoCombustible) {
-      case 57:
+      case 56:
         return CombustibleInfo(descripcion: 'GASOLINA EXTRA', codigo: '0101');
-      case 58:
+      case 57:
         return CombustibleInfo(descripcion: 'GASOLINA SUPER', codigo: '0185');
-      case 59:
+      case 11:
         return CombustibleInfo(descripcion: 'DIESEL PREMIUM', codigo: '0121');
       default:
         return CombustibleInfo(descripcion: 'DESCONOCIDO', codigo: '0000');

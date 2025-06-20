@@ -5,6 +5,7 @@ import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.da
 import 'package:neitorvet/features/shared/errors/error_api.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
 import 'package:neitorvet/features/shared/utils/dio_zaracay.dart';
+import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_socket.dart';
 
 class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
   final Dio dio;
@@ -189,6 +190,36 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
     } catch (e) {
       return ResponseModoManguera(
         error: ErrorApi.getErrorMessage(e, 'setModoManguera'),
+      );
+    }
+  }
+
+  @override
+  Future<ResponseLastDispatch> getLastDispatch({
+    required String manguera,
+  }) async {
+    try {
+      // final data = {
+      //   'modo': modo, // "01", DESBLOQUEA   "02", '03' BLOQUEA
+      // };
+      if (manguera.isEmpty) {
+        return ResponseLastDispatch(
+          error: 'Seleccione una manguera',
+          abastecimientoSocket: null,
+        );
+      }
+      final res = await dioZaracay.get(
+        '/abastecimientos/$manguera/last_dispatch',
+      );
+      final abastecimientoSocket = AbastecimientoSocket.fromJson(res.data);
+      return ResponseLastDispatch(
+        error: '',
+        abastecimientoSocket: abastecimientoSocket,
+      );
+    } catch (e) {
+      return ResponseLastDispatch(
+        error: ErrorApi.getErrorMessage(e, 'getLastDispatch'),
+        abastecimientoSocket: null,
       );
     }
   }

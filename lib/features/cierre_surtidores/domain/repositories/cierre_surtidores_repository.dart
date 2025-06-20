@@ -30,4 +30,7 @@ abstract class CierreSurtidoresRepository {
     required String manguera,
     required String modo,
   });
+  Future<ResponseLastDispatch> getLastDispatch({
+    required String manguera,
+  });
 }

@@ -23,11 +23,18 @@ import 'package:esc_pos_utils/esc_pos_utils.dart';
 //   return DateFormat('dd/MM/yyyy HH:mm:ss').format(fecha);
 // }
 
+int? _ultimoTicketImp;
+
 Future<void> printTicket(
   Venta info,
   User? user,
   String nombreUsuario,
 ) async {
+  // Validación para evitar impresión doble
+  if (_ultimoTicketImp == info.venId) {
+    print('Ticket ya impreso, se omite impresión.');
+    return;
+  }
   final profile = await CapabilityProfile.load();
   final printer = NetworkPrinter(PaperSize.mm80, profile);
   final numero = Parse.parseDynamicToInt(info.manguera);
@@ -82,7 +89,7 @@ Future<void> printTicket(
     // Encabezado productos
     printer.row([
       PosColumn(
-          text: 'Descripción',
+          text: 'Descripcion',
           width: 6,
           styles: PosStyles(align: PosAlign.left, bold: true)),
       PosColumn(
@@ -137,7 +144,7 @@ Future<void> printTicket(
           styles: PosStyles(align: PosAlign.right)),
     ]);
     printer.hr();
-    printer.text('Autorización: ${validarCampo(info.venAutorizacion)}');
+    printer.text('Autorizacion: ${validarCampo(info.venAutorizacion)}');
     printer.text('\$0.81 : Monto equivalente al subsidio');
     printer.text('\$0.81 : valor total sin subsidio');
     printer.text('Manguera: ${info.manguera}');
@@ -146,7 +153,7 @@ Future<void> printTicket(
     printer.cut();
     printer.disconnect();
   } else {
-    // Maneja el error de conexión aquí
+    // Maneja el error de conexion aquí
     print('No se pudo conectar a la impresora');
   }
 }
@@ -213,7 +220,7 @@ Future<void> printEgresos(
     printer.cut();
     printer.disconnect();
   } else {
-    // Maneja el error de conexión aquí
+    // Maneja el error de conexion aquí
     print('No se pudo conectar a la impresora');
   }
 }
@@ -270,7 +277,7 @@ Future<void> printTicketBusqueda(
     printer
         .text('Transferencia: ${validarCampo(info.transferencia.toString())}');
     printer.text('Crédito: ${validarCampo(info.credito.toString())}');
-    printer.text('Depósito: ${validarCampo(info.deposito.toString())}');
+    printer.text('Deposito: ${validarCampo(info.deposito.toString())}');
     printer
         .text('Tar. Crédito: ${validarCampo(info.tarjetaCredito.toString())}');
     printer.text('Tar. Débito: ${validarCampo(info.tarjetaDebito.toString())}');
@@ -354,7 +361,7 @@ Future<void> printTicketDesdeLista(
     printer.text('Crédito: ${validarCampo(info.cajaCredito)}');
     printer.text('Monto: ${validarCampo(info.cajaMonto)}');
     printer.hr();
-    printer.text('Autorización: ${validarCampo(info.cajaAutorizacion)}');
+    printer.text('Autorizacion: ${validarCampo(info.cajaAutorizacion)}');
     printer.text('Detalle: ${validarCampo(info.cajaDetalle)}');
     printer.text('Usuario: ${user.usuario}');
     printer.text(nombreUsuario);
@@ -368,7 +375,7 @@ Future<void> printTicketDesdeLista(
   }
 }
 
-// Función para validar si una propiedad es null
+// Funcion para validar si una propiedad es null
 String validarCampo(dynamic valor) {
   return valor == null || valor.toString().isEmpty
       ? '--- --- ---'

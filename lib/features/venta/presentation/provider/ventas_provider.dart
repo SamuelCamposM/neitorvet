@@ -14,7 +14,6 @@ import 'package:neitorvet/features/venta/domain/repositories/ventas_repository.d
 import 'package:neitorvet/features/venta/presentation/provider/ventas_repository_provider.dart';
 
 import 'package:neitorvet/features/shared/provider/socket.dart';
-import 'package:neitorvet/features/venta/presentation/widgets/prit_Sunmi.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 enum VentaEstado {
@@ -39,7 +38,6 @@ final ventasProvider =
     StateNotifierProvider.autoDispose<VentasNotifier, VentasState>(
   (ref) {
     final authState = ref.watch(authProvider);
-    final getUsuarioNombre = ref.watch(authProvider.notifier).getUsuarioNombre;
     final ventasRepository = ref.watch(ventasRepositoryProvider);
     final cierreSurtidoresRepository =
         ref.watch(cierreSurtidoresRepositoryProvider);
@@ -52,7 +50,6 @@ final ventasProvider =
       user: authState.user!,
       isAdmin: authState.isAdmin,
       cierreSurtidoresRepository: cierreSurtidoresRepository,
-      getUsuarioNombre: getUsuarioNombre,
     );
   },
 );
@@ -65,7 +62,6 @@ class VentasNotifier extends StateNotifier<VentasState> {
   final bool isAdmin;
   final Future<void> Function(BuildContext? context, String infoPdf)
       downloadPDF;
-  final Future<UsuarioNombreResponse> Function(String) getUsuarioNombre;
   VentasNotifier({
     required this.ventasRepository,
     required this.socket,
@@ -73,7 +69,6 @@ class VentasNotifier extends StateNotifier<VentasState> {
     required this.downloadPDF,
     required this.cierreSurtidoresRepository,
     required this.isAdmin,
-    required this.getUsuarioNombre,
   }) : super(VentasState()) {
     print('INIT VENTAS PROVIDER');
     _initializeSocketListeners();
@@ -382,14 +377,12 @@ class VentasNotifier extends StateNotifier<VentasState> {
     socket.on("server:error", _onError);
   }
 
-  void _onConnect(dynamic data) { 
-  }
+  void _onConnect(dynamic data) {}
 
-  void _onDisconnect(dynamic data) { 
-  }
+  void _onDisconnect(dynamic data) {}
 
   void _onActualizadoExitoso(dynamic data) {
-    try { 
+    try {
       if (mounted) {
         if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
           // Edita de la lista de ventas
@@ -400,29 +393,32 @@ class VentasNotifier extends StateNotifier<VentasState> {
           state = state.copyWith(ventas: updatedVentasList);
         }
       }
-    } catch (e) { 
-    }
+    } catch (e) {}
   }
 
   void _onGuardadoExitoso(dynamic data) async {
     try {
-      if (mounted) { 
+      if (mounted) {
         if (data['tabla'] == 'venta' && data['rucempresa'] == user.rucempresa) {
-          // Agrega a la lista de ventas
           final newVenta = Venta.fromJson(data);
           if (isAdmin || newVenta.venUser == user.usuario) {
+            // Evita impresión doble
+
+            state = state.copyWith(
+              ventas: [
+                newVenta,
+                ...state.ventas,
+              ],
+            );
             if (newVenta.venUser == user.usuario) {
-              printTicket(newVenta, user, user.nombre);
+              state = state.copyWith(
+                lastVenta: newVenta,
+              );
             }
-            state = state.copyWith(ventas: [
-              newVenta,
-              ...state.ventas,
-            ]);
           }
         }
       }
-    } catch (e) { 
-    }
+    } catch (e) {}
   }
 
   void _onError(dynamic data) {
@@ -431,8 +427,7 @@ class VentasNotifier extends StateNotifier<VentasState> {
         state = state.copyWith(
             error: data['msg'] ?? "Hubo un error ${data['tabla']}");
       }
-    } catch (e) { 
-    }
+    } catch (e) {}
   }
 
   @override
@@ -468,45 +463,50 @@ class VentasState {
   final bool isSearching;
   final bool mostrarImprimirFactura;
   final List<Surtidor> surtidoresData;
-  VentasState(
-      {this.isLastPage = false,
-      this.isLoading = false,
-      this.cantidad = 10,
-      this.page = 0,
-      this.ventas = const [],
-      this.error = '',
-      this.total = 0,
-      this.search = '',
-      this.estado = VentaEstado.facturas,
-      this.input = 'venId',
-      this.orden = false,
-      this.searchedVentas = const [],
-      this.totalSearched = 0,
-      this.formasPago = const [],
-      this.busquedaVenta = const BusquedaVenta(),
-      this.isSearching = false,
-      this.mostrarImprimirFactura = false,
-      this.surtidoresData = const []});
+  final Venta? lastVenta;
+  VentasState({
+    this.isLastPage = false,
+    this.isLoading = false,
+    this.cantidad = 10,
+    this.page = 0,
+    this.ventas = const [],
+    this.error = '',
+    this.total = 0,
+    this.search = '',
+    this.estado = VentaEstado.facturas,
+    this.input = 'venId',
+    this.orden = false,
+    this.searchedVentas = const [],
+    this.totalSearched = 0,
+    this.formasPago = const [],
+    this.busquedaVenta = const BusquedaVenta(),
+    this.isSearching = false,
+    this.mostrarImprimirFactura = false,
+    this.surtidoresData = const [],
+    this.lastVenta,
+  });
 
-  VentasState copyWith(
-      {bool? isLastPage,
-      bool? isLoading,
-      int? cantidad,
-      int? page,
-      List<Venta>? ventas,
-      String? error,
-      int? total,
-      String? search,
-      VentaEstado? estado,
-      String? input,
-      bool? orden,
-      List<Venta>? searchedVentas,
-      int? totalSearched,
-      List<FormaPago>? formasPago,
-      BusquedaVenta? busquedaVenta,
-      bool? isSearching,
-      bool? mostrarImprimirFactura,
-      List<Surtidor>? surtidoresData}) {
+  VentasState copyWith({
+    bool? isLastPage,
+    bool? isLoading,
+    int? cantidad,
+    int? page,
+    List<Venta>? ventas,
+    String? error,
+    int? total,
+    String? search,
+    VentaEstado? estado,
+    String? input,
+    bool? orden,
+    List<Venta>? searchedVentas,
+    int? totalSearched,
+    List<FormaPago>? formasPago,
+    BusquedaVenta? busquedaVenta,
+    bool? isSearching,
+    bool? mostrarImprimirFactura,
+    List<Surtidor>? surtidoresData,
+    Venta? lastVenta,
+  }) {
     return VentasState(
       isLastPage: isLastPage ?? this.isLastPage,
       isLoading: isLoading ?? this.isLoading,
@@ -527,6 +527,7 @@ class VentasState {
       mostrarImprimirFactura:
           mostrarImprimirFactura ?? this.mostrarImprimirFactura,
       surtidoresData: surtidoresData ?? this.surtidoresData,
+      lastVenta: lastVenta ?? this.lastVenta,
     );
   }
 }

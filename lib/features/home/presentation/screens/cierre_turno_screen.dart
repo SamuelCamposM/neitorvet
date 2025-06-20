@@ -66,7 +66,7 @@ class _HomeView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Ver: 2.046',
+                      'Ver: 2.050',
                       style: TextStyle(
                         fontSize: size.iScreen(1.7),
                         fontWeight: FontWeight.bold,

@@ -72,6 +72,7 @@ class Venta {
   final double? totFinal;
   final Abastecimiento? abastecimiento;
   final String manguera;
+  final String nombreUsuario;
   Venta({
     this.venOtros,
     required this.venId,
@@ -133,6 +134,7 @@ class Venta {
     this.abastecimiento,
     required this.manguera,
     required this.venFlota,
+    this.nombreUsuario = '',
   });
   static Venta defaultVenta() {
     return Venta(
@@ -191,6 +193,7 @@ class Venta {
       venProductos: [],
       manguera: '',
       venFlota: '',
+      nombreUsuario: '',
     );
   }
 
@@ -261,6 +264,7 @@ class Venta {
         abastecimiento: json['abastecimiento'],
         manguera: Parse.parseDynamicToString(json['manguera']),
         venFlota: Parse.parseDynamicToString(json['venFlota']),
+        nombreUsuario: Parse.parseDynamicToString(json['nombre_usuario']),
       );
 
   Map<String, dynamic> toJson() => {
@@ -324,6 +328,7 @@ class Venta {
         "abastecimiento": abastecimiento?.toJson(),
         "manguera": manguera,
         "venFlota": venFlota,
+        "nombre_usuario": nombreUsuario,
       };
   static double cincoDecimales(double numero) {
     return double.parse(numero.toStringAsFixed(7));
@@ -480,6 +485,7 @@ class VentaForm extends Venta {
     super.totInicio,
     super.totFinal,
     super.abastecimiento,
+    super.nombreUsuario,
   });
 
   VentaForm copyWith({
@@ -547,6 +553,7 @@ class VentaForm extends Venta {
     Abastecimiento? abastecimiento,
     String? manguera,
     String? venFlota,
+    String? nombreUsuario,
   }) {
     final venRucClienteInput = venRucCliente != null
         ? GenericRequiredInput.dirty(venRucCliente)
@@ -623,6 +630,7 @@ class VentaForm extends Venta {
       venEmpIva: venEmpIva ?? this.venEmpIva,
       manguera: manguera ?? this.manguera,
       venFlota: venFlota ?? this.venFlota,
+      nombreUsuario: nombreUsuario ?? this.nombreUsuario,
 
       //*POSIBLES NULOS
       venOtros: venOtros ?? this.venOtros,
@@ -695,6 +703,7 @@ class VentaForm extends Venta {
         abastecimiento: abastecimiento,
         manguera: manguera,
         venFlota: venFlota,
+        nombreUsuario: nombreUsuario,
       );
 
   factory VentaForm.fromVenta(Venta venta) {
@@ -763,6 +772,7 @@ class VentaForm extends Venta {
             abastecimiento: venta.abastecimiento,
             manguera: venta.manguera,
             venFlota: venta.venFlota,
+            nombreUsuario: venta.nombreUsuario,
           )
         : VentaForm(
             venTotalInput: MinValueCliente.dirty(venta.venTotal,
@@ -829,6 +839,7 @@ class VentaForm extends Venta {
             abastecimiento: venta.abastecimiento,
             manguera: venta.manguera,
             venFlota: venta.venFlota,
+            nombreUsuario: venta.nombreUsuario,
           );
   }
 }

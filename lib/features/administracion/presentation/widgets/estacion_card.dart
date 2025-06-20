@@ -53,7 +53,7 @@ class EstacionCard extends ConsumerWidget {
 
   // Nueva función para obtener el color según el producto y el dato
   Color getColorForProducto(String nombreProducto, Datum? dato) {
-    if (nombreProducto == 'DIESEL PREMIUN' &&
+    if (nombreProducto == 'DIESEL PREMIUM' &&
         (dato == Datum.L || dato == Datum.B)) {
       return Colors.yellow.shade300;
     } else if (nombreProducto == 'GASOLINA EXTRA' &&

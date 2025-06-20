@@ -1,5 +1,3 @@
-import 'package:esc_pos_printer/esc_pos_printer.dart';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -96,30 +94,30 @@ class _HomeView extends ConsumerWidget {
                   if (authState.isAdmin || authState.isDemo) const SizedBox(),
                   Column(
                     children: [
-                      IconButton(
-                          onPressed: () async {
-                            final profile = await CapabilityProfile.load();
-                            final printer =
-                                NetworkPrinter(PaperSize.mm80, profile);
+                      // IconButton(
+                      //     onPressed: () async {
+                      //       final profile = await CapabilityProfile.load();
+                      //       final printer =
+                      //           NetworkPrinter(PaperSize.mm80, profile);
 
-                            // Cambia la IP y puerto por los de tu impresora
-                            final result = await printer.connect(
-                              '192.168.1.91',
-                              port: 9100,
-                            );
+                      //       // Cambia la IP y puerto por los de tu impresora
+                      //       final result = await printer.connect(
+                      //         '192.168.1.91',
+                      //         port: 9100,
+                      //       );
 
-                            if (result == PosPrintResult.success) {
-                              printer.text('¡Hola desde Flutter!');
-                              printer.cut();
-                              printer.disconnect();
-                            } else {
-                              NotificationsService.show(
-                                  context,
-                                  'No se pudo conectar a la impresora',
-                                  SnackbarCategory.error);
-                            }
-                          },
-                          icon: Icon(Icons.print)),
+                      //       if (result == PosPrintResult.success) {
+                      //         printer.text('¡Hola desde Flutter!');
+                      //         printer.cut();
+                      //         printer.disconnect();
+                      //       } else {
+                      //         NotificationsService.show(
+                      //             context,
+                      //             'No se pudo conectar a la impresora',
+                      //             SnackbarCategory.error);
+                      //       }
+                      //     },
+                      //     icon: Icon(Icons.print)),
                       if (!authState.isAdmin && !authState.isDemo)
                         BotonTurno(
                           size: size,
@@ -170,7 +168,7 @@ class _HomeView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Ver: 2.046',
+                      'Ver: 2.050',
                       style: TextStyle(
                         fontSize: size.iScreen(1.7),
                         fontWeight: FontWeight.bold,
