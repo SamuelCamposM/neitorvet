@@ -65,6 +65,24 @@ class ResponseLastDispatch {
   });
 }
 
+class ResponseAbastecimientoTieneFactura {
+  final String error;
+  final bool tieneFactura;
+  ResponseAbastecimientoTieneFactura({
+    required this.error,
+    required this.tieneFactura,
+  });
+}
+
+class ResponseValorManguera {
+  final String error;
+  final double valorManguera;
+  ResponseValorManguera({
+    required this.error,
+    required this.valorManguera,
+  });
+}
+
 abstract class CierreSurtidoresDatasource {
   Future<ResponseCierreSurtidores> getCierreSurtidoresByPage(
       {required int cantidad,
@@ -101,6 +119,13 @@ abstract class CierreSurtidoresDatasource {
     required String modo,
   });
   Future<ResponseLastDispatch> getLastDispatch({
+    required String manguera,
+  });
+  Future<ResponseAbastecimientoTieneFactura>
+      getResponseAbastecimientoTieneFactura({
+    required String manguera,
+  });
+  Future<ResponseValorManguera> getValorManguera({
     required String manguera,
   });
 }

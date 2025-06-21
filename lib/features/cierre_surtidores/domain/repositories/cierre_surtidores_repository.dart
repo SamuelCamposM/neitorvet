@@ -33,4 +33,11 @@ abstract class CierreSurtidoresRepository {
   Future<ResponseLastDispatch> getLastDispatch({
     required String manguera,
   });
+  Future<ResponseAbastecimientoTieneFactura>
+      getResponseAbastecimientoTieneFactura({
+    required String manguera,
+  });
+  Future<ResponseValorManguera> getValorManguera({
+    required String manguera,
+  });
 }

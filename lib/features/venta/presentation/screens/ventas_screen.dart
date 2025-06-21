@@ -96,8 +96,7 @@ class VentasViewState extends ConsumerState<VentasScreen> {
       (prev, next) {
         print(prev?.lastVenta?.venId);
         print(next.lastVenta?.venId);
-        if (prev?.lastVenta != null &&
-            prev?.lastVenta?.venId != next.lastVenta?.venId) {
+        if (prev?.lastVenta?.venId != next.lastVenta?.venId) {
           if (next.lastVenta!.venUser == authState.user!.usuario) {
             printTicket(
                 next.lastVenta!, authState.user!, authState.user!.usuario);

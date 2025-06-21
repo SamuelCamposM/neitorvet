@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
-import 'package:neitorvet/features/administracion/domain/entities/manguera_status.dart';
 import 'package:neitorvet/features/administracion/presentation/widgets/estacion_card.dart';
 import 'package:neitorvet/features/auth/presentation/providers/auth_provider.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
@@ -124,9 +123,7 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
             ventaFNotifier.setValor(next.abastecimientoSocket!.total);
             ventaFNotifier.updateState(
               ventaForm: ventaFState.ventaForm.copyWith(
-                manguera: next.abastecimientoSocket!.pico.toString() != ''
-                    ? next.abastecimientoSocket!.pico.toString()
-                    : tabFind.manguera,
+                manguera: next.abastecimientoSocket!.pico.toString(),
                 // idAbastecimiento: Parse.parseDynamicToInt(
                 //     next.abastecimientoSocket!.indiceMemoria),
                 totInicio: next.abastecimientoSocket!.totalizadorInicial,
@@ -181,10 +178,10 @@ class VentaTabsScreenState extends ConsumerState<VentaTabsScreen> {
               monto: next.abastecimientoSocket!.total.toString(),
             );
             ventaFNotifier.agregarProducto(null, null, sinAlerta: true);
-            final volver = await ventaFNotifier.onFormSubmit();
-            if (volver && context.mounted) {
-              context.pop();
-            }
+            // final volver = await ventaFNotifier.onFormSubmit();
+            // if (volver && context.mounted) {
+            //   context.pop();
+            // }
           }
         }
       },
@@ -331,7 +328,7 @@ class _FloatingButton extends ConsumerWidget {
     final ventasState = ref.watch(ventasProvider);
     final ventaFState = ref.watch(ventaFormProvider(ventaFormProviderParams));
     final ventaFNotifier =
-        ref.watch(ventaFormProvider(ventaFormProviderParams).notifier);
+        ref.read(ventaFormProvider(ventaFormProviderParams).notifier);
 
     return FloatingActionButton(
       onPressed: () async {
@@ -434,7 +431,6 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
             children: [
               Row(
                 children: [
-                  Text(socket.connected ? 'Conectado' : 'Desconectado'),
                   Text(
                     'Factura #:  ',
                     style: TextStyle(
@@ -503,11 +499,12 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
                           ? IconButton(
                               onPressed: () async {
                                 final res = await cupertinoModal(
-                                    context,
-                                    size,
-                                    '¿Está seguro que desea cambiar a ${ventaFState.ventaForm.venRucCliente.length == 10 ? 'RUC' : "CÉDULA"}?',
-                                    ['SI', 'NO'],
-                                    warning: true);
+                                  context,
+                                  size,
+                                  '¿Está seguro que desea cambiar a ${ventaFState.ventaForm.venRucCliente.length == 10 ? 'RUC' : "CÉDULA"}?',
+                                  ['SI', 'NO'],
+                                  warning: true,
+                                );
 
                                 if (res == 'SI') {
                                   String nuevoRucCliente =

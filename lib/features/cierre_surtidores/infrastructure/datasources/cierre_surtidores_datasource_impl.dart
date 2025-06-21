@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:neitorvet/features/administracion/domain/entities/live_visualization.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/datasources/cierre_surtidores_datasource.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/cierre_surtidor.dart';
 import 'package:neitorvet/features/cierre_surtidores/domain/entities/surtidor.dart';
 import 'package:neitorvet/features/shared/errors/error_api.dart';
 import 'package:neitorvet/features/shared/helpers/format.dart';
+import 'package:neitorvet/features/shared/helpers/parse.dart';
 import 'package:neitorvet/features/shared/utils/dio_zaracay.dart';
 import 'package:neitorvet/features/venta/domain/entities/socket/abastecimiento_socket.dart';
 
@@ -221,6 +223,56 @@ class CierreSurtidoresDatasourceImpl extends CierreSurtidoresDatasource {
         error: ErrorApi.getErrorMessage(e, 'getLastDispatch'),
         abastecimientoSocket: null,
       );
+    }
+  }
+
+  @override
+  Future<ResponseAbastecimientoTieneFactura>
+      getResponseAbastecimientoTieneFactura({required String manguera}) async {
+    try {
+      final data = {
+        'pistola': manguera, // "01", DESBLOQUEA   "02", '03' BLOQUEA
+      };
+
+      final res = await dio.post('/abastecimientos/no_facturado_por_pistola',
+          data: data);
+
+      return ResponseAbastecimientoTieneFactura(
+        error: '',
+        tieneFactura: res.data['pertenece'] == 'TIENE FACTURA',
+      );
+    } catch (e) {
+      return ResponseAbastecimientoTieneFactura(
+        error: ErrorApi.getErrorMessage(
+            e, 'getResponseAbastecimientoTieneFactura'),
+        tieneFactura: true,
+      );
+    }
+  }
+
+  @override
+  Future<ResponseValorManguera> getValorManguera(
+      {required String manguera}) async {
+    try {
+      final response = await dioZaracay.get('/despachos/visualizacion');
+      final List<LiveVisualization> valoresMangueras = (response.data as List)
+          .map((e) => LiveVisualization.fromJson(e))
+          .toList();
+
+      final valorManguera = valoresMangueras
+          .firstWhere(
+              (element) => element.pico == Parse.parseDynamicToInt(manguera),
+              orElse: () => LiveVisualization(
+                  pico: Parse.parseDynamicToInt(manguera), valorActual: 0.0))
+          .valorActual;
+      return ResponseValorManguera(
+        valorManguera: valorManguera,
+        error: '',
+      );
+    } catch (e) {
+      return ResponseValorManguera(
+          valorManguera: 0,
+          error: ErrorApi.getErrorMessage(e, 'getValorManguera'));
     }
   }
 }

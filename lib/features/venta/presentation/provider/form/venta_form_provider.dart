@@ -67,6 +67,9 @@ final ventaFormProvider = StateNotifierProvider.family
     removeTabById: removeTabById,
     getSecuencia: ventasProviderNotifier.getSecuencia,
     getVentaById: ventasProviderNotifier.getVentaById,
+    getResponseAbastecimientoTieneFactura:
+        surtidoresProvider.getResponseAbastecimientoTieneFactura,
+    getValorManguera: surtidoresProvider.getValorManguera,
     iva: iva,
     formasPago: formasPago,
     rol: rol,
@@ -90,7 +93,10 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
   final Future<GetVentaResponse> Function(int venId) getVentaById;
   final Future<ResponseLastDispatch> Function({required String manguera})
       getLastDispatch;
-
+  final Future<ResponseAbastecimientoTieneFactura> Function(
+      {required String manguera}) getResponseAbastecimientoTieneFactura;
+  final Future<ResponseValorManguera> Function({required String manguera})
+      getValorManguera;
   VentaFormNotifier({
     required this.getSecuencia,
     required this.setModoManguera,
@@ -105,6 +111,8 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     required this.rucempresa,
     required this.usuario,
     required this.getLastDispatch,
+    required this.getResponseAbastecimientoTieneFactura,
+    required this.getValorManguera,
   }) : super(VentaFormState(
             ventaForm: VentaForm.fromVenta(Venta.defaultVenta()),
             ventaFormProviderParams: ventaFormProviderParams
@@ -520,7 +528,37 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     state = state.copyWith(estadoManguera: estadoManguera);
   }
 
+  Future<double?> setValorMangueraRefresh() async {
+    final res = await getValorManguera(manguera: state.manguera);
+    if (res.error.isNotEmpty) {
+      state = state.copyWith(error: res.error);
+      _resetError();
+      return 0;
+    }
+    setValor(res.valorManguera);
+    return res.valorManguera;
+  }
+
   void setAbastecimiento() async {
+    final valorManguera = await setValorMangueraRefresh();
+    if (valorManguera != 0) {
+      return;
+    }
+    final resTieneFactura = await getResponseAbastecimientoTieneFactura(
+      manguera: state.manguera,
+    );
+    if (resTieneFactura.error.isNotEmpty) {
+      state = state.copyWith(error: resTieneFactura.error);
+      _resetError();
+      return;
+    }
+    if (!resTieneFactura.tieneFactura) {
+      state = state.copyWith(
+        error: 'No hay abastecimiento nuevo.',
+      );
+      _resetError();
+      return;
+    }
     final res = await getLastDispatch(
       manguera: state.manguera,
     );
@@ -534,9 +572,11 @@ class VentaFormNotifier extends StateNotifier<VentaFormState> {
     final abastecimientoSocket = res.abastecimientoSocket;
 
     if (abastecimientoSocket != null) {
-      if (
-          abastecimientoSocket.indiceMemoria == state.indiceMemoria
-           &&
+      state = state.copyWith(
+          ventaForm: state.ventaForm.copyWith(
+        venProductos: [],
+      ));
+      if (abastecimientoSocket.indiceMemoria == state.indiceMemoria &&
           Parse.parseDynamicToString(abastecimientoSocket.pico) !=
               state.manguera) {
         state = state.copyWith(

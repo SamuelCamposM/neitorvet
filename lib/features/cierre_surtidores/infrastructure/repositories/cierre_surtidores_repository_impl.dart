@@ -76,4 +76,18 @@ class CierreSurtidoresRepositoryImpl extends CierreSurtidoresRepository {
   Future<ResponseLastDispatch> getLastDispatch({required String manguera}) {
     return datasource.getLastDispatch(manguera: manguera);
   }
+
+  @override
+  Future<ResponseAbastecimientoTieneFactura>
+      getResponseAbastecimientoTieneFactura({
+    required String manguera,
+  }) {
+    return datasource.getResponseAbastecimientoTieneFactura(manguera: manguera);
+  }
+
+  @override
+  Future<ResponseValorManguera> getValorManguera(
+      {required String manguera}) {
+    return datasource.getValorManguera(manguera: manguera);
+  }
 }

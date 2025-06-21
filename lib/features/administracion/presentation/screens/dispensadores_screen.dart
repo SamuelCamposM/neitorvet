@@ -30,10 +30,9 @@ class _DispensadoresScreenState extends ConsumerState<DispensadoresScreen> {
     super.initState();
     // Conectar al WebSocket
     _channelStatus = WebSocketChannel.connect(
-      Uri.parse('wss://zaracayapi.neitor.com/ws/status_picos'),
-    );
+        Uri.parse('ws://186.101.181.90:9111/ws/status_picos'));
     _channelPrecios = WebSocketChannel.connect(
-      Uri.parse('wss://zaracayapi.neitor.com/ws/despachos_visualizacion'),
+      Uri.parse('ws://186.101.181.90:9111/ws/despachos_visualizacion'),
     );
 
     // Escuchar mensajes segúrate de importar esto para usar json.decode
